@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, AlertCircle } from 'lucide-react';
+import { X, Send, Sparkles, AlertCircle } from 'lucide-react';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -137,7 +137,7 @@ export const AIChatbot: React.FC = () => {
         if (!response.ok) throw new Error('API request failed');
         const data = await response.json();
         const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't process that request. How else can I assist you?";
-        
+
         setMessages(prev => [...prev, { role: 'bot', content: botReply }]);
       } catch (err) {
         console.warn('Gemini API call failed, falling back to mock response:', err);
@@ -160,7 +160,7 @@ export const AIChatbot: React.FC = () => {
   return (
     <>
       {/* Floating Chat Button */}
-      <button 
+      <button
         className={`chatbot-float-btn ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         title="EEE AI Chatbot"
@@ -168,10 +168,10 @@ export const AIChatbot: React.FC = () => {
         {isOpen
           ? <X size={24} />
           : <img
-              src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmM2eTFnN3BzbXRuZW50cjl5OHo1eTF6aGdvMzZkNzZ1d3lnanN5ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/RbDKaczqWovIugyJmW/giphy.gif"
-              alt="AI Bot"
-              style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
-            />
+            src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmM2eTFnN3BzbXRuZW50cjl5OHo1eTF6aGdvMzZkNzZ1d3lnanN5ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/RbDKaczqWovIugyJmW/giphy.gif"
+            alt="AI Bot"
+            style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+          />
         }
         {!isOpen && (
           <span className="chatbot-badge">
@@ -211,7 +211,7 @@ export const AIChatbot: React.FC = () => {
                 <span>Using offline rules. Add a Gemini API key in .env to unlock AI reasoning.</span>
               </div>
             )}
-            
+
             {messages.map((msg, idx) => (
               <div key={idx} className={`chat-bubble-container ${msg.role}`}>
                 <div className={`chat-bubble ${msg.role}`}>
@@ -219,7 +219,7 @@ export const AIChatbot: React.FC = () => {
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="chat-bubble-container bot">
                 <div className="chat-bubble bot typing">

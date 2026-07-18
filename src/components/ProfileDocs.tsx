@@ -1,0 +1,320 @@
+import React, { useState, useEffect } from 'react';
+import { dbService } from '../services/db';
+import type { Student, StudentDoc } from '../services/db';
+import { ArrowLeft, Upload, Download, Trash2, Search, UserCheck } from 'lucide-react';
+
+interface ProfileDocsProps {
+  currentEmail: string;
+  isAdmin: boolean;
+  onBack: () => void;
+}
+
+export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin, onBack }) => {
+  const [student, setStudent] = useState<Student | null>(null);
+  const [docs, setDocs] = useState<StudentDoc[]>([]);
+  
+  // Admin states
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStudentEmail, setSelectedStudentEmail] = useState<string | null>(null);
+  
+  // Editing state
+  const [name, setName] = useState('');
+  const [rollNo, setRollNo] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  // Load student data
+  useEffect(() => {
+    loadData();
+  }, [currentEmail, selectedStudentEmail, isAdmin]);
+
+  const loadData = async () => {
+    if (isAdmin) {
+      const list = await dbService.fetchAllStudents();
+      setAllStudents(list);
+
+      if (selectedStudentEmail) {
+        const p = await dbService.getStudentProfile(selectedStudentEmail);
+        if (p) {
+          setStudent(p);
+          setName(p.name);
+          setRollNo(p.rollNo);
+          const d = await dbService.getStudentDocuments(p.email);
+          setDocs(d);
+        }
+      } else {
+        setStudent(null);
+        setDocs([]);
+      }
+    } else {
+      const p = await dbService.getStudentProfile(currentEmail);
+      if (p) {
+        setStudent(p);
+        setName(p.name);
+        setRollNo(p.rollNo);
+        const d = await dbService.getStudentDocuments(p.email);
+        setDocs(d);
+      }
+    }
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!student) return;
+    setSaving(true);
+    setStatusMessage('');
+
+    try {
+      await dbService.updateStudentProfile(student.email, { name, rollNo });
+      setStatusMessage('Profile updated successfully!');
+      setTimeout(() => setStatusMessage(''), 3000);
+      loadData();
+    } catch (err) {
+      console.error(err);
+      setStatusMessage('Error updating profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !student) return;
+
+    if (file.type !== 'application/pdf') {
+      setStatusMessage('Only PDF documents are supported.');
+      return;
+    }
+
+    setUploading(true);
+    setStatusMessage('');
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Data = event.target?.result as string;
+      const sizeKB = Math.round(file.size / 1024);
+      
+      try {
+        await dbService.uploadDocument(student.email, {
+          name: file.name,
+          size: `${sizeKB} KB`,
+          type: file.type,
+          dataUrl: base64Data
+        });
+        setStatusMessage('Document uploaded successfully!');
+        setTimeout(() => setStatusMessage(''), 3000);
+        loadData();
+      } catch (err) {
+        console.error(err);
+        setStatusMessage('Error uploading document.');
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteDoc = async (id: string) => {
+    if (!student) return;
+    if (!window.confirm('Are you sure you want to delete this document?')) return;
+
+    try {
+      await dbService.deleteDocument(student.email, id);
+      setStatusMessage('Document deleted.');
+      setTimeout(() => setStatusMessage(''), 3000);
+      loadData();
+    } catch (err) {
+      console.error(err);
+      setStatusMessage('Error deleting document.');
+    }
+  };
+
+  const downloadDoc = (doc: StudentDoc) => {
+    const link = document.createElement('a');
+    link.href = doc.dataUrl;
+    link.download = doc.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Filter students for admin search
+  const filteredStudents = allStudents.filter(s => 
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.rollNo.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="panel-view">
+      <div className="panel-header">
+        <button onClick={selectedStudentEmail ? () => setSelectedStudentEmail(null) : onBack} className="back-btn">
+          <ArrowLeft size={20} />
+        </button>
+        <span className="panel-title">
+          {isAdmin && !selectedStudentEmail ? 'Student Database' : 'Profile & Documents'}
+        </span>
+      </div>
+
+      <div className="panel-body">
+        {/* --- ADMIN LIST VIEW --- */}
+        {isAdmin && !selectedStudentEmail && (
+          <>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Search by name or roll number..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="form-input"
+                style={{ paddingLeft: '36px' }}
+              />
+              <Search 
+                size={16} 
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} 
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
+              <p className="form-label">Select a student to view details:</p>
+              {filteredStudents.length === 0 ? (
+                <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', padding: '20px 0' }}>
+                  No students found.
+                </p>
+              ) : (
+                filteredStudents.map(s => (
+                  <div 
+                    key={s.id} 
+                    className="attendance-mark-item" 
+                    onClick={() => setSelectedStudentEmail(s.email)}
+                    style={{ cursor: 'pointer', transition: 'var(--transition-fast)' }}
+                  >
+                    <div>
+                      <h4 style={{ fontSize: 13, fontWeight: '700' }}>{s.name}</h4>
+                      <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Roll: {s.rollNo} | {s.email}</p>
+                    </div>
+                    <UserCheck size={18} style={{ color: 'var(--accent-blue)' }} />
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
+
+        {/* --- PROFILE DETAILS & DOCS VIEW --- */}
+        {(!isAdmin || selectedStudentEmail) && student && (
+          <>
+            {isAdmin && (
+              <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: 10, borderRadius: 8, fontSize: 11, border: '1px solid rgba(56,189,248,0.2)' }}>
+                Viewing details for: <strong>{student.name} ({student.rollNo})</strong>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="form-group">
+                <label className="form-label">Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="form-input"
+                  disabled={isAdmin} // Admins view student profiles, students edit
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Roll Number</label>
+                <input
+                  type="text"
+                  value={rollNo}
+                  onChange={e => setRollNo(e.target.value)}
+                  className="form-input"
+                  disabled={isAdmin}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email Address</label>
+                <input
+                  type="email"
+                  value={student.email}
+                  className="form-input"
+                  disabled
+                />
+              </div>
+
+              {!isAdmin && (
+                <button type="submit" className="btn-primary" disabled={saving}>
+                  {saving ? 'Saving...' : 'Update Profile Info'}
+                </button>
+              )}
+            </form>
+
+            <hr style={{ border: 'none', height: 1, backgroundColor: 'var(--card-border)', margin: '10px 0' }} />
+
+            {/* Document Uploader */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <h4 style={{ fontSize: 13, fontWeight: '700' }}>Uploaded PDF Documents</h4>
+                {!isAdmin && (
+                  <label className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 11 }}>
+                    <Upload size={14} />
+                    Upload PDF
+                    <input 
+                      type="file" 
+                      accept="application/pdf" 
+                      onChange={handleFileUpload} 
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                )}
+              </div>
+
+              {uploading && (
+                <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8, textAlign: 'center', fontSize: 12 }}>
+                  Encoding file to Base64 and uploading...
+                </div>
+              )}
+
+              {statusMessage && (
+                <div style={{ padding: 8, background: 'var(--bg-tertiary)', borderRadius: 6, fontSize: 11, textAlign: 'center', color: 'var(--accent-gold)' }}>
+                  {statusMessage}
+                </div>
+              )}
+
+              <div className="document-list">
+                {docs.length === 0 ? (
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>
+                    No PDF documents stored.
+                  </p>
+                ) : (
+                  docs.map(doc => (
+                    <div key={doc.id} className="document-item">
+                      <div className="doc-info">
+                        <span className="doc-name" title={doc.name}>{doc.name}</span>
+                        <span className="doc-meta">{doc.size} | {doc.uploadedAt}</span>
+                      </div>
+                      <div className="doc-actions">
+                        <button onClick={() => downloadDoc(doc)} className="doc-action-btn" title="Download Document">
+                          <Download size={16} />
+                        </button>
+                        {!isAdmin && (
+                          <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" title="Delete Document">
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};

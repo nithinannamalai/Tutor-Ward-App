@@ -1,65 +1,83 @@
 import React from 'react';
-import { User, Sparkles, Award, GraduationCap, UserCheck, ChevronRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Award, GraduationCap, UserCheck, ChevronRight, ShieldCheck, BookOpen, Calendar, Hash, Layers } from 'lucide-react';
+import type { UserProfile } from '../App';
 
 interface StudentDetailsCardProps {
   isAuthenticated: boolean;
-  currentUser: { email: string; name: string; rollNo: string; role: string } | null;
+  currentUser: UserProfile | null;
   onOpenProfile: () => void;
   onOpenSignIn: () => void;
   onOpenTab: (tabKey: string) => void;
 }
 
 export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
-  isAuthenticated,
   currentUser,
   onOpenProfile,
-  onOpenSignIn,
   onOpenTab
 }) => {
   const isAdmin = currentUser?.role === 'teacher';
 
+  const name = currentUser?.name || 'Nithin Annamalai';
+  const rollNo = currentUser?.rollNo || '7377221EE001';
+  const className = currentUser?.className || 'III EEE-A';
+  const yearOfStudy = currentUser?.yearOfStudy || '3rd Year';
+  const semester = currentUser?.semester || 'Sem VI';
+  const department = currentUser?.department || 'Dept of EEE';
+
   return (
     <div className="student-details-above-notice">
       <div className="student-card-inner">
-        {/* Top User Info Row */}
+        {/* Top Header Info Row */}
         <div className="student-info-top">
           <div className="student-profile-left">
             <div className="student-avatar-badge">
-              {isAuthenticated && currentUser ? (
-                currentUser.name.charAt(0)
-              ) : (
-                <User size={22} />
-              )}
+              {name.charAt(0)}
               <span className="student-online-dot" />
             </div>
 
             <div className="student-identity-text">
               <div className="student-name-row">
-                <h3>{isAuthenticated && currentUser ? currentUser.name : 'Guest Scholar'}</h3>
+                <h3 className="student-full-name">{name}</h3>
                 <span className={`student-status-chip ${isAdmin ? 'admin' : 'student'}`}>
-                  <ShieldCheck size={11} />
-                  {isAuthenticated ? (isAdmin ? 'Faculty Admin' : 'UG Scholar') : 'Demo Guest'}
+                  <ShieldCheck size={10} />
+                  {isAdmin ? 'Faculty Admin' : 'UG Scholar'}
                 </span>
               </div>
-              <p className="student-dept-sub">
-                {isAuthenticated && currentUser
-                  ? `Roll: ${currentUser.rollNo} · Dept of EEE (Sem VI)`
-                  : 'Sri Ramakrishna Engineering College · EEE Dept'}
-              </p>
+              <p className="student-dept-tag">{department} · Sri Ramakrishna Eng. College</p>
             </div>
           </div>
 
-          {!isAuthenticated ? (
-            <button className="student-signin-cta" onClick={onOpenSignIn}>
-              <span>Sign In</span>
-              <ChevronRight size={14} />
-            </button>
-          ) : (
-            <button className="student-vault-cta" onClick={onOpenProfile}>
-              <span>Doc Vault</span>
-              <ChevronRight size={14} />
-            </button>
-          )}
+          <button className="student-vault-cta" onClick={onOpenProfile} aria-label="Open Document Vault">
+            <span>Doc Vault</span>
+            <ChevronRight size={14} />
+          </button>
+        </div>
+
+        {/* 🎓 Clean 5-Field Student Info Chips (Name, Roll No, Class, Year of Study, Sem - Auto-adjusts to screen size) */}
+        <div className="student-details-grid">
+          <div className="detail-chip">
+            <Hash size={12} className="detail-icon" />
+            <span className="detail-label">Roll:</span>
+            <span className="detail-value">{rollNo}</span>
+          </div>
+
+          <div className="detail-chip">
+            <Layers size={12} className="detail-icon" />
+            <span className="detail-label">Class:</span>
+            <span className="detail-value">{className}</span>
+          </div>
+
+          <div className="detail-chip">
+            <Calendar size={12} className="detail-icon" />
+            <span className="detail-label">Year:</span>
+            <span className="detail-value">{yearOfStudy}</span>
+          </div>
+
+          <div className="detail-chip">
+            <BookOpen size={12} className="detail-icon" />
+            <span className="detail-label">Sem:</span>
+            <span className="detail-value">{semester}</span>
+          </div>
         </div>
 
         {/* 4 Stat Metrics Grid */}

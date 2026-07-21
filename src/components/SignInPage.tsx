@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User } from 'lucide-react';
+import type { UserProfile } from '../App';
 
 interface SignInPageProps {
-  onClose: () => void;
-  onLoginSuccess: (userProfile: { email: string; name: string; rollNo: string; role: string }) => void;
-  demoProfiles: Array<{ email: string; name: string; rollNo: string; role: string }>;
+  onClose?: () => void;
+  onLoginSuccess: (userProfile: UserProfile) => void;
+  demoProfiles: UserProfile[];
 }
 
 export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess, demoProfiles }) => {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('student@eee.com');
+  const [name, setName] = useState('Nithin Annamalai');
+  const [rollNo, setRollNo] = useState('7377221EE001');
   const [password, setPassword] = useState('••••••••');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -36,21 +40,25 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
       } else {
         onLoginSuccess({
           email: email.trim(),
-          name: email.split('@')[0].toUpperCase(),
-          rollNo: 'EEE' + Math.floor(100 + Math.random() * 900),
-          role: 'student'
+          name: name.trim() || email.split('@')[0].toUpperCase(),
+          rollNo: rollNo.trim() || '7377221EE' + Math.floor(100 + Math.random() * 900),
+          role: 'student',
+          className: 'III EEE-A',
+          yearOfStudy: '3rd Year',
+          semester: 'Semester VI',
+          department: 'Dept of EEE'
         });
       }
       setLoading(false);
-    }, 600);
+    }, 500);
   };
 
-  const handleQuickLogin = (profile: typeof demoProfiles[0]) => {
+  const handleQuickLogin = (profile: UserProfile) => {
     setLoading(true);
     setTimeout(() => {
       onLoginSuccess(profile);
       setLoading(false);
-    }, 350);
+    }, 300);
   };
 
   const handleForgotPassword = () => {
@@ -64,17 +72,24 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
       <div className="signin-header-gradient">
         {/* Top Navbar */}
         <div className="signin-top-nav">
-          <button className="signin-back-btn" onClick={onClose} aria-label="Go Back">
-            <ArrowLeft size={20} />
-          </button>
-          
+          {onClose ? (
+            <button className="signin-back-btn" onClick={onClose} aria-label="Go Back">
+              <ArrowLeft size={20} />
+            </button>
+          ) : (
+            <div style={{ width: 36 }} />
+          )}
+
           <div className="signin-top-right">
-            <span className="signin-no-account">Don't have an account?</span>
+            <span className="signin-no-account">
+              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+            </span>
             <button
+              type="button"
               className="signin-get-started-btn"
-              onClick={() => handleQuickLogin(demoProfiles[0])}
+              onClick={() => setIsSignUp(!isSignUp)}
             >
-              Get Started
+              {isSignUp ? 'Sign in' : 'Get Started'}
             </button>
           </div>
         </div>
@@ -85,7 +100,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
             <Sparkles size={24} fill="currentColor" />
           </div>
           <h1 className="signin-brand-title">EEE SREC</h1>
-          <p className="signin-brand-sub">Smart Mobile Portal</p>
+          <p className="signin-brand-sub">Smart Mobile Portal · Dept of EEE</p>
         </div>
       </div>
 
@@ -94,8 +109,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
         <div className="signin-card-handle" />
 
         <div className="signin-sheet-header">
-          <h2>Welcome Back</h2>
-          <p>Enter your details below to access your student hub</p>
+          <h2>{isSignUp ? 'Get started free.' : 'Welcome Back'}</h2>
+          <p>{isSignUp ? 'Free forever. Access your student portal.' : 'Enter your student details below'}</p>
         </div>
 
         {error && (
@@ -107,7 +122,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
         {forgotSent && (
           <div className="signin-success-banner">
             <CheckCircle2 size={16} />
-            <span>Password reset link sent to your registered email!</span>
+            <span>Password reset link sent to registered email!</span>
           </div>
         )}
 
@@ -128,6 +143,43 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
               />
             </div>
           </div>
+
+          {/* Full Name & Roll No (Shown in Sign Up mode) */}
+          {isSignUp && (
+            <>
+              <div className="signin-field-group">
+                <label htmlFor="signin-name">Your Name</label>
+                <div className="signin-input-wrapper">
+                  <User size={18} className="signin-input-icon" />
+                  <input
+                    id="signin-name"
+                    type="text"
+                    placeholder="Nithin Annamalai"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="signin-input"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="signin-field-group">
+                <label htmlFor="signin-rollno">Roll Number</label>
+                <div className="signin-input-wrapper">
+                  <UserCheck size={18} className="signin-input-icon" />
+                  <input
+                    id="signin-rollno"
+                    type="text"
+                    placeholder="7377221EE001"
+                    value={rollNo}
+                    onChange={e => setRollNo(e.target.value)}
+                    className="signin-input"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Password Input */}
           <div className="signin-field-group">
@@ -154,30 +206,34 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
             </div>
           </div>
 
-          {/* Sign In Button */}
+          {/* Sign In / Sign Up Button */}
           <button type="submit" className="signin-submit-btn" disabled={loading}>
             {loading ? (
-              <span className="signin-btn-spinner">Verifying Credentials...</span>
+              <span className="signin-btn-spinner">Authenticating...</span>
+            ) : isSignUp ? (
+              'Sign up'
             ) : (
               'Sign in'
             )}
           </button>
 
           {/* Forgot Password Link */}
-          <div className="signin-forgot-row">
-            <button
-              type="button"
-              className="signin-forgot-btn"
-              onClick={handleForgotPassword}
-            >
-              Forgot your password?
-            </button>
-          </div>
+          {!isSignUp && (
+            <div className="signin-forgot-row">
+              <button
+                type="button"
+                className="signin-forgot-btn"
+                onClick={handleForgotPassword}
+              >
+                Forgot your password?
+              </button>
+            </div>
+          )}
         </form>
 
         {/* Divider */}
         <div className="signin-divider">
-          <span>Or sign in with</span>
+          <span>{isSignUp ? 'Or sign up with' : 'Or sign in with'}</span>
         </div>
 
         {/* Social Sign-In Buttons */}
@@ -208,9 +264,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           </button>
         </div>
 
-        {/* Quick Demo Access Header */}
+        {/* Quick Demo Access Section */}
         <div className="signin-demo-section">
-          <span className="signin-demo-title">⚡ Quick 1-Click Evaluation Logins</span>
+          <span className="signin-demo-title">⚡ Quick 1-Click Evaluation Login</span>
           <div className="signin-demo-grid">
             {demoProfiles.map((profile, i) => (
               <button
@@ -225,7 +281,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
                 <div className="demo-info">
                   <span className="demo-name">{profile.name}</span>
                   <span className="demo-role">
-                    {profile.role === 'teacher' ? 'Faculty Admin' : `Roll: ${profile.rollNo}`}
+                    {profile.role === 'teacher'
+                      ? 'Faculty Admin'
+                      : `Roll: ${profile.rollNo} · ${profile.className}`}
                   </span>
                 </div>
                 <UserCheck size={14} className="demo-check" />

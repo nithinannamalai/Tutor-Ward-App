@@ -21,17 +21,55 @@ import {
 } from 'lucide-react';
 import './App.css';
 
+export interface UserProfile {
+  email: string;
+  name: string;
+  rollNo: string;
+  role: 'student' | 'teacher';
+  className: string;
+  yearOfStudy: string;
+  semester: string;
+  department: string;
+}
+
 // Simulation accounts for testing
-const USER_PROFILES = [
-  { email: 'student@eee.com', name: 'Nithin Annamalai', rollNo: 'EEE001', role: 'student' },
-  { email: 'student2@eee.com', name: 'Aravind Swamy', rollNo: 'EEE002', role: 'student' },
-  { email: 'teacher@eee.com', name: 'Dr. R. Ramanujam', rollNo: 'ADMIN', role: 'teacher' }
+const USER_PROFILES: UserProfile[] = [
+  {
+    email: 'student@eee.com',
+    name: 'Nithin Annamalai',
+    rollNo: '7377221EE001',
+    role: 'student',
+    className: 'III EEE-A',
+    yearOfStudy: '3rd Year',
+    semester: 'Semester VI',
+    department: 'Dept of EEE'
+  },
+  {
+    email: 'student2@eee.com',
+    name: 'Aravind Swamy',
+    rollNo: '7377221EE002',
+    role: 'student',
+    className: 'III EEE-B',
+    yearOfStudy: '3rd Year',
+    semester: 'Semester VI',
+    department: 'Dept of EEE'
+  },
+  {
+    email: 'teacher@eee.com',
+    name: 'Dr. R. Ramanujam',
+    rollNo: 'FAC-ADMIN',
+    role: 'teacher',
+    className: 'HOD / Senior Prof',
+    yearOfStudy: 'Faculty',
+    semester: 'Academic Year 2026',
+    department: 'Dept of EEE'
+  }
 ];
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<typeof USER_PROFILES[0] | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [showSignInPage, setShowSignInPage] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [currentTab, setCurrentTab] = useState<string | null>(null);
@@ -54,7 +92,7 @@ function App() {
     loadAnnouncements();
   };
 
-  const handleLoginSuccess = (userProfile: typeof USER_PROFILES[0]) => {
+  const handleLoginSuccess = (userProfile: UserProfile) => {
     setCurrentUser(userProfile);
     setIsAuthenticated(true);
     setShowSignInPage(false);
@@ -125,6 +163,18 @@ function App() {
 
   if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
+  // SHOW SIGN IN PAGE FIRST (Before entering dashboard)
+  if (!isAuthenticated) {
+    return (
+      <div className="mobile-app-shell">
+        <SignInPage
+          onLoginSuccess={handleLoginSuccess}
+          demoProfiles={USER_PROFILES}
+        />
+      </div>
+    );
   }
 
   return (

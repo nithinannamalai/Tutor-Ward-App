@@ -422,10 +422,13 @@ function App() {
                       className="mobile-app-tile"
                       onClick={() => handleCardClick(item.key)}
                     >
-                      <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
-                        {item.icon}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
+                          {item.icon}
+                        </div>
+                        <span className="mobile-tile-label">{item.label}</span>
                       </div>
-                      <span className="mobile-tile-label">{item.label}</span>
+                      <ChevronRight size={16} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
                     </div>
                   ))}
                 </div>

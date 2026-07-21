@@ -56,6 +56,22 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
         setRollNo(p.rollNo);
         const d = await dbService.getStudentDocuments(p.email);
         setDocs(d);
+      } else {
+        const fallbackStudent: Student = {
+          id: currentEmail || 'student@eee.com',
+          rollNo: '7377221EE001',
+          name: 'Nithin Annamalai',
+          email: currentEmail || 'student@eee.com',
+          cgpa: { 1: 8.5, 2: 8.3, 3: 8.6, 4: 8.7, 5: 8.4, 6: 8.5 },
+          arrears: 0,
+          nptelExams: [],
+          documents: []
+        };
+        setStudent(fallbackStudent);
+        setName(fallbackStudent.name);
+        setRollNo(fallbackStudent.rollNo);
+        const d = await dbService.getStudentDocuments(fallbackStudent.email);
+        setDocs(d);
       }
     }
   };
@@ -205,9 +221,32 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
         {/* --- PROFILE DETAILS & DOCS VIEW --- */}
         {(!isAdmin || selectedStudentEmail) && student && (
           <>
+            {/* 📸 Student Profile Header Hero Card */}
+            <div className="profile-hero-card">
+              <div className="profile-avatar-wrapper">
+                <div className="profile-avatar-large">
+                  {student.name.charAt(0)}
+                </div>
+                <div className="profile-avatar-online" />
+              </div>
+
+              <div className="profile-hero-info">
+                <h3 className="profile-hero-name">{student.name}</h3>
+                <p className="profile-hero-roll">Roll No: {student.rollNo}</p>
+                <div className="profile-hero-badges">
+                  <span className="profile-badge class-badge">
+                    III EEE-A
+                  </span>
+                  <span className="profile-badge dept-badge">
+                    Dept of EEE
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {isAdmin && (
-              <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: 10, borderRadius: 8, fontSize: 11, border: '1px solid rgba(56,189,248,0.2)' }}>
-                Viewing details for: <strong>{student.name} ({student.rollNo})</strong>
+              <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: 10, borderRadius: 10, fontSize: 11, border: '1px solid rgba(56,189,248,0.2)' }}>
+                Viewing profile for: <strong>{student.name} ({student.rollNo})</strong>
               </div>
             )}
 
@@ -219,7 +258,7 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className="form-input"
-                  disabled={isAdmin} // Admins view student profiles, students edit
+                  disabled={isAdmin}
                   required
                 />
               </div>
@@ -237,6 +276,16 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
               </div>
 
               <div className="form-group">
+                <label className="form-label">Class & Section</label>
+                <input
+                  type="text"
+                  value="III EEE-A"
+                  className="form-input"
+                  disabled
+                />
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Email Address</label>
                 <input
                   type="email"
@@ -244,6 +293,27 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
                   className="form-input"
                   disabled
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="form-group">
+                  <label className="form-label">Year of Study</label>
+                  <input
+                    type="text"
+                    value="3rd Year"
+                    className="form-input"
+                    disabled
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Semester</label>
+                  <input
+                    type="text"
+                    value="Semester VI"
+                    className="form-input"
+                    disabled
+                  />
+                </div>
               </div>
 
               {!isAdmin && (

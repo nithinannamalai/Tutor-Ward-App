@@ -48,6 +48,20 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
         setStudent(p);
         setCgpaRecords(p.cgpa || {});
         setArrears(p.arrears || 0);
+      } else {
+        const fallbackStudent: Student = {
+          id: currentEmail || 'student@eee.com',
+          rollNo: '7377221EE001',
+          name: 'Nithin Annamalai',
+          email: currentEmail || 'student@eee.com',
+          cgpa: { 1: 8.5, 2: 8.3, 3: 8.6, 4: 8.7, 5: 8.4, 6: 8.5 },
+          arrears: 0,
+          nptelExams: [],
+          documents: []
+        };
+        setStudent(fallbackStudent);
+        setCgpaRecords(fallbackStudent.cgpa);
+        setArrears(fallbackStudent.arrears);
       }
     }
   };

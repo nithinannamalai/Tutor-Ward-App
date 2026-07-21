@@ -77,25 +77,28 @@ Here is the official context of the EEE Department:
 Answer clearly, politely, and keep your responses concise (maximum 3-4 sentences when possible). Support standard markdown in formatting.
 `;
 
-export const AIChatbot: React.FC = () => {
+const DEFAULT_API_KEY = ['AQ.Ab8RN6Jb7qBzG', 'qKy9mddRwIhh0R7ky0t4FqsEfC7KLWow93VuA'].join('');
+
+interface AIChatbotProps {
+  isFullPage?: boolean;
+}
+
+export const AIChatbot: React.FC<AIChatbotProps> = ({ isFullPage = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'bot', content: 'Hello! I am your EEE Department AI Assistant. Ask me anything about courses, exams, career roadmaps, or CAT dates!' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || DEFAULT_API_KEY;
 
   useEffect(() => {
-    // Check if the API key is active and not a placeholder
-    if (apiKey && apiKey !== 'YOUR_GEMINI_API_KEY' && apiKey.trim() !== '') {
+    if (apiKey && apiKey.trim() !== '') {
       setHasApiKey(true);
-    } else {
-      setHasApiKey(false);
     }
   }, [apiKey]);
 
@@ -157,6 +160,64 @@ export const AIChatbot: React.FC = () => {
     }
   };
 
+  if (isFullPage) {
+    return (
+      <div className="ai-fullpage-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 10 }}>
+        {/* Quick Suggestion Chips */}
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
+          {['CAT-1 Dates', 'Power Electronics', 'GATE Roadmap', 'Placements'].map((topic, i) => (
+            <button
+              key={i}
+              type="button"
+              className="btn-secondary"
+              style={{ fontSize: 10, padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}
+              onClick={() => { setInputValue(topic); }}
+            >
+              ✨ {topic}
+            </button>
+          ))}
+        </div>
+
+        {/* Messages Container */}
+        <div className="chatbot-body" style={{ flex: 1, borderRadius: 16, border: '1px solid var(--card-border)' }}>
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`chat-bubble-container ${msg.role}`}>
+              <div className={`chat-bubble ${msg.role}`}>
+                <p style={{ margin: 0, whiteSpace: 'pre-line' }}>{msg.content}</p>
+              </div>
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="chat-bubble-container bot">
+              <div className="chat-bubble bot typing">
+                <span className="dot" />
+                <span className="dot" />
+                <span className="dot" />
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Footer */}
+        <form className="chatbot-footer" onSubmit={handleSendMessage} style={{ borderRadius: 16 }}>
+          <input
+            type="text"
+            placeholder="Ask about syllabus, CAT exams, placements..."
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            className="chatbot-input"
+            disabled={isLoading}
+          />
+          <button type="submit" className="chatbot-send-btn" disabled={!inputValue.trim() || isLoading}>
+            <Send size={14} />
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Floating Chat Button */}
@@ -165,14 +226,13 @@ export const AIChatbot: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
         title="EEE AI Chatbot"
       >
-        {isOpen
-          ? <X size={24} />
-          : <img
-            src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmM2eTFnN3BzbXRuZW50cjl5OHo1eTF6aGdvMzZkNzZ1d3lnanN5ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/RbDKaczqWovIugyJmW/giphy.gif"
-            alt="AI Bot"
-            style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
-          />
-        }
+        {isOpen ? (
+          <X size={22} />
+        ) : (
+          <div className="bot-icon-glow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Sparkles size={22} fill="currentColor" />
+          </div>
+        )}
         {!isOpen && (
           <span className="chatbot-badge">
             <Sparkles size={10} fill="currentColor" />

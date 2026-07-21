@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User } from 'lucide-react';
 import type { UserProfile } from '../App';
 
@@ -18,6 +18,22 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+
+  const quotes = [
+    "“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.” – Malcolm X",
+    "“Engineering is the closest thing to magic that exists in the world.” – Elon Musk",
+    "“Continuous learning is the minimum requirement for success in any field.” – Brian Tracy",
+    "“The future belongs to those who learn more skills and combine them in creative ways.” – Robert Greene",
+    "“Aim for success, not perfection. Never surrender your right to be wrong.” – Dr. David M. Burns"
+  ];
+  const [quoteIndex, setQuoteIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setQuoteIndex(prev => (prev + 1) % quotes.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,25 +98,30 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
 
           <div className="signin-top-right">
             <span className="signin-no-account">
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              {isSignUp ? 'Already registered?' : 'Need account?'}
             </span>
             <button
               type="button"
               className="signin-get-started-btn"
               onClick={() => setIsSignUp(!isSignUp)}
             >
-              {isSignUp ? 'Sign in' : 'Get Started'}
+              {isSignUp ? 'Sign In' : 'Sign Up'}
             </button>
           </div>
         </div>
 
-        {/* Brand Banner */}
+        {/* Brand Banner with App Logo & Moving Quotes Ticker */}
         <div className="signin-brand-banner">
-          <div className="signin-brand-icon">
-            <Sparkles size={24} fill="currentColor" />
+          <div className="signin-app-logo-wrap">
+            <img src="/app-logo.svg" alt="App Logo" className="signin-app-logo-img" />
           </div>
-          <h1 className="signin-brand-title">EEE SREC</h1>
-          <p className="signin-brand-sub">Smart Mobile Portal · Dept of EEE</p>
+          <h1 className="signin-brand-title">EEE SREC PORTAL</h1>
+          <p className="signin-brand-sub">Sri Ramakrishna Eng. College · Dept of EEE</p>
+
+          <div className="quotes-ticker-container">
+            <Sparkles size={11} className="quote-icon" />
+            <span className="quote-text-slide" key={quoteIndex}>{quotes[quoteIndex]}</span>
+          </div>
         </div>
       </div>
 
@@ -108,9 +129,27 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
       <div className="signin-card-sheet">
         <div className="signin-card-handle" />
 
+        {/* Mode Toggle Tabs: Sign In / Sign Up */}
+        <div className="signin-mode-tabs">
+          <button
+            type="button"
+            className={`mode-tab-btn ${!isSignUp ? 'active' : ''}`}
+            onClick={() => setIsSignUp(false)}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            className={`mode-tab-btn ${isSignUp ? 'active' : ''}`}
+            onClick={() => setIsSignUp(true)}
+          >
+            Sign Up
+          </button>
+        </div>
+
         <div className="signin-sheet-header">
-          <h2>{isSignUp ? 'Get started free.' : 'Welcome Back'}</h2>
-          <p>{isSignUp ? 'Free forever. Access your student portal.' : 'Enter your student details below'}</p>
+          <h2>{isSignUp ? 'Create your account' : 'Welcome back'}</h2>
+          <p>{isSignUp ? 'Join EEE SREC Smart Student Portal' : 'Enter your credentials to access portal'}</p>
         </div>
 
         {error && (
@@ -255,7 +294,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           <button
             type="button"
             className="signin-social-btn facebook-btn"
-            onClick={() => handleQuickLogin(demoProfiles[1])}
+            onClick={() => handleQuickLogin(demoProfiles[0])}
           >
             <svg className="social-icon-svg" viewBox="0 0 24 24" width="18" height="18" fill="#1877F2">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />

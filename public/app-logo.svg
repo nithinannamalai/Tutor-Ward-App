@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <!-- Outer Soft Rounded White Background Shield -->
+  <rect x="15" y="15" width="470" height="470" rx="80" fill="#FFFFFF" />
+  
+  <!-- Golden Arc Header with Stars -->
+  <path d="M 115 240 A 150 150 0 0 1 385 240" fill="none" stroke="#D4AF37" stroke-width="12" stroke-linecap="round" />
+  
+  <!-- 3 Golden Stars -->
+  <!-- Left Star -->
+  <polygon points="205,135 209,147 222,147 211,155 215,167 205,159 195,167 199,155 188,147 201,147" fill="#D4AF37" />
+  <!-- Center Star (Larger) -->
+  <polygon points="250,110 255,125 271,125 258,135 263,150 250,140 237,150 242,135 229,125 245,125" fill="#D4AF37" />
+  <!-- Right Star -->
+  <polygon points="295,135 299,147 312,147 301,155 305,167 295,159 285,167 289,155 278,147 291,147" fill="#D4AF37" />
+  
+  <!-- Graduation Cap (Navy Blue) -->
+  <!-- Top Diamond -->
+  <polygon points="250,155 375,210 250,265 125,210" fill="#0F2942" />
+  <polygon points="250,155 375,210 250,225 125,210" fill="#1A3B5C" opacity="0.4" />
+  
+  <!-- Skull Cap Base -->
+  <path d="M 180 235 L 180 290 Q 250 325 320 290 L 320 235" fill="#0F2942" />
+  <path d="M 250 265 L 320 235 L 320 290 Q 250 325 180 290 L 180 280 Q 250 310 320 280 Z" fill="#0A1D30" />
+  
+  <!-- Tassel -->
+  <path d="M 350 220 L 350 295" stroke="#D4AF37" stroke-width="4" />
+  <circle cx="350" cy="217" r="5" fill="#D4AF37" />
+  <path d="M 342 295 L 358 295 L 354 340 L 346 340 Z" fill="#D4AF37" />
+  
+  <!-- Open Book Pages (Navy Blue) -->
+  <!-- Left Book Page -->
+  <path d="M 250 365 Q 160 300 80 325 L 80 395 Q 160 370 250 420 Z" fill="#0F2942" />
+  <path d="M 250 355 Q 160 290 90 315 L 90 380 Q 160 355 250 405 Z" fill="#1A3B5C" />
+  <path d="M 250 345 Q 160 280 100 305 L 100 365 Q 160 340 250 390 Z" fill="#FFFFFF" opacity="0.15" />
+
+  <!-- Right Book Page -->
+  <path d="M 250 365 Q 340 300 420 325 L 420 395 Q 340 370 250 420 Z" fill="#0F2942" />
+  <path d="M 250 355 Q 340 290 410 315 L 410 380 Q 340 355 250 405 Z" fill="#1A3B5C" />
+  <path d="M 250 345 Q 340 280 400 305 L 400 365 Q 340 340 250 390 Z" fill="#FFFFFF" opacity="0.15" />
+
+  <!-- Golden Fountain Pen Nib (Centerpiece) -->
+  <path d="M 250 250 L 275 315 L 265 365 L 235 365 L 225 315 Z" fill="#D4AF37" />
+  <path d="M 250 250 L 275 315 L 250 365 Z" fill="#E5C158" />
+  <!-- Nib Split Line & Eyelet -->
+  <line x1="250" y1="280" x2="250" y2="340" stroke="#0F2942" stroke-width="3" />
+  <circle cx="250" cy="320" r="5" fill="#0F2942" />
+  <!-- Pen Base Holder -->
+  <path d="M 225 360 L 275 360 L 270 420 Q 250 430 230 420 Z" fill="#0F2942" />
+  <rect x="230" y="358" width="40" height="8" rx="3" fill="#D4AF37" />
+</svg>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { dbService } from './services/db';
 import type { Announcement } from './services/db';
 import { AnnouncementBanner } from './components/AnnouncementBanner';
@@ -16,7 +16,7 @@ import { StudentDetailsCard } from './components/StudentDetailsCard';
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
-  Inbox, Map, Shield, Phone, ArrowLeft, Sparkles, Home, Briefcase,
+  Inbox, Map, Shield, Phone, ArrowLeft, Sparkles, Home,
   CheckCircle2
 } from 'lucide-react';
 import './App.css';
@@ -43,26 +43,6 @@ const USER_PROFILES: UserProfile[] = [
     yearOfStudy: '3rd Year',
     semester: 'Semester VI',
     department: 'Dept of EEE'
-  },
-  {
-    email: 'student2@eee.com',
-    name: 'Aravind Swamy',
-    rollNo: '7377221EE002',
-    role: 'student',
-    className: 'III EEE-B',
-    yearOfStudy: '3rd Year',
-    semester: 'Semester VI',
-    department: 'Dept of EEE'
-  },
-  {
-    email: 'teacher@eee.com',
-    name: 'Dr. R. Ramanujam',
-    rollNo: 'FAC-ADMIN',
-    role: 'teacher',
-    className: 'HOD / Senior Prof',
-    yearOfStudy: 'Faculty',
-    semester: 'Academic Year 2026',
-    department: 'Dept of EEE'
   }
 ];
 
@@ -73,6 +53,7 @@ function App() {
   const [showSignInPage, setShowSignInPage] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [currentTab, setCurrentTab] = useState<string | null>(null);
+  const [isClosingModal, setIsClosingModal] = useState(false);
   const [activeBottomNav, setActiveBottomNav] = useState('home');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -107,20 +88,47 @@ function App() {
 
   const isAdmin = currentUser?.role === 'teacher';
 
+  const handleCloseModal = () => {
+    if (isClosingModal) return;
+    setIsClosingModal(true);
+    setTimeout(() => {
+      setCurrentTab(null);
+      setIsClosingModal(false);
+    }, 240);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && currentTab) {
+        handleCloseModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentTab, isClosingModal]);
+
   const handleCardClick = (titleKey: string) => {
     if (!isAuthenticated) {
       setShowSignInPage(true);
       return;
     }
+    if (titleKey === 'home') {
+      setCurrentTab(null);
+      setActiveBottomNav('home');
+      setIsDrawerOpen(false);
+      return;
+    }
+    setIsClosingModal(false);
     setCurrentTab(titleKey);
     setIsDrawerOpen(false);
   };
 
   // Mobile App Categories with Colorful App Tiles (Nithra Calendar & Airtel Thanks App Style)
-  const appCategories = [
+  const appCategories = useMemo(() => [
     {
       title: '🎓 ACADEMIC HUB',
       items: [
+        { key: 'ai', label: 'AI Tutor', icon: <Sparkles size={24} />, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' },
         { key: 'courses', label: 'Syllabus', icon: <BookOpen size={24} />, color: '#0891b2', bg: 'rgba(8, 145, 178, 0.12)' },
         { key: 'calendar', label: 'Calendar', icon: <Calendar size={24} />, color: '#dc2626', bg: 'rgba(220, 38, 38, 0.12)' },
         { key: 'academics', label: 'CGPA', icon: <GraduationCap size={24} />, color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
@@ -151,7 +159,19 @@ function App() {
         { key: 'faculty', label: 'Faculty', icon: <Phone size={24} />, color: '#db2777', bg: 'rgba(219, 39, 119, 0.12)' },
       ]
     }
-  ];
+  ], []);
+
+  const activeTileInfo = useMemo(() => {
+    if (!currentTab) return null;
+    if (currentTab === 'announcements') {
+      return { key: 'announcements', label: 'Notifications & Notice Board', icon: <Bell size={24} />, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' };
+    }
+    for (const cat of appCategories) {
+      const item = cat.items.find(i => i.key === currentTab);
+      if (item) return item;
+    }
+    return null;
+  }, [currentTab, appCategories]);
 
   // Filter items if search is active
   const filteredCategories = searchQuery.trim()
@@ -191,7 +211,7 @@ function App() {
           </button>
           <div className="mobile-brand">
             <div className="mobile-brand-logo">
-              <Zap size={18} fill="currentColor" />
+              <img src="/app-logo.svg" alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain' }} />
             </div>
             <div className="mobile-brand-text">
               <h1>EEE SREC</h1>
@@ -204,7 +224,7 @@ function App() {
           <button className="icon-circle-btn" onClick={() => setShowSearch(!showSearch)} aria-label="Search">
             <Search size={18} />
           </button>
-          <button className="icon-circle-btn" onClick={() => document.getElementById('announcements-widget')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Notifications">
+          <button className="icon-circle-btn" onClick={() => handleCardClick('announcements')} aria-label="Notifications">
             <Bell size={18} />
             <span className="notification-badge" />
           </button>
@@ -261,17 +281,12 @@ function App() {
 
               <div className="drawer-action-row">
                 {isAuthenticated ? (
-                  <>
-                    <button className="drawer-btn primary" onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
-                      <User size={12} /> Switch Demo
-                    </button>
-                    <button className="drawer-btn secondary" onClick={handleLogout}>
-                      <LogOut size={12} /> Sign Out
-                    </button>
-                  </>
+                  <button className="drawer-btn secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
+                    <LogOut size={14} /> Sign Out
+                  </button>
                 ) : (
-                  <button className="drawer-btn primary" style={{ width: '100%' }} onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
-                    <User size={14} /> Sign In / Demo Access
+                  <button className="drawer-btn primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
+                    <User size={14} /> Sign In
                   </button>
                 )}
               </div>
@@ -365,57 +380,122 @@ function App() {
         </div>
       )}
 
-      {/* ── PURE MOBILE APP MAIN DASHBOARD CONTENT ── */}
+      {/* ── PURE MOBILE APP MAIN CONTENT: HOME HUB OR DEDICATED FULL-SCREEN PAGE ── */}
       <main className="mobile-app-content">
-        {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
-        <StudentDetailsCard
-          isAuthenticated={isAuthenticated}
-          currentUser={currentUser}
-          onOpenProfile={() => handleCardClick('profile')}
-          onOpenSignIn={() => setShowSignInPage(true)}
-          onOpenTab={handleCardClick}
-        />
-
-        {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
-        <div id="announcements-widget">
-          <div className="mobile-section-header">
-            <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
-          </div>
-          <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 12 }}>
-            <AnnouncementBanner
-              announcements={announcements}
-              isAdmin={isAdmin}
-              onAddAnnouncement={handleAddAnnouncement}
+        {currentTab === null ? (
+          /* ── HOME DASHBOARD VIEW ── */
+          <div className="home-dashboard-view">
+            {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
+            <StudentDetailsCard
+              isAuthenticated={isAuthenticated}
+              currentUser={currentUser}
+              onOpenProfile={() => handleCardClick('profile')}
+              onOpenSignIn={() => setShowSignInPage(true)}
+              onOpenTab={handleCardClick}
             />
-          </div>
-        </div>
 
-        {/* Mobile Icon Grid Categories (Airtel Thanks + Nithra App Grid Style) */}
-        {filteredCategories.map((cat, idx) => (
-          <div key={idx}>
-            <div className="mobile-section-header">
-              <span className="mobile-section-title">{cat.title}</span>
+            {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
+            <div id="announcements-widget">
+              <div className="mobile-section-header">
+                <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
+              </div>
+              <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 12 }}>
+                <AnnouncementBanner
+                  announcements={announcements}
+                  isAdmin={isAdmin}
+                  onAddAnnouncement={handleAddAnnouncement}
+                  onOpenAnnouncements={() => handleCardClick('announcements')}
+                />
+              </div>
             </div>
-            <div className="mobile-grid-4col">
-              {cat.items.map((item) => (
-                <div
-                  key={item.key}
-                  className="mobile-app-tile"
-                  onClick={() => handleCardClick(item.key)}
-                >
-                  <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
-                    {item.icon}
-                  </div>
-                  <span className="mobile-tile-label">{item.label}</span>
+
+            {/* Mobile Icon Grid Categories */}
+            {filteredCategories.map((cat, idx) => (
+              <div key={idx}>
+                <div className="mobile-section-header">
+                  <span className="mobile-section-title">{cat.title}</span>
                 </div>
-              ))}
+                <div className="mobile-grid-4col">
+                  {cat.items.map((item) => (
+                    <div
+                      key={item.key}
+                      className="mobile-app-tile"
+                      onClick={() => handleCardClick(item.key)}
+                    >
+                      <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
+                        {item.icon}
+                      </div>
+                      <span className="mobile-tile-label">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* ── DEDICATED FULL PAGE SCREEN VIEW ── */
+          <div className="dedicated-page-view page-slide-enter">
+            {/* Dedicated Top Navigation Header Bar */}
+            <div className="dedicated-page-header">
+              <button
+                className="page-back-btn"
+                onClick={() => { setCurrentTab(null); setActiveBottomNav('home'); }}
+                aria-label="Back to Home"
+              >
+                <ArrowLeft size={18} />
+                <span>Home</span>
+              </button>
+
+              {activeTileInfo && (
+                <div className="page-header-badge" style={{ background: activeTileInfo.bg, color: activeTileInfo.color }}>
+                  {activeTileInfo.icon}
+                  <h2>{activeTileInfo.label}</h2>
+                </div>
+              )}
+
+              <button
+                className="page-close-btn"
+                onClick={() => setCurrentTab(null)}
+                aria-label="Close page"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Dedicated Page Body Content */}
+            <div className="dedicated-page-body">
+              {currentTab === 'ai' && <AIChatbot isFullPage={true} />}
+              {currentTab === 'announcements' && (
+                <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 16 }}>
+                  <AnnouncementBanner
+                    announcements={announcements}
+                    isAdmin={isAdmin}
+                    onAddAnnouncement={handleAddAnnouncement}
+                  />
+                </div>
+              )}
+              {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'letters' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'suggestion' && (
+                <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
+              )}
+              {currentTab === 'campus-map' && <CampusMapPanel onClose={() => setCurrentTab(null)} />}
+              {currentTab === 'college-rules' && <CollegeRulesPanel onClose={() => setCurrentTab(null)} />}
+              {currentTab === 'faculty' && <FacultyPanel onClose={() => setCurrentTab(null)} />}
             </div>
           </div>
-        ))}
+        )}
       </main>
 
-      {/* Floating AI Assistant Action Trigger */}
-      <AIChatbot />
+      {/* Floating AI Assistant Action Trigger (Hidden when on dedicated AI Tutor page) */}
+      {currentTab !== 'ai' && <AIChatbot />}
 
       {/* ── Fixed Bottom Mobile Navigation Bar ── */}
       <nav className="mobile-bottom-nav">
@@ -447,7 +527,7 @@ function App() {
           className={`bottom-tab-item ${currentTab === 'career' ? 'active' : ''}`}
           onClick={() => { setActiveBottomNav('career'); handleCardClick('career'); }}
         >
-          <Briefcase size={20} />
+          <Zap size={20} />
           <span className="bottom-tab-label">Career</span>
         </button>
 
@@ -467,39 +547,6 @@ function App() {
           onLoginSuccess={handleLoginSuccess}
           demoProfiles={USER_PROFILES}
         />
-      )}
-
-      {/* ── Mobile Screen Overlay Panel for Active Tools ── */}
-      {currentTab && (
-        <div className="portal-modal-overlay" onClick={() => setCurrentTab(null)}>
-          <div className="portal-modal-container" onClick={e => e.stopPropagation()}>
-          <div className="portal-modal-topbar">
-              <button
-                className="portal-modal-back-btn"
-                onClick={() => setCurrentTab(null)}
-              >
-                <ArrowLeft size={16} /> Back to Hub
-              </button>
-              <button className="portal-modal-close" onClick={() => setCurrentTab(null)}>✕</button>
-            </div>
-
-            {currentTab === 'profile' && currentUser && <ProfileDocs currentEmail={currentUser.email} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'certificates' && currentUser && <ProfileDocs currentEmail={currentUser.email} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'letters' && currentUser && <ProfileDocs currentEmail={currentUser.email} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'attendance' && currentUser && <AttendanceTracker currentStudentRollNo={currentUser.rollNo} currentUserName={currentUser.name} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'nptel' && currentUser && <NptelTracker currentEmail={currentUser.email} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'academics' && currentUser && <AcademicsTracker currentEmail={currentUser.email} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} />}
-            {currentTab === 'suggestion' && (
-              <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
-            )}
-            {currentTab === 'campus-map' && <CampusMapPanel onClose={() => setCurrentTab(null)} />}
-            {currentTab === 'college-rules' && <CollegeRulesPanel onClose={() => setCurrentTab(null)} />}
-            {currentTab === 'faculty' && <FacultyPanel onClose={() => setCurrentTab(null)} />}
-          </div>
-        </div>
       )}
     </div>
   );

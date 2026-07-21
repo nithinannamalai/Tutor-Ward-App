@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Announcement } from '../services/db';
 import { Megaphone, Calendar, Trophy, FileText, Plus, X } from 'lucide-react';
 
@@ -6,12 +6,14 @@ interface AnnouncementBannerProps {
   announcements: Announcement[];
   isAdmin: boolean;
   onAddAnnouncement: (announcement: Omit<Announcement, 'id'>) => void;
+  onOpenAnnouncements?: () => void;
 }
 
 export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   announcements,
   isAdmin,
-  onAddAnnouncement
+  onAddAnnouncement,
+  onOpenAnnouncements
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedPoster, setSelectedPoster] = useState<string | null>(null);
@@ -21,6 +23,15 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   const [newType, setNewType] = useState<'exam' | 'hackathon' | 'event' | 'general'>('general');
   const [newDate, setNewDate] = useState('');
   const [newPosterUrl, setNewPosterUrl] = useState('');
+
+  // ⏱️ Auto-rotate announcements every 5 seconds
+  useEffect(() => {
+    if (announcements.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % announcements.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [announcements.length]);
 
   if (announcements.length === 0 && !isAdmin) {
     return (
@@ -81,7 +92,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <h3 className="dashboard-grid-title" style={{ margin: 0 }}>Announcements</h3>
+        <h3 className="dashboard-grid-title" style={{ margin: 0, cursor: 'pointer' }} onClick={onOpenAnnouncements}>Announcements</h3>
         {isAdmin && (
           <button 
             onClick={() => setShowAddModal(true)} 
@@ -94,7 +105,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
       </div>
 
       {announcements.length > 0 && (
-        <div className="announcement-card">
+        <div className="announcement-card" style={{ cursor: 'pointer' }} onClick={onOpenAnnouncements}>
           <div className="ann-header">
             <span className={`ann-badge ${current.type}`}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -110,10 +121,10 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
             <p className="ann-content">{current.content}</p>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }} onClick={e => e.stopPropagation()}>
             {(current.type === 'hackathon' || current.type === 'event' || current.posterUrl) ? (
               <button 
-                onClick={() => viewPoster(current)}
+                onClick={(e) => { e.stopPropagation(); viewPoster(current); }}
                 className="btn-secondary" 
                 style={{ padding: '3px 8px', fontSize: 10, borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
               >

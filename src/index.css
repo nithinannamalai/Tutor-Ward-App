@@ -43,14 +43,28 @@ section::-webkit-scrollbar {
   background: transparent !important;
 }
 
-body {
+html, body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   background-color: #f8fafc;
   color: var(--text-main);
-  min-height: 100vh;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* Glassmorphism utility */
@@ -3171,18 +3185,6 @@ body {
 /* ====================================================
    PREVENT ZOOM & MOVE GLOBALS
    ==================================================== */
-html, body {
-  touch-action: manipulation;
-  -webkit-text-size-adjust: 100%;
-  overscroll-behavior: none;
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 input, select, textarea {
   font-size: 16px !important; /* Prevents iOS auto-zoom on input focus */
 }

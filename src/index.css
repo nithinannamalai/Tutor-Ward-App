@@ -2470,6 +2470,19 @@ body {
 /* ====================================================
    PORTAL TOOL MODAL OVERLAY
    ==================================================== */
+.mobile-app-shell .portal-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 400;
+  background: rgba(10, 15, 30, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: overlayFadeIn 0.25s ease both;
+}
+
 .portal-modal-overlay {
   position: fixed;
   inset: 0;
@@ -2486,6 +2499,19 @@ body {
 @keyframes overlayFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+.mobile-app-shell .portal-modal-container {
+  position: relative;
+  background: var(--bg-primary, #ffffff);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: 0 -12px 40px rgba(0, 82, 204, 0.2);
+  border-top: 1.5px solid rgba(0, 82, 204, 0.15);
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .portal-modal-container {
@@ -2559,3 +2585,686 @@ body {
     to   { transform: scale(1);    opacity: 1; }
   }
 }
+
+/* ====================================================
+   PURE MOBILE UI & AIRTEL THANKS HAMBURGER DRAWER
+   ==================================================== */
+
+/* Outer Shell: Smartphone frame on Desktop, Full screen on Mobile */
+.mobile-app-shell {
+  width: 100%;
+  max-width: 440px;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -12px rgba(0, 82, 204, 0.22);
+  border-left: 1px solid var(--card-border);
+  border-right: 1px solid var(--card-border);
+}
+
+@media (min-width: 440px) {
+  body {
+    background: radial-gradient(circle at center, #eff6ff 0%, #cbd5e1 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 0;
+  }
+  .mobile-app-shell {
+    height: 92vh;
+    max-height: 880px;
+    border-radius: 28px;
+    border: 2.5px solid rgba(0, 82, 204, 0.15);
+  }
+}
+
+/* Mobile App Top Header (Top Bar) */
+.mobile-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(0, 82, 204, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 300;
+}
+
+.mobile-top-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hamburger-btn {
+  background: rgba(0, 82, 204, 0.06);
+  border: 1px solid rgba(0, 82, 204, 0.12);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-blue);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.hamburger-btn:hover, .hamburger-btn:active {
+  background: var(--accent-blue);
+  color: #ffffff;
+  transform: scale(0.96);
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent-orange);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(255, 95, 31, 0.25);
+}
+
+.mobile-brand-text h1 {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-main);
+  letter-spacing: -0.2px;
+}
+
+.mobile-brand-text p {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.mobile-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.icon-circle-btn:hover {
+  background: rgba(0, 82, 204, 0.08);
+  color: var(--accent-blue);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 1.5px solid #ffffff;
+}
+
+.avatar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue) 0%, #4f46e5 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.25);
+  cursor: pointer;
+}
+
+/* AIRTEL THANKS STYLE SIDE DRAWER */
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  animation: fadeIn 0.2s ease;
+}
+
+.airtel-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 84%;
+  max-width: 350px;
+  background: var(--bg-primary);
+  z-index: 510;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+  animation: drawerSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Airtel Thanks Top Profile Header inside Drawer */
+.drawer-profile-header {
+  background: linear-gradient(135deg, #0052cc 0%, #1e3a8a 100%);
+  padding: 24px 20px 20px;
+  color: #ffffff;
+  position: relative;
+}
+
+.drawer-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.drawer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.drawer-user-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.drawer-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-orange);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.drawer-user-text h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.drawer-user-text p {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.drawer-role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 95, 31, 0.25);
+  color: #ff9d76;
+  border: 1px solid rgba(255, 95, 31, 0.4);
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.drawer-action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.drawer-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.drawer-btn.primary {
+  background: #ffffff;
+  color: var(--accent-blue);
+}
+
+.drawer-btn.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.drawer-nav-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+
+.drawer-group-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin: 14px 10px 6px;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-bottom: 2px;
+}
+
+.drawer-item:hover, .drawer-item.active {
+  background: rgba(0, 82, 204, 0.06);
+  color: var(--accent-blue);
+}
+
+.drawer-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pure Mobile Main Scroll Container */
+.mobile-app-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px 84px;
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Greeting Hero Banner Card */
+.app-greeting-card {
+  background: linear-gradient(135deg, #0052cc 0%, #1e40af 100%);
+  border-radius: 18px;
+  padding: 18px;
+  color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(0, 82, 204, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-greeting-card::after {
+  content: '';
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 95, 31, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.greeting-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.greeting-text h2 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 2px 0;
+  color: #ffffff;
+}
+
+.greeting-text p {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+.greeting-pills-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.greeting-pill {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mobile Icon Grid Section */
+.mobile-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-top: 4px;
+}
+
+.mobile-section-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mobile-grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.mobile-app-tile {
+  background: var(--bg-primary);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.mobile-app-tile:hover, .mobile-app-tile:active {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(0, 82, 204, 0.12);
+  border-color: rgba(0, 82, 204, 0.25);
+}
+
+.mobile-tile-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-tile-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile Fixed Bottom Navigation Bar */
+.mobile-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(0, 82, 204, 0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 300;
+  padding: 0 6px;
+}
+
+.bottom-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px 0;
+  transition: var(--transition-fast);
+}
+
+.bottom-tab-item.active {
+  color: var(--accent-blue);
+  font-weight: 800;
+}
+
+.bottom-tab-item.active svg {
+  transform: translateY(-2px) scale(1.1);
+  filter: drop-shadow(0 2px 6px rgba(0, 82, 204, 0.3));
+}
+
+.bottom-tab-label {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Floating AI Chatbot trigger button */
+.mobile-ai-float {
+  position: absolute;
+  bottom: 76px;
+  right: 14px;
+  background: linear-gradient(135deg, var(--accent-orange) 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 6px 20px rgba(255, 95, 31, 0.4);
+  cursor: pointer;
+  z-index: 250;
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Student Profile Header Card (Above Notice Board) */
+.student-profile-header-card {
+  background: linear-gradient(135deg, #0052cc 0%, #1e3a8a 100%);
+  border-radius: 20px;
+  padding: 18px;
+  color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(0, 82, 204, 0.28);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.student-profile-header-card::after {
+  content: '';
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 95, 31, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.profile-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent-orange);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.student-name-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.student-subtitle {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+}
+
+.student-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 10px 6px;
+}
+
+.meta-pill-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.meta-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.meta-value {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.btn-my-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: var(--accent-blue);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  transition: var(--transition-fast);
+}
+
+.btn-my-profile:hover {
+  transform: translateY(-1px);
+  background: #f8fafc;
+}
+
+

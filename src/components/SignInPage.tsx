@@ -82,10 +82,17 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
     setTimeout(() => setForgotSent(false), 3000);
   };
 
+  const [activeTheme, setActiveTheme] = useState<'aurora' | 'sunset' | 'emerald'>('aurora');
+
   return (
-    <div className="signin-page-overlay">
-      {/* Top Gradient Header Section */}
+    <div className={`signin-page-overlay theme-${activeTheme}`}>
+      {/* Top Animated Gradient Header Section */}
       <div className="signin-header-gradient">
+        {/* Animated Background Glowing Orbs */}
+        <div className="ambient-orb orb-1" />
+        <div className="ambient-orb orb-2" />
+        <div className="ambient-orb orb-3" />
+
         {/* Top Navbar */}
         <div className="signin-top-nav">
           {onClose ? (
@@ -95,6 +102,28 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           ) : (
             <div style={{ width: 36 }} />
           )}
+
+          {/* Theme Color Selector Pills */}
+          <div className="signin-theme-selector">
+            <button
+              type="button"
+              className={`theme-pill aurora ${activeTheme === 'aurora' ? 'active' : ''}`}
+              onClick={() => setActiveTheme('aurora')}
+              title="Aurora Glow Theme"
+            />
+            <button
+              type="button"
+              className={`theme-pill sunset ${activeTheme === 'sunset' ? 'active' : ''}`}
+              onClick={() => setActiveTheme('sunset')}
+              title="Sunset Flame Theme"
+            />
+            <button
+              type="button"
+              className={`theme-pill emerald ${activeTheme === 'emerald' ? 'active' : ''}`}
+              onClick={() => setActiveTheme('emerald')}
+              title="Emerald Pulse Theme"
+            />
+          </div>
 
           <div className="signin-top-right">
             <span className="signin-no-account">
@@ -112,14 +141,17 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
 
         {/* Brand Banner with App Logo & Moving Quotes Ticker */}
         <div className="signin-brand-banner">
-          <div className="signin-app-logo-wrap">
+          <div className="signin-app-logo-wrap glowing-logo">
             <img src="/app-logo.svg" alt="App Logo" className="signin-app-logo-img" />
+            <div className="logo-sparkle-ring" />
           </div>
-          <h1 className="signin-brand-title">EEE SREC PORTAL</h1>
+          <h1 className="signin-brand-title">
+            <span className="gradient-text-shimmer">EEE SREC PORTAL</span>
+          </h1>
           <p className="signin-brand-sub">Sri Ramakrishna Eng. College · Dept of EEE</p>
 
-          <div className="quotes-ticker-container">
-            <Sparkles size={11} className="quote-icon" />
+          <div className="quotes-ticker-container glass-ticker">
+            <Sparkles size={13} className="quote-icon glowing-sparkle" />
             <span className="quote-text-slide" key={quoteIndex}>{quotes[quoteIndex]}</span>
           </div>
         </div>

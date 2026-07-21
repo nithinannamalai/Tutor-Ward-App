@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import type { UserProfile } from '../App';
+import appLogo from '../assets/app-logo.png';
 
 interface SignInPageProps {
   onClose?: () => void;
@@ -18,6 +20,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+
+  const isNative = Capacitor.isNativePlatform();
 
   const quotes = [
     "“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.” – Malcolm X",
@@ -82,10 +86,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
     setTimeout(() => setForgotSent(false), 3000);
   };
 
-  const [activeTheme, setActiveTheme] = useState<'aurora' | 'sunset' | 'emerald'>('aurora');
-
   return (
-    <div className={`signin-page-overlay theme-${activeTheme}`}>
+    <div className="signin-page-overlay">
       {/* Top Animated Gradient Header Section */}
       <div className="signin-header-gradient">
         {/* Animated Background Glowing Orbs */}
@@ -103,45 +105,25 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
             <div style={{ width: 36 }} />
           )}
 
-          {/* Theme Color Selector Pills */}
-          <div className="signin-theme-selector">
-            <button
-              type="button"
-              className={`theme-pill aurora ${activeTheme === 'aurora' ? 'active' : ''}`}
-              onClick={() => setActiveTheme('aurora')}
-              title="Aurora Glow Theme"
-            />
-            <button
-              type="button"
-              className={`theme-pill sunset ${activeTheme === 'sunset' ? 'active' : ''}`}
-              onClick={() => setActiveTheme('sunset')}
-              title="Sunset Flame Theme"
-            />
-            <button
-              type="button"
-              className={`theme-pill emerald ${activeTheme === 'emerald' ? 'active' : ''}`}
-              onClick={() => setActiveTheme('emerald')}
-              title="Emerald Pulse Theme"
-            />
-          </div>
-
           <div className="signin-top-right">
-            <a
-              href="/download.html"
-              className="signin-get-started-btn"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
-              title="Download Android APK"
-            >
-              <Download size={13} />
-              <span>Get APK</span>
-            </a>
+            {!isNative && (
+              <a
+                href="/download.html"
+                className="signin-get-started-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+                title="Download Android APK"
+              >
+                <Download size={13} />
+                <span>Get APK</span>
+              </a>
+            )}
           </div>
         </div>
 
         {/* Brand Banner with App Logo & Moving Quotes Ticker */}
         <div className="signin-brand-banner">
           <div className="signin-app-logo-wrap glowing-logo">
-            <img src="/app-logo.png" alt="App Logo" className="signin-app-logo-img" style={{ objectFit: 'cover' }} />
+            <img src={appLogo} alt="App Logo" className="signin-app-logo-img" style={{ objectFit: 'cover' }} />
             <div className="logo-sparkle-ring" />
           </div>
           <h1 className="signin-brand-title">

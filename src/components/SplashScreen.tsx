@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, LogIn, UserPlus } from 'lucide-react';
+import appLogo from '../assets/app-logo.png';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -22,7 +23,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onSelectAu
       <div className="splash-content">
         <div className="splash-logo-wrapper">
           <div className="splash-logo-circle" style={{ padding: 0, background: '#ffffff', borderRadius: 24, overflow: 'hidden', border: '3px solid rgba(255, 255, 255, 0.8)' }}>
-            <img src="/app-logo.png" alt="EEE SREC Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={appLogo} alt="EEE SREC Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div className="splash-logo-badge">
             <Sparkles size={12} fill="currentColor" />

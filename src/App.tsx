@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { dbService } from './services/db';
 import type { Announcement } from './services/db';
 import { AnnouncementBanner } from './components/AnnouncementBanner';
+import appLogo from './assets/app-logo.png';
 
 import { ProfileDocs } from './components/ProfileDocs';
 import { AttendanceTracker } from './components/AttendanceTracker';
@@ -211,7 +212,7 @@ function App() {
           </button>
           <div className="mobile-brand">
             <div className="mobile-brand-logo">
-              <img src="/app-logo.png" alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
+              <img src={appLogo} alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
             </div>
             <div className="mobile-brand-text">
               <h1>EEE SREC</h1>

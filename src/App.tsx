@@ -10,7 +10,9 @@ import { AcademicsTracker } from './components/AcademicsTracker';
 import { CareerHub } from './components/CareerHub';
 import { AcademicCalendar } from './components/AcademicCalendar';
 import { AIChatbot } from './components/AIChatbot';
-import { AuthModal } from './components/AuthModal';
+import { SplashScreen } from './components/SplashScreen';
+import { SignInPage } from './components/SignInPage';
+import { StudentDetailsCard } from './components/StudentDetailsCard';
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
@@ -27,9 +29,10 @@ const USER_PROFILES = [
 ];
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<typeof USER_PROFILES[0] | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSignInPage, setShowSignInPage] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [currentTab, setCurrentTab] = useState<string | null>(null);
   const [activeBottomNav, setActiveBottomNav] = useState('home');
@@ -54,7 +57,7 @@ function App() {
   const handleLoginSuccess = (userProfile: typeof USER_PROFILES[0]) => {
     setCurrentUser(userProfile);
     setIsAuthenticated(true);
-    setShowAuthModal(false);
+    setShowSignInPage(false);
   };
 
   const handleLogout = () => {
@@ -68,7 +71,7 @@ function App() {
 
   const handleCardClick = (titleKey: string) => {
     if (!isAuthenticated) {
-      setShowAuthModal(true);
+      setShowSignInPage(true);
       return;
     }
     setCurrentTab(titleKey);
@@ -120,6 +123,10 @@ function App() {
     })).filter(cat => cat.items.length > 0)
     : appCategories;
 
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
   return (
     <div className="mobile-app-shell">
       {/* ── Top Header Bar ── */}
@@ -153,7 +160,7 @@ function App() {
           </button>
           <button
             className="avatar-btn"
-            onClick={() => isAuthenticated ? handleCardClick('profile') : setShowAuthModal(true)}
+            onClick={() => isAuthenticated ? handleCardClick('profile') : setShowSignInPage(true)}
             aria-label="User Profile"
           >
             {isAuthenticated && currentUser ? currentUser.name.charAt(0) : <User size={18} />}
@@ -171,7 +178,7 @@ function App() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             autoFocus
-            style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 13, color: 'var(--text-main)' }}
+            style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'var(--text-main)' }}
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
@@ -205,7 +212,7 @@ function App() {
               <div className="drawer-action-row">
                 {isAuthenticated ? (
                   <>
-                    <button className="drawer-btn primary" onClick={() => { setIsDrawerOpen(false); setShowAuthModal(true); }}>
+                    <button className="drawer-btn primary" onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
                       <User size={12} /> Switch Demo
                     </button>
                     <button className="drawer-btn secondary" onClick={handleLogout}>
@@ -213,7 +220,7 @@ function App() {
                     </button>
                   </>
                 ) : (
-                  <button className="drawer-btn primary" style={{ width: '100%' }} onClick={() => { setIsDrawerOpen(false); setShowAuthModal(true); }}>
+                  <button className="drawer-btn primary" style={{ width: '100%' }} onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
                     <User size={14} /> Sign In / Demo Access
                   </button>
                 )}
@@ -310,34 +317,16 @@ function App() {
 
       {/* ── PURE MOBILE APP MAIN DASHBOARD CONTENT ── */}
       <main className="mobile-app-content">
-        {/* Mobile Greeting Banner Card */}
-        <div className="app-greeting-card">
-          <div className="greeting-user-row">
-            <div className="greeting-text">
-              <h2>Hello, {isAuthenticated && currentUser ? currentUser.name.split(' ')[0] : 'Guest'}! 👋</h2>
-              <p>Sri Ramakrishna Engineering College · EEE Dept</p>
-            </div>
-            {!isAuthenticated && (
-              <button className="nav-btn btn-login-filled" onClick={() => setShowAuthModal(true)} style={{ fontSize: 11, padding: '4px 10px' }}>
-                Sign In
-              </button>
-            )}
-          </div>
+        {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
+        <StudentDetailsCard
+          isAuthenticated={isAuthenticated}
+          currentUser={currentUser}
+          onOpenProfile={() => handleCardClick('profile')}
+          onOpenSignIn={() => setShowSignInPage(true)}
+          onOpenTab={handleCardClick}
+        />
 
-          <div className="greeting-pills-row">
-            <div className="greeting-pill" onClick={() => handleCardClick('attendance')} style={{ cursor: 'pointer' }}>
-              <span style={{ color: '#4ade80' }}>●</span> Attendance: 85%
-            </div>
-            <div className="greeting-pill" onClick={() => handleCardClick('academics')} style={{ cursor: 'pointer' }}>
-              <span style={{ color: '#facc15' }}>★</span> CGPA: 8.9
-            </div>
-            <div className="greeting-pill" onClick={() => handleCardClick('nptel')} style={{ cursor: 'pointer' }}>
-              <span style={{ color: '#c084fc' }}>🏆</span> NPTEL: 2 Certs
-            </div>
-          </div>
-        </div>
-
-        {/* Notice Board Announcement Widget */}
+        {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
         <div id="announcements-widget">
           <div className="mobile-section-header">
             <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
@@ -421,10 +410,10 @@ function App() {
         </button>
       </nav>
 
-      {/* ── Auth Modal ── */}
-      {showAuthModal && (
-        <AuthModal
-          onClose={() => setShowAuthModal(false)}
+      {/* ── Full-Screen Mobile Sign In Page ── */}
+      {showSignInPage && (
+        <SignInPage
+          onClose={() => setShowSignInPage(false)}
           onLoginSuccess={handleLoginSuccess}
           demoProfiles={USER_PROFILES}
         />

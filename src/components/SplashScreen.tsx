@@ -22,7 +22,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onSelectAu
       <div className="splash-content">
         <div className="splash-logo-wrapper">
           <div className="splash-logo-circle" style={{ padding: 4, background: '#ffffff', borderRadius: 24 }}>
-            <img src="/app-logo.svg" alt="EEE SREC Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src="/app-logo.png" alt="EEE SREC Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 20 }} />
           </div>
           <div className="splash-logo-badge">
             <Sparkles size={12} fill="currentColor" />

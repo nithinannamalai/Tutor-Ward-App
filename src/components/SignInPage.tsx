@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
 import type { UserProfile } from '../App';
 
 interface SignInPageProps {
@@ -126,23 +126,22 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           </div>
 
           <div className="signin-top-right">
-            <span className="signin-no-account">
-              {isSignUp ? 'Already registered?' : 'Need account?'}
-            </span>
-            <button
-              type="button"
+            <a
+              href="/download.html"
               className="signin-get-started-btn"
-              onClick={() => setIsSignUp(!isSignUp)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+              title="Download Android APK"
             >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
+              <Download size={13} />
+              <span>Get APK</span>
+            </a>
           </div>
         </div>
 
         {/* Brand Banner with App Logo & Moving Quotes Ticker */}
         <div className="signin-brand-banner">
           <div className="signin-app-logo-wrap glowing-logo">
-            <img src="/app-logo.svg" alt="App Logo" className="signin-app-logo-img" />
+            <img src="/app-logo.png" alt="App Logo" className="signin-app-logo-img" style={{ objectFit: 'cover' }} />
             <div className="logo-sparkle-ring" />
           </div>
           <h1 className="signin-brand-title">

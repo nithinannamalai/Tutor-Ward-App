@@ -211,7 +211,7 @@ function App() {
           </button>
           <div className="mobile-brand">
             <div className="mobile-brand-logo">
-              <img src="/app-logo.svg" alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain' }} />
+              <img src="/app-logo.png" alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
             </div>
             <div className="mobile-brand-text">
               <h1>EEE SREC</h1>

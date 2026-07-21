@@ -52,6 +52,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [showSignInPage, setShowSignInPage] = useState(false);
+  const [dismissedSignIn, setDismissedSignIn] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [currentTab, setCurrentTab] = useState<string | null>(null);
   const [isClosingModal, setIsClosingModal] = useState(false);
@@ -186,11 +187,12 @@ function App() {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-  // SHOW SIGN IN PAGE FIRST (Before entering dashboard)
-  if (!isAuthenticated) {
+  // SHOW SIGN IN PAGE FIRST (Before entering dashboard), with close X to explore landing page
+  if (!isAuthenticated && !dismissedSignIn) {
     return (
       <div className="mobile-app-shell">
         <SignInPage
+          onClose={() => setDismissedSignIn(true)}
           onLoginSuccess={handleLoginSuccess}
           demoProfiles={USER_PROFILES}
         />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
+import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import type { UserProfile } from '../App';
 import appLogo from '../assets/app-logo.png';
@@ -97,13 +97,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
 
         {/* Top Navbar */}
         <div className="signin-top-nav">
-          {onClose ? (
-            <button className="signin-back-btn" onClick={onClose} aria-label="Go Back">
-              <ArrowLeft size={20} />
-            </button>
-          ) : (
-            <div style={{ width: 36 }} />
-          )}
+          <button
+            className="signin-back-btn"
+            onClick={onClose}
+            aria-label="Close to Landing Page"
+            title="Close and explore landing page"
+          >
+            <X size={20} />
+          </button>
 
           <div className="signin-top-right">
             {!isNative && (

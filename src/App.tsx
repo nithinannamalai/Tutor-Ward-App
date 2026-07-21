@@ -473,10 +473,10 @@ function App() {
       {currentTab && (
         <div className="portal-modal-overlay" onClick={() => setCurrentTab(null)}>
           <div className="portal-modal-container" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px 0', borderBottom: '1px solid var(--card-border)' }}>
+          <div className="portal-modal-topbar">
               <button
+                className="portal-modal-back-btn"
                 onClick={() => setCurrentTab(null)}
-                style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: 'var(--accent-blue)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
               >
                 <ArrowLeft size={16} /> Back to Hub
               </button>

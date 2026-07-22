@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { type Student, dbService } from '../services/db';
+import { type Student, type SemesterGrades, dbService } from '../services/db';
 import { ArrowLeft, TrendingUp, Sparkles, Search, UserCheck } from 'lucide-react';
 
 interface AcademicsTrackerProps {
@@ -10,7 +10,7 @@ interface AcademicsTrackerProps {
 
 export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail, isAdmin, onBack }) => {
   const [student, setStudent] = useState<Student | null>(null);
-  const [cgpaRecords, setCgpaRecords] = useState<Record<number, number>>({});
+  const [cgpaRecords, setCgpaRecords] = useState<Record<number, SemesterGrades>>({});
   const [arrears, setArrears] = useState(0);
 
   // Admin states
@@ -18,6 +18,7 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudentEmail, setSelectedStudentEmail] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'cgpa' | 'arrears'>('name');
+  const [expandedSem, setExpandedSem] = useState<number | null>(null);
 
   // Input states
   const [saving, setSaving] = useState(false);
@@ -54,7 +55,14 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
           rollNo: '7377221EE001',
           name: 'Nithin Annamalai',
           email: currentEmail || 'student@eee.com',
-          cgpa: { 1: 8.5, 2: 8.3, 3: 8.6, 4: 8.7, 5: 8.4, 6: 8.5 },
+          cgpa: {
+            1: { internal1: 85, internal2: 88, semMarks: 86, gpa: 8.5 },
+            2: { internal1: 82, internal2: 84, semMarks: 83, gpa: 8.3 },
+            3: { internal1: 86, internal2: 87, semMarks: 86, gpa: 8.6 },
+            4: { internal1: 88, internal2: 90, semMarks: 87, gpa: 8.7 },
+            5: { internal1: 84, internal2: 85, semMarks: 84, gpa: 8.4 },
+            6: { internal1: 85, internal2: 86, semMarks: 85, gpa: 8.5 }
+          },
           arrears: 0,
           nptelExams: [],
           documents: []
@@ -66,11 +74,14 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
     }
   };
 
-  const handleGpaChange = (semester: number, value: string) => {
+  const handleGradeChange = (semester: number, field: keyof SemesterGrades, value: string) => {
     const val = parseFloat(value);
     setCgpaRecords(prev => ({
       ...prev,
-      [semester]: isNaN(val) ? 0 : Math.min(Math.max(val, 0), 10)
+      [semester]: {
+        ...(prev[semester] || {}),
+        [field]: isNaN(val) ? undefined : val
+      }
     }));
   };
 
@@ -80,19 +91,9 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
     setSaving(true);
     setStatusMessage('');
 
-    // Clean up empty GPAs
-    const cleanedCgpa: Record<number, number> = {};
-    Object.keys(cgpaRecords).forEach(k => {
-      const sem = parseInt(k);
-      const val = cgpaRecords[sem];
-      if (val > 0) {
-        cleanedCgpa[sem] = val;
-      }
-    });
-
     try {
       await dbService.updateStudentProfile(student.email, {
-        cgpa: cleanedCgpa,
+        cgpa: cgpaRecords,
         arrears: arrears
       });
       setStatusMessage('Academic details saved!');
@@ -106,12 +107,18 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
     }
   };
 
-  // Helper: Calculate CGPA
-  const calculateCgpa = (records: Record<number, number>): number => {
-    const gpas = Object.values(records).filter(val => val > 0);
+  // Helper: Extract GPA from SemesterGrades or number
+  const getGpa = (grades: SemesterGrades | number | undefined): number => {
+    if (!grades) return 0;
+    if (typeof grades === 'number') return grades;
+    return grades.gpa || 0;
+  };
+
+  // Helper: Calculate CGPA from SemesterGrades records
+  const calculateCgpa = (records: Record<number, SemesterGrades>): number => {
+    const gpas = Object.values(records).map(g => getGpa(g)).filter(v => v > 0);
     if (gpas.length === 0) return 0;
-    const total = gpas.reduce((sum, g) => sum + g, 0);
-    return Math.round((total / gpas.length) * 100) / 100;
+    return Math.round((gpas.reduce((sum, g) => sum + g, 0) / gpas.length) * 100) / 100;
   };
 
   const currentCgpa = calculateCgpa(cgpaRecords);
@@ -247,53 +254,90 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
               </div>
             </div>
 
-            {/* Form to enter GPAs */}
-            <form onSubmit={handleSaveAcademics} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <h4 style={{ fontSize: 13, fontWeight: '700', marginBottom: 8 }}>Semester GPA Scores</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
-                    <div key={sem} className="form-group" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--card-border)' }}>
-                      <label className="form-label">Semester {sem}</label>
+            {/* Semester Accordion */}
+            <form onSubmit={handleSaveAcademics} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <h4 style={{ fontSize: 13, fontWeight: '700', margin: '4px 0 2px' }}>Semester-wise Breakdown</h4>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => {
+                const grades = cgpaRecords[sem] || {};
+                const gpa = getGpa(grades);
+                const isOpen = expandedSem === sem;
+                // Cumulative CGPA up to this semester
+                const cumRecords: Record<number, SemesterGrades> = {};
+                for (let s = 1; s <= sem; s++) { if (cgpaRecords[s]) cumRecords[s] = cgpaRecords[s]; }
+                const cumCgpa = calculateCgpa(cumRecords);
+                return (
+                  <div key={sem}>
+                    <div
+                      className="sem-accordion-header"
+                      onClick={() => setExpandedSem(isOpen ? null : sem)}
+                    >
+                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-main)' }}>Semester {sem}</span>
+                        {gpa > 0 && (
+                          <span style={{ fontSize: 10, background: 'rgba(250,204,21,0.15)', color: '#facc15', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>GPA: {gpa}</span>
+                        )}
+                        {cumCgpa > 0 && (
+                          <span style={{ fontSize: 10, background: 'rgba(56,189,248,0.12)', color: 'var(--accent-blue)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>CGPA: {cumCgpa}</span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 14, color: 'var(--text-muted)', transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
+                    </div>
+                    {isOpen && (
+                      <div className="sem-accordion-content">
+                        {(['internal1', 'internal2', 'semMarks', 'gpa'] as (keyof SemesterGrades)[]).map(field => {
+                          const labels: Record<string, string> = { internal1: 'Internal 1', internal2: 'Internal 2', semMarks: 'Sem Marks', gpa: 'GPA (0–10)' };
+                          const val = (grades as any)[field];
+                          return (
+                            <div key={field} className="sem-accordion-field">
+                              <label>{labels[field]}</label>
+                              {isAdmin ? (
+                                <input
+                                  type="number"
+                                  step={field === 'gpa' ? '0.01' : '1'}
+                                  min="0"
+                                  max={field === 'gpa' ? '10' : '100'}
+                                  placeholder={field === 'gpa' ? 'e.g. 8.5' : 'e.g. 85'}
+                                  value={val !== undefined ? val : ''}
+                                  onChange={e => handleGradeChange(sem, field, e.target.value)}
+                                  disabled={saving}
+                                />
+                              ) : (
+                                <span>{val !== undefined ? val : '—'}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {isAdmin && (
+                <>
+                  <div className="form-group" style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: 10, border: '1px solid var(--card-border)', marginTop: 4 }}>
+                    <label className="form-label" style={{ marginBottom: 4 }}>Arrears Count</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <input
                         type="number"
-                        step="0.01"
                         min="0"
-                        max="10"
-                        placeholder="GPA (e.g. 8.5)"
-                        value={cgpaRecords[sem] !== undefined && cgpaRecords[sem] !== 0 ? cgpaRecords[sem] : ''}
-                        onChange={e => handleGpaChange(sem, e.target.value)}
+                        value={arrears}
+                        onChange={e => setArrears(Math.max(0, parseInt(e.target.value) || 0))}
                         className="form-input"
                         disabled={saving}
-                        style={{ padding: '6px 8px', fontSize: 12 }}
+                        style={{ flex: 1 }}
                       />
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button type="button" onClick={() => setArrears(prev => Math.max(0, prev - 1))} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>-</button>
+                        <button type="button" onClick={() => setArrears(prev => prev + 1)} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>+</button>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group" style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: 10, border: '1px solid var(--card-border)' }}>
-                <label className="form-label" style={{ marginBottom: 4 }}>Arrears Count</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <input
-                    type="number"
-                    min="0"
-                    value={arrears}
-                    onChange={e => setArrears(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="form-input"
-                    disabled={saving}
-                    style={{ flex: 1 }}
-                  />
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button type="button" onClick={() => setArrears(prev => Math.max(0, prev - 1))} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>-</button>
-                    <button type="button" onClick={() => setArrears(prev => prev + 1)} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>+</button>
                   </div>
-                </div>
-              </div>
-
-              <button type="submit" className="btn-primary" disabled={saving}>
-                {saving ? 'Saving...' : 'Save Grades & Arrears'}
-              </button>
+                  <button type="submit" className="btn-primary" disabled={saving}>
+                    {saving ? 'Saving...' : 'Save Grades & Arrears'}
+                  </button>
+                </>
+              )}
             </form>
           </div>
         )}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/db';
 import type { Course } from '../services/db';
-import { ArrowLeft, BookOpen, Calendar, Plus, Trash2, Pencil, X, Check } from 'lucide-react';
+import { ArrowLeft, BookOpen, Calendar, Trash2, Pencil, X, Check } from 'lucide-react';
 
 import addIcon from '../assets/add-icon.png';
 

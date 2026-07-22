@@ -68,7 +68,14 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
           rollNo: '7377221EE001',
           name: 'Nithin Annamalai',
           email: currentEmail || 'student@eee.com',
-          cgpa: { 1: 8.5, 2: 8.3, 3: 8.6, 4: 8.7, 5: 8.4, 6: 8.5 },
+          cgpa: {
+            1: { internal1: 85, internal2: 88, semMarks: 86, gpa: 8.5 },
+            2: { internal1: 82, internal2: 84, semMarks: 83, gpa: 8.3 },
+            3: { internal1: 86, internal2: 87, semMarks: 86, gpa: 8.6 },
+            4: { internal1: 88, internal2: 90, semMarks: 87, gpa: 8.7 },
+            5: { internal1: 84, internal2: 85, semMarks: 84, gpa: 8.4 },
+            6: { internal1: 85, internal2: 86, semMarks: 85, gpa: 8.5 }
+          },
           arrears: 0,
           nptelExams: [],
           documents: []

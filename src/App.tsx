@@ -70,6 +70,7 @@ function App() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [academicInitEdit, setAcademicInitEdit] = useState(false);
 
   useEffect(() => {
     loadAnnouncements();
@@ -129,6 +130,7 @@ function App() {
       setShowSignInPage(true);
       return;
     }
+    setAcademicInitEdit(false);
     if (titleKey === 'home') {
       setCurrentTab(null);
       setActiveBottomNav('home');
@@ -139,6 +141,7 @@ function App() {
     setCurrentTab(titleKey);
     setIsDrawerOpen(false);
   };
+
 
   // Mobile App Categories with Colorful App Tiles (Nithra Calendar & Airtel Thanks App Style)
   const appCategories = useMemo(() => [
@@ -439,12 +442,15 @@ function App() {
                     <div
                       key={item.key}
                       className="mobile-app-tile"
+                      style={{ position: 'relative' }}
                       onClick={() => handleCardClick(item.key)}
                     >
                       <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
                         {item.icon}
                       </div>
                       <span className="mobile-tile-label">{item.label}</span>
+
+
                     </div>
                   ))}
                 </div>
@@ -501,8 +507,8 @@ function App() {
               {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
-              {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
-              {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+              {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="courses" initialEditMode={academicInitEdit} />}
+              {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="calendar" initialEditMode={academicInitEdit} />}
               {currentTab === 'suggestion' && (
                 <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
               )}

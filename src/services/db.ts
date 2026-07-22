@@ -185,6 +185,25 @@ export const dbService = {
     }
   },
 
+  async deleteAnnouncement(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('announcements')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteAnnouncement failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_announcements');
+      const list: Announcement[] = localData ? JSON.parse(localData) : [];
+      const filtered = list.filter(a => a.id !== id);
+      localStorage.setItem('eee_announcements', JSON.stringify(filtered));
+      return true;
+    }
+  },
+
   // --- Student Profiles ---
   async getStudentProfile(email: string): Promise<Student | null> {
     try {
@@ -248,6 +267,33 @@ export const dbService = {
         return list[index];
       }
       throw new Error('Student profile not found');
+    }
+  },
+
+  async createStudentProfile(student: Omit<Student, 'documents'>): Promise<Student> {
+    try {
+      const { error } = await supabase
+        .from('student_profiles')
+        .insert({
+          id: student.email,
+          roll_no: student.rollNo,
+          name: student.name,
+          email: student.email,
+          cgpa_json: student.cgpa,
+          arrears_count: student.arrears,
+          nptel_exams: student.nptelExams
+        });
+
+      if (error) throw error;
+      return { ...student, documents: [] };
+    } catch (err: any) {
+      console.warn('Supabase createStudentProfile failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_students');
+      const list: Student[] = localData ? JSON.parse(localData) : [];
+      const newStudent: Student = { ...student, id: student.email, documents: [] };
+      list.push(newStudent);
+      localStorage.setItem('eee_students', JSON.stringify(list));
+      return newStudent;
     }
   },
 
@@ -440,6 +486,41 @@ export const dbService = {
       console.warn('Supabase getCourses failed, using localStorage:', err.message || err);
       const localData = localStorage.getItem('eee_courses');
       return localData ? JSON.parse(localData) : [];
+    }
+  },
+
+  async saveCourse(course: Course): Promise<Course> {
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .upsert(course);
+      if (error) throw error;
+      return course;
+    } catch (err: any) {
+      console.warn('Supabase saveCourse failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_courses');
+      const list: Course[] = localData ? JSON.parse(localData) : [];
+      const idx = list.findIndex(c => c.code === course.code);
+      if (idx > -1) { list[idx] = course; } else { list.push(course); }
+      localStorage.setItem('eee_courses', JSON.stringify(list));
+      return course;
+    }
+  },
+
+  async deleteCourse(code: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('code', code);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteCourse failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_courses');
+      const list: Course[] = localData ? JSON.parse(localData) : [];
+      localStorage.setItem('eee_courses', JSON.stringify(list.filter(c => c.code !== code)));
+      return true;
     }
   }
 };

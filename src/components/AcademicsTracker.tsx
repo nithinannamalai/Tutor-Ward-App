@@ -175,22 +175,19 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
               <span className="form-label" style={{ fontSize: 10 }}>Sort By:</span>
               <button
                 onClick={() => setSortBy('name')}
-                className={`btn-secondary ${sortBy === 'name' ? 'active' : ''}`}
-                style={{ padding: '2px 8px', fontSize: 10, background: sortBy === 'name' ? 'var(--accent-blue)' : 'rgba(255,255,255,0.05)', color: sortBy === 'name' ? 'var(--bg-primary)' : 'white' }}
+                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: `1.5px solid ${sortBy === 'name' ? 'var(--accent-blue)' : 'var(--card-border)'}`, background: sortBy === 'name' ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: sortBy === 'name' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
               >
                 Name
               </button>
               <button
                 onClick={() => setSortBy('cgpa')}
-                className={`btn-secondary ${sortBy === 'cgpa' ? 'active' : ''}`}
-                style={{ padding: '2px 8px', fontSize: 10, background: sortBy === 'cgpa' ? 'var(--accent-blue)' : 'rgba(255,255,255,0.05)', color: sortBy === 'cgpa' ? 'var(--bg-primary)' : 'white' }}
+                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: `1.5px solid ${sortBy === 'cgpa' ? 'var(--accent-blue)' : 'var(--card-border)'}`, background: sortBy === 'cgpa' ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: sortBy === 'cgpa' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
               >
                 CGPA
               </button>
               <button
                 onClick={() => setSortBy('arrears')}
-                className={`btn-secondary ${sortBy === 'arrears' ? 'active' : ''}`}
-                style={{ padding: '2px 8px', fontSize: 10, background: sortBy === 'arrears' ? 'var(--accent-blue)' : 'rgba(255,255,255,0.05)', color: sortBy === 'arrears' ? 'var(--bg-primary)' : 'white' }}
+                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: `1.5px solid ${sortBy === 'arrears' ? 'var(--accent-blue)' : 'var(--card-border)'}`, background: sortBy === 'arrears' ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: sortBy === 'arrears' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
               >
                 Arrears
               </button>
@@ -267,7 +264,7 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
                         value={cgpaRecords[sem] !== undefined && cgpaRecords[sem] !== 0 ? cgpaRecords[sem] : ''}
                         onChange={e => handleGpaChange(sem, e.target.value)}
                         className="form-input"
-                        disabled={isAdmin}
+                        disabled={saving}
                         style={{ padding: '6px 8px', fontSize: 12 }}
                       />
                     </div>
@@ -284,23 +281,19 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
                     value={arrears}
                     onChange={e => setArrears(Math.max(0, parseInt(e.target.value) || 0))}
                     className="form-input"
-                    disabled={isAdmin}
+                    disabled={saving}
                     style={{ flex: 1 }}
                   />
-                  {!isAdmin && (
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button type="button" onClick={() => setArrears(prev => Math.max(0, prev - 1))} className="btn-secondary" style={{ padding: '6px 12px' }}>-</button>
-                      <button type="button" onClick={() => setArrears(prev => prev + 1)} className="btn-secondary" style={{ padding: '6px 12px' }}>+</button>
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button type="button" onClick={() => setArrears(prev => Math.max(0, prev - 1))} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>-</button>
+                    <button type="button" onClick={() => setArrears(prev => prev + 1)} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>+</button>
+                  </div>
                 </div>
               </div>
 
-              {!isAdmin && (
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? 'Saving...' : 'Save Grades & Arrears'}
-                </button>
-              )}
+              <button type="submit" className="btn-primary" disabled={saving}>
+                {saving ? 'Saving...' : 'Save Grades & Arrears'}
+              </button>
             </form>
           </div>
         )}

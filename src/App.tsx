@@ -44,6 +44,16 @@ const USER_PROFILES: UserProfile[] = [
     yearOfStudy: '3rd Year',
     semester: 'Semester VI',
     department: 'Dept of EEE'
+  },
+  {
+    email: 'teacher@eee.com',
+    name: 'Dr. EEE HOD / Faculty',
+    rollNo: 'FAC001',
+    role: 'teacher',
+    className: 'All EEE Classes',
+    yearOfStudy: 'Staff',
+    semester: 'Staff Portal',
+    department: 'Dept of EEE'
   }
 ];
 
@@ -72,6 +82,11 @@ function App() {
 
   const handleAddAnnouncement = async (newAnn: Omit<Announcement, 'id'>) => {
     await dbService.saveAnnouncement(newAnn);
+    loadAnnouncements();
+  };
+
+  const handleDeleteAnnouncement = async (id: string) => {
+    await dbService.deleteAnnouncement(id);
     loadAnnouncements();
   };
 
@@ -407,6 +422,7 @@ function App() {
                   announcements={announcements}
                   isAdmin={isAdmin}
                   onAddAnnouncement={handleAddAnnouncement}
+                  onDeleteAnnouncement={handleDeleteAnnouncement}
                   onOpenAnnouncements={() => handleCardClick('announcements')}
                 />
               </div>
@@ -474,6 +490,7 @@ function App() {
                     announcements={announcements}
                     isAdmin={isAdmin}
                     onAddAnnouncement={handleAddAnnouncement}
+                    onDeleteAnnouncement={handleDeleteAnnouncement}
                   />
                 </div>
               )}

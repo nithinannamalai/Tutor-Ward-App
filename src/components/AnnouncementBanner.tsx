@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Announcement } from '../services/db';
 import { Megaphone, Calendar, Trophy, FileText, Plus, X } from 'lucide-react';
 
@@ -6,6 +6,7 @@ interface AnnouncementBannerProps {
   announcements: Announcement[];
   isAdmin: boolean;
   onAddAnnouncement: (announcement: Omit<Announcement, 'id'>) => void;
+  onDeleteAnnouncement?: (id: string) => void;
   onOpenAnnouncements?: () => void;
 }
 
@@ -13,6 +14,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   announcements,
   isAdmin,
   onAddAnnouncement,
+  onDeleteAnnouncement,
   onOpenAnnouncements
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -24,14 +26,51 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   const [newDate, setNewDate] = useState('');
   const [newPosterUrl, setNewPosterUrl] = useState('');
 
-  // ⏱️ Auto-rotate announcements every 5 seconds
-  useEffect(() => {
-    if (announcements.length <= 1) return;
-    const timer = setInterval(() => {
+  // 👆 Swipe touch states
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [swiped, setSwiped] = useState(false);
+
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    setSwiped(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+    if (touchStart && Math.abs(touchStart - e.targetTouches[0].clientX) > 10) {
+      setSwiped(true);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
       setActiveIndex(prev => (prev + 1) % announcements.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [announcements.length]);
+    } else if (isRightSwipe) {
+      setActiveIndex(prev => (prev - 1 + announcements.length) % announcements.length);
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (swiped) {
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+    if (onOpenAnnouncements) {
+      onOpenAnnouncements();
+    }
+  };
+
+  // 👆 Manual navigation only – no auto-rotation
+  // Users swipe left/right or tap indicator dots to navigate
 
   if (announcements.length === 0 && !isAdmin) {
     return (
@@ -105,7 +144,14 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
       </div>
 
       {announcements.length > 0 && (
-        <div className="announcement-card" style={{ cursor: 'pointer' }} onClick={onOpenAnnouncements}>
+        <div 
+          className="announcement-card" 
+          style={{ cursor: 'pointer' }} 
+          onClick={handleCardClick}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="ann-header">
             <span className={`ann-badge ${current.type}`}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -122,15 +168,33 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }} onClick={e => e.stopPropagation()}>
-            {(current.type === 'hackathon' || current.type === 'event' || current.posterUrl) ? (
-              <button 
-                onClick={(e) => { e.stopPropagation(); viewPoster(current); }}
-                className="btn-secondary" 
-                style={{ padding: '3px 8px', fontSize: 10, borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
-              >
-                View Poster
-              </button>
-            ) : <div />}
+            <div style={{ display: 'flex', gap: 6 }}>
+              {(current.type === 'hackathon' || current.type === 'event' || current.posterUrl) ? (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); viewPoster(current); }}
+                  className="btn-secondary" 
+                  style={{ padding: '3px 8px', fontSize: 10, borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
+                >
+                  View Poster
+                </button>
+              ) : <div />}
+              
+              {isAdmin && onDeleteAnnouncement && (
+                <button 
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (window.confirm('Delete this announcement?')) {
+                      onDeleteAnnouncement(current.id); 
+                      setActiveIndex(0);
+                    }
+                  }}
+                  className="btn-secondary" 
+                  style={{ padding: '3px 8px', fontSize: 10, borderColor: '#f87171', color: '#f87171' }}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
 
             <div className="ann-indicator-container" style={{ margin: 0 }}>
               {announcements.map((_, idx) => (

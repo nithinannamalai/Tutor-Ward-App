@@ -194,25 +194,23 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
               </div>
             )}
 
-            {!isAdmin && (
-              <form onSubmit={handleAddExam} style={{ display: 'flex', flexDirection: 'column', gap: 10, background: 'var(--bg-secondary)', padding: 14, borderRadius: 12, border: '1px solid var(--card-border)' }}>
-                <div className="form-group">
-                  <label className="form-label">Register New NPTEL Exam</label>
-                  <input
-                    type="text"
-                    value={newExam}
-                    onChange={e => setNewExam(e.target.value)}
-                    className="form-input"
-                    placeholder="e.g. Introduction to Smart Grid"
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} disabled={saving}>
-                  <Plus size={16} />
-                  Add Course
-                </button>
-              </form>
-            )}
+            <form onSubmit={handleAddExam} style={{ display: 'flex', flexDirection: 'column', gap: 10, background: 'var(--bg-secondary)', padding: 14, borderRadius: 12, border: '1px solid var(--card-border)' }}>
+              <div className="form-group">
+                <label className="form-label">{isAdmin ? "Add NPTEL Exam for Student" : "Register New NPTEL Exam"}</label>
+                <input
+                  type="text"
+                  value={newExam}
+                  onChange={e => setNewExam(e.target.value)}
+                  className="form-input"
+                  placeholder="e.g. Introduction to Smart Grid"
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} disabled={saving}>
+                <Plus size={16} />
+                Add Course
+              </button>
+            </form>
 
             <div>
               <h4 style={{ fontSize: 13, fontWeight: '700', marginBottom: 8 }}>Registered NPTEL Examinations</h4>
@@ -228,11 +226,9 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
                         <Award size={18} style={{ color: 'var(--accent-gold)' }} />
                         <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{examName}</span>
                       </div>
-                      {!isAdmin && (
-                        <button onClick={() => handleDeleteExam(examName)} className="doc-action-btn delete" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                          <Trash2 size={16} />
-                        </button>
-                      )}
+                      <button onClick={() => handleDeleteExam(examName)} className="doc-action-btn delete" style={{ background: 'none', border: 'none', cursor: 'pointer' }} disabled={saving}>
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   ))
                 )}

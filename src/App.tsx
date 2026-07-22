@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { App as CapApp } from '@capacitor/app';
 import { dbService } from './services/db';
 import type { Announcement } from './services/db';
 import { AnnouncementBanner } from './components/AnnouncementBanner';
@@ -74,6 +75,22 @@ function App() {
 
   useEffect(() => {
     loadAnnouncements();
+
+    // Hardware Back Button Handler
+    const backListener = CapApp.addListener('backButton', () => {
+      setCurrentTab(prev => {
+        if (prev !== null) {
+          setActiveBottomNav('home');
+          return null;
+        }
+        CapApp.exitApp();
+        return prev;
+      });
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
   }, []);
 
   const loadAnnouncements = async () => {

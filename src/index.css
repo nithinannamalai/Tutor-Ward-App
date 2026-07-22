@@ -2652,6 +2652,15 @@ html, body {
 }
 
 .dedicated-page-view .panel-header {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 0 4px !important;
+  min-height: 0 !important;
+  margin-bottom: 8px !important;
+}
+
+.dedicated-page-view .panel-header .back-btn,
+.dedicated-page-view .panel-header .panel-title {
   display: none !important;
 }
 

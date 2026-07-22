@@ -1,7 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/db';
 import type { Course } from '../services/db';
 import { ArrowLeft, BookOpen, Calendar, Plus, Trash2, Pencil, X, Check } from 'lucide-react';
+
+import addIcon from '../assets/add-icon.png';
 
 interface AcademicCalendarProps {
   onBack: () => void;
@@ -9,27 +11,20 @@ interface AcademicCalendarProps {
 }
 
 interface Milestone {
+  id?: number;
   date: string;
   event: string;
   type: 'academic' | 'exam' | 'holiday';
 }
-
-const DEFAULT_MILESTONES: Milestone[] = [
-  { date: 'July 15, 2026', event: 'Commencement of Semester VI Classes', type: 'academic' },
-  { date: 'August 24 - 29, 2026', event: 'Continuous Assessment Test (CAT-1) Schedule', type: 'exam' },
-  { date: 'September 5, 2026', event: 'Electrify 2026 - EEE Hackathon', type: 'holiday' },
-  { date: 'September 15, 2026', event: 'Engineers Day Technical Symposium', type: 'academic' },
-  { date: 'October 12 - 17, 2026', event: 'Continuous Assessment Test (CAT-2) Schedule', type: 'exam' },
-  { date: 'November 2 - 7, 2026', event: 'Model Practical Examinations', type: 'exam' },
-  { date: 'November 12, 2026', event: 'Last Working Day / Attendance Submission', type: 'academic' },
-  { date: 'November 20, 2026', event: 'End Semester Theory Exams Commencement', type: 'exam' },
-];
 
 export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAdmin = false }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
+
+  const [editCourseCode, setEditCourseCode] = useState<string | null>(null);
+  const [editMilestoneId, setEditMilestoneId] = useState<number | null>(null);
 
   const [showCourseForm, setShowCourseForm] = useState(false);
   const [newCode, setNewCode] = useState('');
@@ -55,18 +50,11 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
     setLoading(false);
   };
 
-  const loadMilestones = () => {
-    try {
-      const stored = localStorage.getItem('eee_milestones');
-      setMilestones(stored ? JSON.parse(stored) : DEFAULT_MILESTONES);
-    } catch {
-      setMilestones(DEFAULT_MILESTONES);
-    }
-  };
-
-  const saveMilestones = (list: Milestone[]) => {
-    localStorage.setItem('eee_milestones', JSON.stringify(list));
+  const loadMilestones = async () => {
+    setLoading(true);
+    const list = await dbService.getMilestones();
     setMilestones(list);
+    setLoading(false);
   };
 
   const handleAddCourse = async (e: React.FormEvent) => {
@@ -78,10 +66,14 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
       credits: parseInt(newCredits),
       semester: parseInt(newSem),
     };
+    if (editCourseCode && editCourseCode !== course.code) {
+      await dbService.deleteCourse(editCourseCode);
+    }
     await dbService.saveCourse(course);
-    setCourseStatus('Course added!');
+    setCourseStatus(editCourseCode ? 'Course updated!' : 'Course added!');
     setTimeout(() => setCourseStatus(''), 2500);
     setNewCode(''); setNewName(''); setNewCredits(''); setNewSem('6');
+    setEditCourseCode(null);
     setShowCourseForm(false);
     loadCourses();
   };
@@ -92,17 +84,28 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
     loadCourses();
   };
 
-  const handleAddMilestone = (e: React.FormEvent) => {
+  const handleAddMilestone = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMDate.trim() || !newMEvent.trim()) return;
-    const updated = [...milestones, { date: newMDate.trim(), event: newMEvent.trim(), type: newMType }];
-    saveMilestones(updated);
+    const m: Milestone = {
+      date: newMDate.trim(),
+      event: newMEvent.trim(),
+      type: newMType,
+    };
+    if (editMilestoneId) {
+      m.id = editMilestoneId;
+    }
+    await dbService.saveMilestone(m);
     setNewMDate(''); setNewMEvent(''); setNewMType('academic');
+    setEditMilestoneId(null);
     setShowMilestoneForm(false);
+    loadMilestones();
   };
 
-  const handleDeleteMilestone = (idx: number) => {
-    saveMilestones(milestones.filter((_, i) => i !== idx));
+  const handleDeleteMilestone = async (id: number) => {
+    if (!window.confirm('Delete this milestone event?')) return;
+    await dbService.deleteMilestone(id);
+    loadMilestones();
   };
 
   const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
@@ -148,10 +151,10 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
               </span>
               {editMode && (
                 <button
-                  onClick={() => setShowCourseForm(v => !v)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff', border: 'none' }}
+                  onClick={() => { setShowCourseForm(v => !v); setEditCourseCode(null); }}
+                  className="btn-png-add"
                 >
-                  <Plus size={11} /> Add Course
+                  <img src={addIcon} alt="Add" style={{ width: 14, height: 14 }} /> Add Course
                 </button>
               )}
             </div>
@@ -180,8 +183,8 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
                 </select>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>Save Course</button>
-                <button type="button" onClick={() => setShowCourseForm(false)} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>{editCourseCode ? 'Save Changes' : 'Save Course'}</button>
+                <button type="button" onClick={() => { setShowCourseForm(false); setEditCourseCode(null); }} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
               </div>
             </form>
           )}
@@ -208,9 +211,24 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
                       {course.credits} Cr
                     </span>
                     {editMode && (
-                      <button onClick={() => handleDeleteCourse(course.code)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 4 }}>
-                        <Trash2 size={14} />
-                      </button>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button
+                          onClick={() => {
+                            setEditCourseCode(course.code);
+                            setNewCode(course.code);
+                            setNewName(course.name);
+                            setNewCredits(course.credits.toString());
+                            setNewSem(course.semester.toString());
+                            setShowCourseForm(true);
+                          }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-blue)', padding: 4 }}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button onClick={() => handleDeleteCourse(course.code)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 4 }}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -226,10 +244,10 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
             <h4 style={{ fontSize: 13, fontWeight: '700' }}>Academic Calendar 2026</h4>
             {editMode && (
               <button
-                onClick={() => setShowMilestoneForm(v => !v)}
-                style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', background: 'var(--accent-gold)', color: '#000', border: 'none' }}
+                onClick={() => { setShowMilestoneForm(v => !v); setEditMilestoneId(null); }}
+                className="btn-png-add"
               >
-                <Plus size={11} /> Add Event
+                <img src={addIcon} alt="Add" style={{ width: 14, height: 14 }} /> Add Event
               </button>
             )}
           </div>
@@ -253,8 +271,8 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
                 </select>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>Add Event</button>
-                <button type="button" onClick={() => setShowMilestoneForm(false)} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>{editMilestoneId ? 'Save Changes' : 'Add Event'}</button>
+                <button type="button" onClick={() => { setShowMilestoneForm(false); setEditMilestoneId(null); }} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
               </div>
             </form>
           )}
@@ -262,7 +280,7 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {milestones.map((m, idx) => (
               <div
-                key={idx}
+                key={m.id || idx}
                 className="document-item"
                 style={{ padding: '10px 12px', borderLeft: `3px solid ${typeColor(m.type)}`, borderRadius: '4px 10px 10px 4px' }}
               >
@@ -277,9 +295,23 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({ onBack, isAd
                   <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{m.event}</span>
                 </div>
                 {editMode && (
-                  <button onClick={() => handleDeleteMilestone(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 4, flexShrink: 0 }}>
-                    <Trash2 size={14} />
-                  </button>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button
+                      onClick={() => {
+                        setEditMilestoneId(m.id || null);
+                        setNewMDate(m.date);
+                        setNewMEvent(m.event);
+                        setNewMType(m.type);
+                        setShowMilestoneForm(true);
+                      }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-blue)', padding: 4 }}
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => handleDeleteMilestone(m.id!)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 4, flexShrink: 0 }}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 )}
               </div>
             ))}

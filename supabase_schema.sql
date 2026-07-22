@@ -207,3 +207,49 @@ VALUES
 ('EE8611', 'Power Electronics and Drives Laboratory', 2, 6),
 ('EE8612', 'Renewable Energy Systems Laboratory', 2, 6)
 ON CONFLICT (code) DO NOTHING;
+
+-- ====================================================
+-- NEW TABLES FOR CLOUD STORAGE (MILESTONES, LABS, SUGGESTIONS)
+-- ====================================================
+
+-- 6. MILESTONES TABLE
+CREATE TABLE IF NOT EXISTS milestones (
+  id SERIAL PRIMARY KEY,
+  date TEXT NOT NULL,
+  event TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('academic', 'exam', 'holiday'))
+);
+
+-- 7. LABS TABLE
+CREATE TABLE IF NOT EXISTS labs (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  block TEXT NOT NULL,
+  icon TEXT NOT NULL
+);
+
+-- 8. SUGGESTIONS TABLE
+CREATE TABLE IF NOT EXISTS suggestions (
+  id SERIAL PRIMARY KEY,
+  category TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE labs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
+
+-- Milestones Policies
+CREATE POLICY "Allow public read access to milestones" ON milestones FOR SELECT USING (true);
+CREATE POLICY "Allow write access to milestones" ON milestones FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+-- Labs Policies
+CREATE POLICY "Allow public read access to labs" ON labs FOR SELECT USING (true);
+CREATE POLICY "Allow write access to labs" ON labs FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+-- Suggestions Policies
+CREATE POLICY "Allow public insert suggestions" ON suggestions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow teacher read suggestions" ON suggestions FOR SELECT USING (auth.jwt() ->> 'email' = 'teacher@eee.com' OR auth.role() = 'authenticated');
+

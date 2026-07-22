@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import type { Announcement } from '../services/db';
-import { Megaphone, Calendar, Trophy, FileText, Plus, X } from 'lucide-react';
+import { Megaphone, Calendar, Trophy, FileText, Plus, X, Pencil } from 'lucide-react';
+import addIcon from '../assets/add-icon.png';
 
 interface AnnouncementBannerProps {
   announcements: Announcement[];
   isAdmin: boolean;
-  onAddAnnouncement: (announcement: Omit<Announcement, 'id'>) => void;
+  onAddAnnouncement: (announcement: Omit<Announcement, 'id'> & { id?: string }) => void;
   onDeleteAnnouncement?: (id: string) => void;
   onOpenAnnouncements?: () => void;
 }
@@ -20,6 +21,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedPoster, setSelectedPoster] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editAnnouncementId, setEditAnnouncementId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newType, setNewType] = useState<'exam' | 'hackathon' | 'event' | 'general'>('general');
@@ -92,6 +94,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
     if (!newTitle || !newContent || !newDate) return;
     
     onAddAnnouncement({
+      id: editAnnouncementId || undefined,
       title: newTitle,
       content: newContent,
       type: newType,
@@ -105,6 +108,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
     setNewType('general');
     setNewDate('');
     setNewPosterUrl('');
+    setEditAnnouncementId(null);
     setShowAddModal(false);
   };
 
@@ -134,11 +138,10 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
         <h3 className="dashboard-grid-title" style={{ margin: 0, cursor: 'pointer' }} onClick={onOpenAnnouncements}>Announcements</h3>
         {isAdmin && (
           <button 
-            onClick={() => setShowAddModal(true)} 
-            className="btn-secondary" 
-            style={{ padding: '2px 8px', fontSize: 10, display: 'flex', alignItems: 'center', gap: 4 }}
+            onClick={() => { setEditAnnouncementId(null); setShowAddModal(true); }} 
+            className="btn-png-add"
           >
-            <Plus size={12} /> Add
+            <img src={addIcon} alt="Add" style={{ width: 14, height: 14 }} /> Add
           </button>
         )}
       </div>
@@ -179,20 +182,40 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
                 </button>
               ) : <div />}
               
-              {isAdmin && onDeleteAnnouncement && (
-                <button 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    if (window.confirm('Delete this announcement?')) {
-                      onDeleteAnnouncement(current.id); 
-                      setActiveIndex(0);
-                    }
-                  }}
-                  className="btn-secondary" 
-                  style={{ padding: '3px 8px', fontSize: 10, borderColor: '#f87171', color: '#f87171' }}
-                >
-                  Delete
-                </button>
+              {isAdmin && (
+                <>
+                  <button 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setEditAnnouncementId(current.id);
+                      setNewTitle(current.title);
+                      setNewContent(current.content);
+                      setNewType(current.type);
+                      setNewDate(current.date);
+                      setNewPosterUrl(current.posterUrl || '');
+                      setShowAddModal(true);
+                    }}
+                    className="btn-secondary" 
+                    style={{ padding: '3px 8px', fontSize: 10, borderColor: 'var(--accent-blue)', color: 'var(--accent-blue)', display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                  >
+                    <Pencil size={10} /> Edit
+                  </button>
+                  {onDeleteAnnouncement && (
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (window.confirm('Delete this announcement?')) {
+                          onDeleteAnnouncement(current.id); 
+                          setActiveIndex(0);
+                        }
+                      }}
+                      className="btn-secondary" 
+                      style={{ padding: '3px 8px', fontSize: 10, borderColor: '#f87171', color: '#f87171' }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
@@ -225,13 +248,13 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
         </div>
       )}
 
-      {/* Add Announcement Modal */}
+      {/* Add/Edit Announcement Modal */}
       {showAddModal && (
         <div className="poster-modal">
           <form className="poster-content" onSubmit={handleAddSubmit} style={{ gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: 14, fontWeight: '700' }}>New Announcement</h3>
-              <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => setShowAddModal(false)}>
+              <h3 style={{ fontSize: 14, fontWeight: '700' }}>{editAnnouncementId ? 'Edit Announcement' : 'New Announcement'}</h3>
+              <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => { setShowAddModal(false); setEditAnnouncementId(null); }}>
                 <X size={16} />
               </button>
             </div>
@@ -297,7 +320,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
             </div>
 
             <button type="submit" className="btn-primary" style={{ marginTop: 8 }}>
-              Publish Announcement
+              {editAnnouncementId ? 'Save Changes' : 'Publish Announcement'}
             </button>
           </form>
         </div>

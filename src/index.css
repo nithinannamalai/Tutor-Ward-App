@@ -5068,6 +5068,122 @@ button:active {
   color: #ffffff;
 }
 
+/* ====================================================
+   💎 CUSTOM PREMIUM PNG ACTION BUTTONS & GRADE EXPANSIONS
+   ==================================================== */
+.btn-png-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px dashed rgba(56, 189, 248, 0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-png-add:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: var(--accent-blue);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+}
+.btn-png-add img {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  transition: transform 0.25s ease;
+}
+.btn-png-add:hover img {
+  transform: rotate(90deg) scale(1.1);
+}
+
+.btn-png-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-png-action-icon:hover {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  transform: scale(1.05);
+}
+
+/* Semester Detailed Accordions */
+.sem-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.85) 100%);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.sem-accordion-header:hover {
+  border-color: var(--accent-gold);
+  background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,1) 100%);
+}
+.sem-accordion-content {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--card-border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  animation: slideDown 0.2s ease;
+}
+.sem-accordion-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.sem-accordion-field label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sem-accordion-field span {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.sem-accordion-field input {
+  background: var(--bg-primary);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 700;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.sem-accordion-field input:focus {
+  border-color: var(--accent-blue);
+}
+
+
 
 
 

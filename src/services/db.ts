@@ -18,15 +18,36 @@ export interface StudentDoc {
   uploadedAt: string;
 }
 
+export interface SemesterGrades {
+  internal1?: number;
+  internal2?: number;
+  semMarks?: number;
+  gpa?: number;
+}
+
 export interface Student {
   id: string; // email as key or generated
   rollNo: string;
   name: string;
   email: string;
-  cgpa: Record<number, number>; // e.g. {1: 8.5, 2: 8.3, 3: 8.6, 4: 8.7, 5: 8.4, 6: 8.5}
+  cgpa: Record<number, SemesterGrades>; // updated to SemesterGrades
   arrears: number;
   nptelExams: string[];
   documents: StudentDoc[];
+}
+
+export interface Milestone {
+  id?: number;
+  date: string;
+  event: string;
+  type: 'academic' | 'exam' | 'holiday';
+}
+
+export interface Lab {
+  id?: number;
+  name: string;
+  block: string;
+  icon: string;
 }
 
 export interface AttendanceLog {
@@ -82,7 +103,13 @@ const DEFAULT_STUDENTS: Student[] = [
     rollNo: 'EEE001',
     name: 'Nithin Annamalai',
     email: 'student@eee.com',
-    cgpa: { 1: 8.5, 2: 8.3, 3: 8.6, 4: 8.7, 5: 8.4 },
+    cgpa: {
+      1: { internal1: 85, internal2: 88, semMarks: 86, gpa: 8.5 },
+      2: { internal1: 82, internal2: 84, semMarks: 83, gpa: 8.3 },
+      3: { internal1: 86, internal2: 87, semMarks: 86, gpa: 8.6 },
+      4: { internal1: 88, internal2: 90, semMarks: 87, gpa: 8.7 },
+      5: { internal1: 84, internal2: 85, semMarks: 84, gpa: 8.4 }
+    },
     arrears: 0,
     nptelExams: ['Embedded Systems', 'Power Electronics'],
     documents: [
@@ -101,7 +128,13 @@ const DEFAULT_STUDENTS: Student[] = [
     rollNo: 'EEE002',
     name: 'Aravind Swamy',
     email: 'student2@eee.com',
-    cgpa: { 1: 7.8, 2: 7.5, 3: 7.9, 4: 7.6, 5: 7.8 },
+    cgpa: {
+      1: { internal1: 78, internal2: 80, semMarks: 78, gpa: 7.8 },
+      2: { internal1: 75, internal2: 76, semMarks: 75, gpa: 7.5 },
+      3: { internal1: 79, internal2: 80, semMarks: 79, gpa: 7.9 },
+      4: { internal1: 76, internal2: 78, semMarks: 76, gpa: 7.6 },
+      5: { internal1: 78, internal2: 79, semMarks: 78, gpa: 7.8 }
+    },
     arrears: 1,
     nptelExams: ['Microprocessors & Microcontrollers'],
     documents: []
@@ -133,6 +166,28 @@ const initLocalDB = () => {
   }
 };
 initLocalDB();
+
+export const normalizeCgpa = (cgpaJson: any): Record<number, SemesterGrades> => {
+  if (!cgpaJson || typeof cgpaJson !== 'object') return {};
+  const normalized: Record<number, SemesterGrades> = {};
+  Object.keys(cgpaJson).forEach(key => {
+    const sem = parseInt(key);
+    if (!isNaN(sem)) {
+      const val = cgpaJson[key];
+      if (typeof val === 'number') {
+        normalized[sem] = { gpa: val };
+      } else if (val && typeof val === 'object') {
+        normalized[sem] = {
+          internal1: typeof val.internal1 === 'number' ? val.internal1 : undefined,
+          internal2: typeof val.internal2 === 'number' ? val.internal2 : undefined,
+          semMarks: typeof val.semMarks === 'number' ? val.semMarks : undefined,
+          gpa: typeof val.gpa === 'number' ? val.gpa : undefined
+        };
+      }
+    }
+  });
+  return normalized;
+};
 
 // ----------------------------------------------------
 // DATABASE SERVICE METHODS (SUPABASE + LOCALSTORAGE)
@@ -221,7 +276,7 @@ export const dbService = {
           rollNo: data.roll_no,
           name: data.name,
           email: data.email,
-          cgpa: typeof data.cgpa_json === 'string' ? JSON.parse(data.cgpa_json) : data.cgpa_json,
+          cgpa: normalizeCgpa(typeof data.cgpa_json === 'string' ? JSON.parse(data.cgpa_json) : data.cgpa_json),
           arrears: data.arrears_count,
           nptelExams: typeof data.nptel_exams === 'string' ? JSON.parse(data.nptel_exams) : data.nptel_exams || [],
           documents: [] // we fetch documents separately below or join
@@ -459,7 +514,7 @@ export const dbService = {
           rollNo: d.roll_no,
           name: d.name,
           email: d.email,
-          cgpa: typeof d.cgpa_json === 'string' ? JSON.parse(d.cgpa_json) : d.cgpa_json || {},
+          cgpa: normalizeCgpa(typeof d.cgpa_json === 'string' ? JSON.parse(d.cgpa_json) : d.cgpa_json),
           arrears: d.arrears_count || 0,
           nptelExams: typeof d.nptel_exams === 'string' ? JSON.parse(d.nptel_exams) : d.nptel_exams || [],
           documents: [] // loaded reactively in profile docs UI
@@ -520,6 +575,187 @@ export const dbService = {
       const localData = localStorage.getItem('eee_courses');
       const list: Course[] = localData ? JSON.parse(localData) : [];
       localStorage.setItem('eee_courses', JSON.stringify(list.filter(c => c.code !== code)));
+      return true;
+    }
+  },
+
+  // --- Attendance Fetch by Date & Period ---
+  async getAttendanceForDateAndPeriod(date: string, period: number): Promise<AttendanceLog[]> {
+    try {
+      const { data, error } = await supabase
+        .from('attendance_logs')
+        .select('*')
+        .eq('date', date)
+        .eq('period', period);
+
+      if (error) throw error;
+      return (data || []).map(d => ({
+        id: d.id,
+        date: d.date,
+        period: d.period,
+        studentRollNo: d.student_roll_no,
+        studentName: d.student_name,
+        status: d.status,
+        markedBy: d.marked_by
+      }));
+    } catch (err: any) {
+      console.warn(`Supabase getAttendanceForDateAndPeriod failed, using localStorage:`, err.message || err);
+      const localData = localStorage.getItem('eee_attendance');
+      const list: AttendanceLog[] = localData ? JSON.parse(localData) : [];
+      return list.filter(log => log.date === date && log.period === period);
+    }
+  },
+
+  // --- Milestones ---
+  async getMilestones(): Promise<Milestone[]> {
+    try {
+      const { data, error } = await supabase
+        .from('milestones')
+        .select('*')
+        .order('id', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    } catch (err: any) {
+      console.warn('Supabase getMilestones failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_milestones');
+      return localData ? JSON.parse(localData) : [];
+    }
+  },
+
+  async saveMilestone(milestone: Milestone): Promise<Milestone> {
+    try {
+      // If saving new item, id is serial so let Supabase generate it (omit if null/undefined)
+      const payload = { ...milestone };
+      if (!payload.id) delete payload.id;
+
+      const { data, error } = await supabase
+        .from('milestones')
+        .upsert(payload)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (err: any) {
+      console.warn('Supabase saveMilestone failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_milestones') || '[]';
+      const list: Milestone[] = JSON.parse(localData);
+      
+      if (milestone.id) {
+        const idx = list.findIndex(m => m.id === milestone.id);
+        if (idx > -1) {
+          list[idx] = milestone;
+        } else {
+          list.push(milestone);
+        }
+      } else {
+        const newM = { ...milestone, id: Date.now() };
+        list.push(newM);
+        milestone.id = newM.id;
+      }
+      localStorage.setItem('eee_milestones', JSON.stringify(list));
+      return milestone;
+    }
+  },
+
+  async deleteMilestone(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('milestones')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteMilestone failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_milestones');
+      const list: Milestone[] = localData ? JSON.parse(localData) : [];
+      const filtered = list.filter(m => m.id !== id);
+      localStorage.setItem('eee_milestones', JSON.stringify(filtered));
+      return true;
+    }
+  },
+
+  // --- Labs ---
+  async getLabs(): Promise<Lab[]> {
+    try {
+      const { data, error } = await supabase
+        .from('labs')
+        .select('*')
+        .order('id', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    } catch (err: any) {
+      console.warn('Supabase getLabs failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_labs');
+      return localData ? JSON.parse(localData) : [];
+    }
+  },
+
+  async saveLab(lab: Lab): Promise<Lab> {
+    try {
+      const payload = { ...lab };
+      if (!payload.id) delete payload.id;
+
+      const { data, error } = await supabase
+        .from('labs')
+        .upsert(payload)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (err: any) {
+      console.warn('Supabase saveLab failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_labs') || '[]';
+      const list: Lab[] = JSON.parse(localData);
+      
+      if (lab.id) {
+        const idx = list.findIndex(l => l.id === lab.id);
+        if (idx > -1) {
+          list[idx] = lab;
+        } else {
+          list.push(lab);
+        }
+      } else {
+        const newL = { ...lab, id: Date.now() };
+        list.push(newL);
+        lab.id = newL.id;
+      }
+      localStorage.setItem('eee_labs', JSON.stringify(list));
+      return lab;
+    }
+  },
+
+  async deleteLab(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('labs')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteLab failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_labs');
+      const list: Lab[] = localData ? JSON.parse(localData) : [];
+      localStorage.setItem('eee_labs', JSON.stringify(list.filter(l => l.id !== id)));
+      return true;
+    }
+  },
+
+  // --- Suggestions ---
+  async saveSuggestion(category: string, content: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('suggestions')
+        .insert({ category, content });
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase saveSuggestion failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_suggestions') || '[]';
+      const list = JSON.parse(localData);
+      list.push({ category, content, created_at: new Date().toISOString() });
+      localStorage.setItem('eee_suggestions', JSON.stringify(list));
       return true;
     }
   }

@@ -3928,6 +3928,7 @@ html, body, .mobile-app-content, .dedicated-page-body, .portal-modal-container {
   text-align: center;
   background: linear-gradient(135deg, #1e293b, #334155);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

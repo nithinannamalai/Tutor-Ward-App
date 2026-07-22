@@ -18,7 +18,7 @@ import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
   Inbox, Map, Shield, Phone, ArrowLeft, Sparkles, Home,
-  CheckCircle2
+  CheckCircle2, Plus, Trash2, Pencil
 } from 'lucide-react';
 import './App.css';
 
@@ -500,15 +500,15 @@ function App() {
               {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+              {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+              {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
               {currentTab === 'suggestion' && (
                 <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
               )}
-              {currentTab === 'campus-map' && <CampusMapPanel onClose={() => setCurrentTab(null)} />}
-              {currentTab === 'college-rules' && <CollegeRulesPanel onClose={() => setCurrentTab(null)} />}
-              {currentTab === 'faculty' && <FacultyPanel onClose={() => setCurrentTab(null)} />}
+              {currentTab === 'campus-map' && <CampusMapPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+              {currentTab === 'college-rules' && <CollegeRulesPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+              {currentTab === 'faculty' && <FacultyPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
             </div>
           </div>
         )}
@@ -619,26 +619,129 @@ function SuggestionBox({ onClose }: { onClose: () => void; userName: string }) {
 }
 
 // ── Campus Map Panel ──────────────────────────────────
-function CampusMapPanel({ onClose: _onClose }: { onClose: () => void }) {
-  const labs = [
-    { name: 'Electrical Machinery Lab', block: 'Block A, GF', icon: '⚡' },
-    { name: 'Power Electronics Lab', block: 'Block A, 1F', icon: '🔌' },
-    { name: 'Microprocessor & Control Lab', block: 'Block B, GF', icon: '🖥️' },
-    { name: 'Smart Grid Research Centre', block: 'Block B, 2F', icon: '🌐' },
-    { name: 'High Voltage Lab', block: 'Block C, GF', icon: '⚠️' },
-    { name: 'EEE Seminar Hall', block: 'Block C, 1F', icon: '🎓' },
-    { name: 'HOD Office (Dr. Ramanujam)', block: 'Block A, 2F – Room 204', icon: '🏫' },
-    { name: 'Department Library', block: 'Block B, 1F', icon: '📚' },
-  ];
+interface Lab {
+  name: string;
+  block: string;
+  icon: string;
+}
+
+const DEFAULT_LABS: Lab[] = [
+  { name: 'Electrical Machinery Lab', block: 'Block A, GF', icon: '⚡' },
+  { name: 'Power Electronics Lab', block: 'Block A, 1F', icon: '🔌' },
+  { name: 'Microprocessor & Control Lab', block: 'Block B, GF', icon: '🖥️' },
+  { name: 'Smart Grid Research Centre', block: 'Block B, 2F', icon: '🌐' },
+  { name: 'High Voltage Lab', block: 'Block C, GF', icon: '⚠️' },
+  { name: 'EEE Seminar Hall', block: 'Block C, 1F', icon: '🎓' },
+  { name: 'HOD Office (Dr. Ramanujam)', block: 'Block A, 2F – Room 204', icon: '🏫' },
+  { name: 'Department Library', block: 'Block B, 1F', icon: '📚' },
+];
+
+function CampusMapPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => void; isAdmin?: boolean }) {
+  const [labs, setLabs] = useState<Lab[]>([]);
+  const [editMode, setEditMode] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newBlock, setNewBlock] = useState('');
+  const [newIcon, setNewIcon] = useState('⚡');
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('eee_labs');
+      setLabs(stored ? JSON.parse(stored) : DEFAULT_LABS);
+    } catch {
+      setLabs(DEFAULT_LABS);
+    }
+  }, []);
+
+  const saveLabs = (list: Lab[]) => {
+    localStorage.setItem('eee_labs', JSON.stringify(list));
+    setLabs(list);
+  };
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || !newBlock.trim()) return;
+    const updated = [...labs, { name: newName.trim(), block: newBlock.trim(), icon: newIcon.trim() }];
+    saveLabs(updated);
+    setNewName('');
+    setNewBlock('');
+    setNewIcon('⚡');
+    setShowAddForm(false);
+  };
+
+  const handleDelete = (idx: number) => {
+    if (!window.confirm('Delete this facility entry?')) return;
+    const updated = labs.filter((_, i) => i !== idx);
+    saveLabs(updated);
+  };
+
   return (
     <div style={{ padding: 20 }}>
-      <h3 style={{ margin: '0 0 4px 0', fontSize: 18, fontWeight: 800 }}>🗺️ EEE Campus & Lab Facilities</h3>
-      <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 20 }}>Sri Ramakrishna Engineering College · EEE Department</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>🗺️ EEE Campus & Lab Facilities</h3>
+        {isAdmin && (
+          <button
+            onClick={() => setEditMode(e => !e)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              border: `1.5px solid ${editMode ? '#f87171' : 'var(--accent-blue)'}`,
+              background: editMode ? 'rgba(248,113,113,0.12)' : 'rgba(56,189,248,0.12)',
+              color: editMode ? '#f87171' : 'var(--accent-blue)',
+            }}
+          >
+            {editMode ? <><X size={12} /> Done</> : <><Pencil size={12} /> Edit</>}
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>Sri Ramakrishna Engineering College · EEE Department</p>
+        {editMode && (
+          <button
+            onClick={() => setShowAddForm(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff', border: 'none' }}
+          >
+            <Plus size={11} /> Add Facility
+          </button>
+        )}
+      </div>
+
+      {editMode && showAddForm && (
+        <form onSubmit={handleAdd} style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: 12, border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 15 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: 8 }}>
+            <div>
+              <label className="form-label">Icon</label>
+              <input value={newIcon} onChange={e => setNewIcon(e.target.value)} className="form-input" placeholder="⚡" required style={{ fontSize: 11 }} />
+            </div>
+            <div>
+              <label className="form-label">Facility Name</label>
+              <input value={newName} onChange={e => setNewName(e.target.value)} className="form-input" placeholder="e.g. Virtual Reality Lab" required style={{ fontSize: 11 }} />
+            </div>
+          </div>
+          <div>
+            <label className="form-label">Location / Block</label>
+            <input value={newBlock} onChange={e => setNewBlock(e.target.value)} className="form-input" placeholder="e.g. Block C, 2F" required style={{ fontSize: 11 }} />
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>Save Facility</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
+          </div>
+        </form>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
         {labs.map((l, i) => (
-          <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 14, padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 14, padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 4, position: 'relative' }}>
+            {editMode && (
+              <button
+                onClick={() => handleDelete(i)}
+                style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
             <span style={{ fontSize: 24 }}>{l.icon}</span>
-            <span style={{ fontWeight: 700, fontSize: 12 }}>{l.name}</span>
+            <span style={{ fontWeight: 700, fontSize: 12, paddingRight: editMode ? 20 : 0 }}>{l.name}</span>
             <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{l.block}</span>
           </div>
         ))}
@@ -648,27 +751,130 @@ function CampusMapPanel({ onClose: _onClose }: { onClose: () => void }) {
 }
 
 // ── College Rules Panel ───────────────────────────────
-function CollegeRulesPanel({ onClose: _onClose }: { onClose: () => void }) {
-  const rules = [
-    { icon: '👔', title: 'Dress Code', desc: 'Formal attire on working days. Lab coat mandatory during sessions.' },
-    { icon: '📊', title: 'Attendance', desc: 'Minimum 75% attendance per subject required for semester exams.' },
-    { icon: '🥾', title: 'Lab Safety', desc: 'Safety shoes and lab coat compulsory. Mobile usage prohibited.' },
-    { icon: '🤫', title: 'Discipline', desc: 'Maintain quiet in classrooms & library. Zero tolerance for ragging.' },
-    { icon: '📱', title: 'Mobile Policy', desc: 'Keep phones in silent mode inside academic blocks.' },
-    { icon: '🏆', title: 'Integrity', desc: 'Strict anti-malpractice rules apply to all internal & end-sem exams.' },
-  ];
+interface Rule {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+const DEFAULT_RULES: Rule[] = [
+  { icon: '👔', title: 'Dress Code', desc: 'Formal attire on working days. Lab coat mandatory during sessions.' },
+  { icon: '📊', title: 'Attendance', desc: 'Minimum 75% attendance per subject required for semester exams.' },
+  { icon: '🥾', title: 'Lab Safety', desc: 'Safety shoes and lab coat compulsory. Mobile usage prohibited.' },
+  { icon: '🤫', title: 'Discipline', desc: 'Maintain quiet in classrooms & library. Zero tolerance for ragging.' },
+  { icon: '📱', title: 'Mobile Policy', desc: 'Keep phones in silent mode inside academic blocks.' },
+  { icon: '🏆', title: 'Integrity', desc: 'Strict anti-malpractice rules apply to all internal & end-sem exams.' },
+];
+
+function CollegeRulesPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => void; isAdmin?: boolean }) {
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [editMode, setEditMode] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newIcon, setNewIcon] = useState('📜');
+  const [newTitle, setNewTitle] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('eee_rules');
+      setRules(stored ? JSON.parse(stored) : DEFAULT_RULES);
+    } catch {
+      setRules(DEFAULT_RULES);
+    }
+  }, []);
+
+  const saveRules = (list: Rule[]) => {
+    localStorage.setItem('eee_rules', JSON.stringify(list));
+    setRules(list);
+  };
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newDesc.trim()) return;
+    const updated = [...rules, { icon: newIcon.trim(), title: newTitle.trim(), desc: newDesc.trim() }];
+    saveRules(updated);
+    setNewIcon('📜');
+    setNewTitle('');
+    setNewDesc('');
+    setShowAddForm(false);
+  };
+
+  const handleDelete = (idx: number) => {
+    if (!window.confirm('Delete this rule?')) return;
+    const updated = rules.filter((_, i) => i !== idx);
+    saveRules(updated);
+  };
+
   return (
     <div style={{ padding: 20 }}>
-      <h3 style={{ margin: '0 0 4px 0', fontSize: 18, fontWeight: 800 }}>🛡️ Rules & Code of Conduct</h3>
-      <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 20 }}>EEE Department, SREC Academic Guidelines</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>🛡️ Rules & Code of Conduct</h3>
+        {isAdmin && (
+          <button
+            onClick={() => setEditMode(e => !e)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              border: `1.5px solid ${editMode ? '#f87171' : 'var(--accent-blue)'}`,
+              background: editMode ? 'rgba(248,113,113,0.12)' : 'rgba(56,189,248,0.12)',
+              color: editMode ? '#f87171' : 'var(--accent-blue)',
+            }}
+          >
+            {editMode ? <><X size={12} /> Done</> : <><Pencil size={12} /> Edit</>}
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>EEE Department, SREC Academic Guidelines</p>
+        {editMode && (
+          <button
+            onClick={() => setShowAddForm(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff', border: 'none' }}
+          >
+            <Plus size={11} /> Add Rule
+          </button>
+        )}
+      </div>
+
+      {editMode && showAddForm && (
+        <form onSubmit={handleAdd} style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: 12, border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 15 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: 8 }}>
+            <div>
+              <label className="form-label">Icon</label>
+              <input value={newIcon} onChange={e => setNewIcon(e.target.value)} className="form-input" placeholder="📜" required style={{ fontSize: 11 }} />
+            </div>
+            <div>
+              <label className="form-label">Rule Title</label>
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="form-input" placeholder="e.g. Lab Dress code" required style={{ fontSize: 11 }} />
+            </div>
+          </div>
+          <div>
+            <label className="form-label">Rule Description</label>
+            <input value={newDesc} onChange={e => setNewDesc(e.target.value)} className="form-input" placeholder="e.g. Always wear closed shoes" required style={{ fontSize: 11 }} />
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>Save Rule</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
+          </div>
+        </form>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {rules.map((r, i) => (
-          <div key={i} style={{ display: 'flex', gap: 12, background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '12px 14px', alignItems: 'flex-start' }}>
+          <div key={i} style={{ display: 'flex', gap: 12, background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '12px 14px', alignItems: 'flex-start', position: 'relative' }}>
             <span style={{ fontSize: 22, flexShrink: 0 }}>{r.icon}</span>
-            <div>
+            <div style={{ flex: 1, paddingRight: editMode ? 24 : 0 }}>
               <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 2 }}>{r.title}</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>{r.desc}</div>
             </div>
+            {editMode && (
+              <button
+                onClick={() => handleDelete(i)}
+                style={{ position: 'absolute', right: 12, top: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -677,23 +883,133 @@ function CollegeRulesPanel({ onClose: _onClose }: { onClose: () => void }) {
 }
 
 // ── Faculty Contacts Panel ────────────────────────────
-function FacultyPanel({ onClose: _onClose }: { onClose: () => void }) {
-  const faculty = [
-    { name: 'Dr. R. Ramanujam', role: 'Head of Department', email: 'hod.eee@srec.ac.in', phone: '+91-98400-00001' },
-    { name: 'Dr. S. Kavitha', role: 'Professor – Power Systems', email: 's.kavitha@srec.ac.in', phone: '+91-98400-00002' },
-    { name: 'Dr. M. Arulkumar', role: 'Professor – Machines & Drives', email: 'm.arulkumar@srec.ac.in', phone: '+91-98400-00003' },
-    { name: 'Ms. P. Vijayalakshmi', role: 'Asst. Professor – Control', email: 'p.vijaya@srec.ac.in', phone: '+91-98400-00004' },
-    { name: 'Mr. K. Senthilkumar', role: 'Asst. Professor – Power Elec.', email: 'k.senthil@srec.ac.in', phone: '+91-98400-00005' },
-    { name: 'Ms. R. Priyanka', role: 'Asst. Professor – Microprocessors', email: 'r.priyanka@srec.ac.in', phone: '+91-98400-00006' },
-  ];
+interface Faculty {
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+}
+
+const DEFAULT_FACULTY: Faculty[] = [
+  { name: 'Dr. R. Ramanujam', role: 'Head of Department', email: 'hod.eee@srec.ac.in', phone: '+91-98400-00001' },
+  { name: 'Dr. S. Kavitha', role: 'Professor – Power Systems', email: 's.kavitha@srec.ac.in', phone: '+91-98400-00002' },
+  { name: 'Dr. M. Arulkumar', role: 'Professor – Machines & Drives', email: 'm.arulkumar@srec.ac.in', phone: '+91-98400-00003' },
+  { name: 'Ms. P. Vijayalakshmi', role: 'Asst. Professor – Control', email: 'p.vijaya@srec.ac.in', phone: '+91-98400-00004' },
+  { name: 'Mr. K. Senthilkumar', role: 'Asst. Professor – Power Elec.', email: 'k.senthil@srec.ac.in', phone: '+91-98400-00005' },
+  { name: 'Ms. R. Priyanka', role: 'Asst. Professor – Microprocessors', email: 'r.priyanka@srec.ac.in', phone: '+91-98400-00006' },
+];
+
+function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => void; isAdmin?: boolean }) {
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [editMode, setEditMode] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newRole, setNewRole] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('eee_faculty');
+      setFaculty(stored ? JSON.parse(stored) : DEFAULT_FACULTY);
+    } catch {
+      setFaculty(DEFAULT_FACULTY);
+    }
+  }, []);
+
+  const saveFaculty = (list: Faculty[]) => {
+    localStorage.setItem('eee_faculty', JSON.stringify(list));
+    setFaculty(list);
+  };
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || !newRole.trim() || !newEmail.trim() || !newPhone.trim()) return;
+    const updated = [...faculty, { name: newName.trim(), role: newRole.trim(), email: newEmail.trim(), phone: newPhone.trim() }];
+    saveFaculty(updated);
+    setNewName('');
+    setNewRole('');
+    setNewEmail('');
+    setNewPhone('');
+    setShowAddForm(false);
+  };
+
+  const handleDelete = (idx: number) => {
+    if (!window.confirm('Delete this faculty record?')) return;
+    const updated = faculty.filter((_, i) => i !== idx);
+    saveFaculty(updated);
+  };
+
   return (
     <div style={{ padding: 20 }}>
-      <h3 style={{ margin: '0 0 4px 0', fontSize: 18, fontWeight: 800 }}>📞 Faculty Directory</h3>
-      <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 20 }}>EEE Department Professors &amp; Mentors</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>📞 Faculty Directory</h3>
+        {isAdmin && (
+          <button
+            onClick={() => setEditMode(e => !e)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              border: `1.5px solid ${editMode ? '#f87171' : 'var(--accent-blue)'}`,
+              background: editMode ? 'rgba(248,113,113,0.12)' : 'rgba(56,189,248,0.12)',
+              color: editMode ? '#f87171' : 'var(--accent-blue)',
+            }}
+          >
+            {editMode ? <><X size={12} /> Done</> : <><Pencil size={12} /> Edit</>}
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>EEE Department Professors &amp; Mentors</p>
+        {editMode && (
+          <button
+            onClick={() => setShowAddForm(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff', border: 'none' }}
+          >
+            <Plus size={11} /> Add Faculty
+          </button>
+        )}
+      </div>
+
+      {editMode && showAddForm && (
+        <form onSubmit={handleAdd} style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: 12, border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 15 }}>
+          <div>
+            <label className="form-label">Full Name</label>
+            <input value={newName} onChange={e => setNewName(e.target.value)} className="form-input" placeholder="e.g. Dr. A. Rajan" required style={{ fontSize: 11 }} />
+          </div>
+          <div>
+            <label className="form-label">Designation / Specialization</label>
+            <input value={newRole} onChange={e => setNewRole(e.target.value)} className="form-input" placeholder="e.g. Professor - Power Electronics" required style={{ fontSize: 11 }} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div>
+              <label className="form-label">Email Address</label>
+              <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="form-input" placeholder="rajan@srec.ac.in" required style={{ fontSize: 11 }} />
+            </div>
+            <div>
+              <label className="form-label">Mobile Number</label>
+              <input value={newPhone} onChange={e => setNewPhone(e.target.value)} className="form-input" placeholder="+91-98400-12345" required style={{ fontSize: 11 }} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 11 }}>Save Faculty</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary" style={{ fontSize: 11 }}>Cancel</button>
+          </div>
+        </form>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
         {faculty.map((f, i) => (
-          <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '14px 12px' }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: `hsl(${i * 60}, 60%, 85%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, marginBottom: 8 }}>
+          <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '14px 12px', position: 'relative' }}>
+            {editMode && (
+              <button
+                onClick={() => handleDelete(i)}
+                style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: `hsl(${i * 60}, 60%, 85%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, marginBottom: 8, color: '#111' }}>
               {f.name.charAt(0)}
             </div>
             <div style={{ fontWeight: 800, fontSize: 12 }}>{f.name}</div>

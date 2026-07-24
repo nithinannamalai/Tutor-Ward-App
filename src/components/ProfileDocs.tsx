@@ -3,6 +3,23 @@ import { dbService } from '../services/db';
 import type { Student, StudentDoc } from '../services/db';
 import { ArrowLeft, Upload, Download, Trash2, Search, UserCheck, Plus, X } from 'lucide-react';
 
+const CERT_CATEGORIES = [
+  'NPTEL & Swayam Certifications',
+  'Internship & Industry Training',
+  'Workshops & Seminars',
+  'Sports & Co-Curricular',
+  'Academic Degrees & Marksheets',
+  'Other Certificates'
+];
+
+const DOC_CATEGORIES = [
+  'Academic Marksheets',
+  'Identity Proofs (Aadhar, ID, etc.)',
+  'Resumes & CVs',
+  'Recommendation & Permission Letters',
+  'General Documents'
+];
+
 interface ProfileDocsProps {
   currentEmail: string;
   isAdmin: boolean;
@@ -25,14 +42,13 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
   const [addRollNo, setAddRollNo] = useState('');
   const [addEmail, setAddEmail] = useState('');
   
-  // Editing state
-  const [name, setName] = useState('');
-  const [rollNo, setRollNo] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [customDocName, setCustomDocName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Load student data
   useEffect(() => {
@@ -48,8 +64,6 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
         const p = await dbService.getStudentProfile(selectedStudentEmail);
         if (p) {
           setStudent(p);
-          setName(p.name);
-          setRollNo(p.rollNo);
           const d = await dbService.getStudentDocuments(p.email);
           setDocs(d);
         }
@@ -61,8 +75,6 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
       const p = await dbService.getStudentProfile(currentEmail);
       if (p) {
         setStudent(p);
-        setName(p.name);
-        setRollNo(p.rollNo);
         const d = await dbService.getStudentDocuments(p.email);
         setDocs(d);
       } else {
@@ -84,32 +96,13 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
           documents: []
         };
         setStudent(fallbackStudent);
-        setName(fallbackStudent.name);
-        setRollNo(fallbackStudent.rollNo);
         const d = await dbService.getStudentDocuments(fallbackStudent.email);
         setDocs(d);
       }
     }
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!student) return;
-    setSaving(true);
-    setStatusMessage('');
 
-    try {
-      await dbService.updateStudentProfile(student.email, { name, rollNo });
-      setStatusMessage('Profile updated successfully!');
-      setTimeout(() => setStatusMessage(''), 3000);
-      loadData();
-    } catch (err) {
-      console.error(err);
-      setStatusMessage('Error updating profile.');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleAddStudentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,6 +198,13 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
     return toTitleCase(cleanName);
   };
 
+  const handleOpenUploadModal = () => {
+    setCustomDocName('');
+    setSelectedFile(null);
+    setSelectedCategory(mode === 'certificates' ? CERT_CATEGORIES[0] : DOC_CATEGORIES[0]);
+    setShowUploadModal(true);
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !student) return;
@@ -229,7 +229,9 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
     setStatusMessage('');
     const file = selectedFile;
     const docName = customDocName.trim();
+    const category = selectedCategory;
     setSelectedFile(null);
+    setShowUploadModal(false);
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -240,9 +242,10 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
         const prefix = mode === 'certificates' ? 'CERT_' : 'DOC_';
         // Add .pdf extension if user didn't write it
         const finalName = docName.toLowerCase().endsWith('.pdf') ? docName : `${docName}.pdf`;
+        const nameToSave = prefix + category + "::" + finalName;
 
         await dbService.uploadDocument(student.email, {
-          name: prefix + finalName,
+          name: nameToSave,
           size: `${sizeKB} KB`,
           type: file.type,
           dataUrl: base64Data
@@ -269,9 +272,25 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
   });
 
   const getDisplayName = (docName: string) => {
-    if (docName.startsWith('CERT_')) return docName.substring(5);
-    if (docName.startsWith('DOC_')) return docName.substring(4);
-    return docName;
+    let nameWithoutPrefix = docName;
+    if (docName.startsWith('CERT_')) nameWithoutPrefix = docName.substring(5);
+    else if (docName.startsWith('DOC_')) nameWithoutPrefix = docName.substring(4);
+    
+    if (nameWithoutPrefix.includes('::')) {
+      return nameWithoutPrefix.split('::')[1];
+    }
+    return nameWithoutPrefix;
+  };
+
+  const getDocCategory = (docName: string) => {
+    let nameWithoutPrefix = docName;
+    if (docName.startsWith('CERT_')) nameWithoutPrefix = docName.substring(5);
+    else if (docName.startsWith('DOC_')) nameWithoutPrefix = docName.substring(4);
+    
+    if (nameWithoutPrefix.includes('::')) {
+      return nameWithoutPrefix.split('::')[0];
+    }
+    return mode === 'certificates' ? 'Other Certificates' : 'General Documents';
   };
 
   const handleDeleteDoc = async (id: string) => {
@@ -401,131 +420,86 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
               </div>
             )}
 
-            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div className="form-group">
-                <label className="form-label">Full Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="form-input"
-                  disabled={saving}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Roll Number</label>
-                <input
-                  type="text"
-                  value={rollNo}
-                  onChange={e => setRollNo(e.target.value)}
-                  className="form-input"
-                  disabled={saving}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Class & Section</label>
-                <input
-                  type="text"
-                  value="III EEE-A"
-                  className="form-input"
-                  disabled
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Email Address</label>
-                <input
-                  type="email"
-                  value={student.email}
-                  className="form-input"
-                  disabled
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <div className="form-group">
-                  <label className="form-label">Year of Study</label>
-                  <input
-                    type="text"
-                    value="3rd Year"
-                    className="form-input"
-                    disabled
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Semester</label>
-                  <input
-                    type="text"
-                    value="Semester VI"
-                    className="form-input"
-                    disabled
-                  />
-                </div>
-              </div>
-
-              <button type="submit" className="btn-primary" disabled={saving}>
-                {saving ? 'Saving...' : 'Update Profile Info'}
-              </button>
-            </form>
-
-            <hr style={{ border: 'none', height: 1, backgroundColor: 'var(--card-border)', margin: '10px 0' }} />
-
-            {/* Document Uploader */}
+            {/* Document Uploader */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <h4 style={{ fontSize: 13, fontWeight: '700' }}>
-                  {mode === 'certificates' ? 'Uploaded Certificates (PDF)' : 'Uploaded PDF Documents'}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h4 style={{ fontSize: 13, fontWeight: '800', color: 'var(--text-main)' }}>
+                  {mode === 'certificates' ? 'Certificates Vault' : 'Documents Vault'}
                 </h4>
-                <label className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 11 }}>
-                  <Upload size={14} />
-                  {mode === 'certificates' ? 'Upload Certificate' : 'Upload PDF'}
-                  <input 
-                    type="file" 
-                    accept="application/pdf" 
-                    onChange={handleFileUpload} 
-                    style={{ display: 'none' }} 
-                  />
-                </label>
+                <button
+                  onClick={handleOpenUploadModal}
+                  className="btn-secondary"
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 11, background: 'var(--accent-blue)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontWeight: 700 }}
+                >
+                  <Plus size={14} />
+                  {mode === 'certificates' ? 'Add Certificate' : 'Add Document'}
+                </button>
               </div>
 
               {uploading && (
-                <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8, textAlign: 'center', fontSize: 12 }}>
+                <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8, textAlign: 'center', fontSize: 12, marginBottom: 10 }}>
                   Encoding file to Base64 and uploading...
                 </div>
               )}
 
               {statusMessage && (
-                <div style={{ padding: 8, background: 'var(--bg-tertiary)', borderRadius: 6, fontSize: 11, textAlign: 'center', color: 'var(--accent-gold)' }}>
+                <div style={{ padding: 8, background: '#eff6ff', border: '1px solid rgba(0,82,204,0.18)', borderRadius: 6, fontSize: 11, textAlign: 'center', color: 'var(--accent-blue)', fontWeight: 700, marginBottom: 10 }}>
                   {statusMessage}
                 </div>
               )}
 
-              <div className="document-list">
+              <div className="document-list" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {filteredDocs.length === 0 ? (
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '24px 0' }}>
                     {mode === 'certificates' ? 'No PDF certificates stored.' : 'No PDF documents stored.'}
                   </p>
                 ) : (
-                  filteredDocs.map(doc => (
-                    <div key={doc.id} className="document-item">
-                      <div className="doc-info">
-                        <span className="doc-name" title={getDisplayName(doc.name)}>{getDisplayName(doc.name)}</span>
-                        <span className="doc-meta">{doc.size} | {doc.uploadedAt}</span>
+                  (() => {
+                    const groupedDocs: Record<string, StudentDoc[]> = {};
+                    filteredDocs.forEach(doc => {
+                      const category = getDocCategory(doc.name);
+                      if (!groupedDocs[category]) {
+                        groupedDocs[category] = [];
+                      }
+                      groupedDocs[category].push(doc);
+                    });
+
+                    return Object.keys(groupedDocs).map(category => (
+                      <div key={category} style={{ background: '#ffffff', border: '1.5px solid rgba(0,82,204,0.12)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,82,204,0.03)' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,82,204,0.1)' }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#0052cc' }}>📁 {category}</span>
+                          <span style={{ fontSize: 9, background: '#0052cc', color: '#fff', padding: '2px 6px', borderRadius: 10, fontWeight: 700 }}>
+                            {groupedDocs[category].length}
+                          </span>
+                        </div>
+                        <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {groupedDocs[category].map((doc, idx) => (
+                            <div key={doc.id} className="document-item" style={{ borderLeft: '3.5px solid var(--accent-blue)', padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderRadius: 8, border: '1px solid rgba(0,82,204,0.06)', borderLeftColor: 'var(--accent-blue)', borderLeftWidth: 3.5 }}>
+                              <div className="doc-info" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                <span className="doc-number" style={{ fontSize: 10, fontWeight: 800, color: '#475569', background: '#e2e8f0', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  {idx + 1}
+                                </span>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <span className="doc-name" title={getDisplayName(doc.name)} style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)' }}>
+                                    {getDisplayName(doc.name)}
+                                  </span>
+                                  <span className="doc-meta" style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{doc.size} | {doc.uploadedAt}</span>
+                                </div>
+                              </div>
+                              <div className="doc-actions" style={{ display: 'flex', gap: 6 }}>
+                                <button onClick={() => downloadDoc(doc)} className="doc-action-btn" style={{ padding: 4 }} title="Download">
+                                  <Download size={14} />
+                                </button>
+                                <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" style={{ padding: 4 }} title="Delete">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="doc-actions">
-                        <button onClick={() => downloadDoc(doc)} className="doc-action-btn" title="Download">
-                          <Download size={16} />
-                        </button>
-                        <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" title="Delete">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    ));
+                  })()
                 )}
               </div>
             </div>
@@ -585,47 +559,97 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
           </div>
         )}
 
-        {/* Document Upload Name Entry & Auto Recognise Modal */}
-        {selectedFile && (
+        {/* Document Upload Name Entry, Category & Auto Recognise Modal */}
+        {showUploadModal && (
           <div className="poster-modal" style={{ display: 'flex', zIndex: 1000 }}>
             <form className="poster-content" onSubmit={handleActualUpload} style={{ gap: 14, maxWidth: 380, width: '95%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ fontSize: 14, fontWeight: '800', color: 'var(--text-main)' }}>
-                  {mode === 'certificates' ? 'Certificate Upload' : 'Document Upload'}
+                  {mode === 'certificates' ? 'Add New Certificate' : 'Add New Document'}
                 </h3>
-                <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => setSelectedFile(null)}>
+                <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => setShowUploadModal(false)}>
                   <X size={16} />
                 </button>
               </div>
 
-              <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8, border: '1px solid rgba(0, 82, 204, 0.1)', fontSize: 11 }}>
-                <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Selected File:</div>
-                <div style={{ color: 'var(--text-main)', wordBreak: 'break-all', marginTop: 2 }}>{selectedFile.name}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 2 }}>Size: {Math.round(selectedFile.size / 1024)} KB</div>
+              {/* 1. Category / Group */}
+              <div className="form-group">
+                <label className="form-label">Category / Group</label>
+                <select
+                  value={selectedCategory}
+                  onChange={e => setSelectedCategory(e.target.value)}
+                  className="form-select"
+                  style={{ fontSize: 12 }}
+                >
+                  {(mode === 'certificates' ? CERT_CATEGORIES : DOC_CATEGORIES).map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
 
+              {/* 2. File Selector */}
+              <div className="form-group">
+                <label className="form-label">Attach PDF File</label>
+                {selectedFile ? (
+                  <div style={{ background: '#f0fdf4', padding: '10px 12px', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
+                    <div>
+                      <span style={{ fontWeight: 700, color: '#166534', display: 'block' }}>✓ File Attached</span>
+                      <span style={{ color: '#475569', wordBreak: 'break-all', display: 'block', marginTop: 2 }}>{selectedFile.name}</span>
+                      <span style={{ color: '#64748b', fontSize: 10, display: 'block', marginTop: 1 }}>Size: {Math.round(selectedFile.size / 1024)} KB</span>
+                    </div>
+                    <label style={{ fontSize: 10, color: 'var(--accent-blue)', cursor: 'pointer', fontWeight: 700, border: '1px solid var(--accent-blue)', padding: '3px 8px', borderRadius: 6, background: '#fff' }}>
+                      Change
+                      <input 
+                        type="file" 
+                        accept="application/pdf" 
+                        onChange={handleFileUpload} 
+                        style={{ display: 'none' }} 
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px', background: '#f8fafc', border: '1.5px dashed rgba(0, 82, 204, 0.25)', borderRadius: 10, cursor: 'pointer', textAlign: 'center', transition: 'background 0.2s' }}>
+                    <Upload size={24} style={{ color: 'var(--accent-blue)', marginBottom: 6 }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-blue)' }}>Click to select PDF Certificate</span>
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>Only PDF documents are supported</span>
+                    <input 
+                      type="file" 
+                      accept="application/pdf" 
+                      onChange={handleFileUpload} 
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* 3. Certificate / Document Name */}
               <div className="form-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <label className="form-label">Document Display Name</label>
-                  <span style={{ fontSize: 9, background: 'rgba(5, 150, 105, 0.12)', color: '#059669', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>
-                    ✨ Auto-recognized
-                  </span>
+                  <label className="form-label">
+                    {mode === 'certificates' ? 'Certificate Display Name' : 'Document Display Name'}
+                  </label>
+                  {selectedFile && (
+                    <span style={{ fontSize: 9, background: 'rgba(5, 150, 105, 0.12)', color: '#059669', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>
+                      ✨ Auto-recognized
+                    </span>
+                  )}
                 </div>
                 <input 
                   type="text" 
                   value={customDocName} 
                   onChange={e => setCustomDocName(e.target.value)} 
                   className="form-input" 
-                  placeholder="Enter a descriptive name for this document..." 
+                  placeholder={mode === 'certificates' ? "e.g. NPTEL Python, Workshop Certificate..." : "e.g. Resume, Sem 1 Marksheet..."} 
                   required 
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '10px 0', fontSize: 12 }}>
-                  Confirm & Upload
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '10px 0', fontSize: 12, fontWeight: 700 }} disabled={!selectedFile || !customDocName.trim()}>
+                  Upload & Save
                 </button>
-                <button type="button" onClick={() => setSelectedFile(null)} className="btn-secondary" style={{ flex: 1, padding: '10px 0', fontSize: 12 }}>
+                <button type="button" onClick={() => setShowUploadModal(false)} className="btn-secondary" style={{ flex: 1, padding: '10px 0', fontSize: 12, fontWeight: 700 }}>
                   Cancel
                 </button>
               </div>

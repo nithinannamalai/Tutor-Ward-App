@@ -31,6 +31,8 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [customDocName, setCustomDocName] = useState('');
 
   // Load student data
   useEffect(() => {
@@ -142,6 +144,67 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
     }
   };
 
+  const autoRecognizeDocName = (fileName: string): string => {
+    // Strip extension
+    const baseName = fileName.replace(/\.[^/.]+$/, "");
+    // Replace underscores, dashes, dots with spaces
+    let cleanName = baseName.replace(/[_\-\.]+/g, ' ');
+    
+    // Title case helper
+    const toTitleCase = (str: string) => str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    
+    // Custom keyword mappings
+    const lower = cleanName.toLowerCase();
+    if (lower.includes('sem 1') || lower.includes('sem1') || lower.includes('semester 1') || lower.includes('semester1')) {
+      return 'Semester I Marksheet';
+    }
+    if (lower.includes('sem 2') || lower.includes('sem2') || lower.includes('semester 2') || lower.includes('semester2')) {
+      return 'Semester II Marksheet';
+    }
+    if (lower.includes('sem 3') || lower.includes('sem3') || lower.includes('semester 3') || lower.includes('semester3')) {
+      return 'Semester III Marksheet';
+    }
+    if (lower.includes('sem 4') || lower.includes('sem4') || lower.includes('semester 4') || lower.includes('semester4')) {
+      return 'Semester IV Marksheet';
+    }
+    if (lower.includes('sem 5') || lower.includes('sem5') || lower.includes('semester 5') || lower.includes('semester5')) {
+      return 'Semester V Marksheet';
+    }
+    if (lower.includes('sem 6') || lower.includes('sem6') || lower.includes('semester 6') || lower.includes('semester6')) {
+      return 'Semester VI Marksheet';
+    }
+    if (lower.includes('sem 7') || lower.includes('sem7') || lower.includes('semester 7') || lower.includes('semester7')) {
+      return 'Semester VII Marksheet';
+    }
+    if (lower.includes('sem 8') || lower.includes('sem8') || lower.includes('semester 8') || lower.includes('semester8')) {
+      return 'Semester VIII Marksheet';
+    }
+    if (lower.includes('nptel') || lower.includes('swayam')) {
+      if (lower.includes('iot') || lower.includes('internet of things')) return 'NPTEL Internet of Things Certificate';
+      if (lower.includes('python')) return 'NPTEL Python Programming Certificate';
+      if (lower.includes('java')) return 'NPTEL Java Programming Certificate';
+      if (lower.includes('ev') || lower.includes('electric vehicle')) return 'NPTEL Electric Vehicles Certificate';
+      return 'NPTEL Certification';
+    }
+    if (lower.includes('bonafide')) {
+      return 'Bonafide Certificate';
+    }
+    if (lower.includes('noc')) {
+      return 'No Objection Certificate (NOC)';
+    }
+    if (lower.includes('internship') || lower.includes('siemens') || lower.includes('training')) {
+      return 'Internship Certificate';
+    }
+    if (lower.includes('resume') || lower.includes('cv')) {
+      return 'Student Resume';
+    }
+    if (lower.includes('adhaar') || lower.includes('aadhar') || lower.includes('id')) {
+      return 'Aadhar Card / Identity Proof';
+    }
+    
+    return toTitleCase(cleanName);
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !student) return;
@@ -151,8 +214,22 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
       return;
     }
 
+    setSelectedFile(file);
+    setCustomDocName(autoRecognizeDocName(file.name));
+    
+    // Clear input so selecting same file triggers onChange again
+    e.target.value = '';
+  };
+
+  const handleActualUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFile || !student || !customDocName.trim()) return;
+
     setUploading(true);
     setStatusMessage('');
+    const file = selectedFile;
+    const docName = customDocName.trim();
+    setSelectedFile(null);
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -161,8 +238,11 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
       
       try {
         const prefix = mode === 'certificates' ? 'CERT_' : 'DOC_';
+        // Add .pdf extension if user didn't write it
+        const finalName = docName.toLowerCase().endsWith('.pdf') ? docName : `${docName}.pdf`;
+
         await dbService.uploadDocument(student.email, {
-          name: prefix + file.name,
+          name: prefix + finalName,
           size: `${sizeKB} KB`,
           type: file.type,
           dataUrl: base64Data
@@ -501,6 +581,54 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
               <button type="submit" className="btn-primary" style={{ marginTop: 8 }} disabled={saving}>
                 {saving ? 'Creating...' : 'Register Student'}
               </button>
+            </form>
+          </div>
+        )}
+
+        {/* Document Upload Name Entry & Auto Recognise Modal */}
+        {selectedFile && (
+          <div className="poster-modal" style={{ display: 'flex', zIndex: 1000 }}>
+            <form className="poster-content" onSubmit={handleActualUpload} style={{ gap: 14, maxWidth: 380, width: '95%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontSize: 14, fontWeight: '800', color: 'var(--text-main)' }}>
+                  {mode === 'certificates' ? 'Certificate Upload' : 'Document Upload'}
+                </h3>
+                <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => setSelectedFile(null)}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8, border: '1px solid rgba(0, 82, 204, 0.1)', fontSize: 11 }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Selected File:</div>
+                <div style={{ color: 'var(--text-main)', wordBreak: 'break-all', marginTop: 2 }}>{selectedFile.name}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 2 }}>Size: {Math.round(selectedFile.size / 1024)} KB</div>
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                  <label className="form-label">Document Display Name</label>
+                  <span style={{ fontSize: 9, background: 'rgba(5, 150, 105, 0.12)', color: '#059669', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>
+                    ✨ Auto-recognized
+                  </span>
+                </div>
+                <input 
+                  type="text" 
+                  value={customDocName} 
+                  onChange={e => setCustomDocName(e.target.value)} 
+                  className="form-input" 
+                  placeholder="Enter a descriptive name for this document..." 
+                  required 
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '10px 0', fontSize: 12 }}>
+                  Confirm & Upload
+                </button>
+                <button type="button" onClick={() => setSelectedFile(null)} className="btn-secondary" style={{ flex: 1, padding: '10px 0', fontSize: 12 }}>
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         )}

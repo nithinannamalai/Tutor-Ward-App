@@ -240,17 +240,17 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
             )}
 
             {/* Scoreboard Card */}
-            <div className="attendance-summary" style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%)' }}>
+            <div className="attendance-summary" style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', border: '2px solid rgba(0,82,204,0.18)', borderRadius: 14 }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <TrendingUp size={32} style={{ color: 'var(--accent-gold)', marginBottom: 4 }} />
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Cumulative CGPA</span>
-                <span style={{ fontSize: 24, fontWeight: '800', color: 'var(--text-main)' }}>{currentCgpa || '0.00'}</span>
+                <TrendingUp size={32} style={{ color: '#0052cc', marginBottom: 4 }} />
+                <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>Cumulative CGPA</span>
+                <span style={{ fontSize: 24, fontWeight: '800', color: '#0f172a' }}>{currentCgpa || '0.00'}</span>
               </div>
-              <div style={{ width: 1, height: 50, background: 'var(--card-border)' }} />
+              <div style={{ width: 1, height: 50, background: 'rgba(0,82,204,0.15)' }} />
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Sparkles size={32} style={{ color: arrears > 0 ? '#ef4444' : '#4ade80', marginBottom: 4 }} />
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Active Arrears</span>
-                <span style={{ fontSize: 24, fontWeight: '800', color: arrears > 0 ? '#f87171' : '#4ade80' }}>{arrears}</span>
+                <Sparkles size={32} style={{ color: arrears > 0 ? '#dc2626' : '#059669', marginBottom: 4 }} />
+                <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>Active Arrears</span>
+                <span style={{ fontSize: 24, fontWeight: '800', color: arrears > 0 ? '#dc2626' : '#059669' }}>{arrears}</span>
               </div>
             </div>
 
@@ -272,15 +272,15 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
                       onClick={() => setExpandedSem(isOpen ? null : sem)}
                     >
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-main)' }}>Semester {sem}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>Semester {sem}</span>
                         {gpa > 0 && (
-                          <span style={{ fontSize: 10, background: 'rgba(250,204,21,0.15)', color: '#facc15', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>GPA: {gpa}</span>
+                          <span style={{ fontSize: 10, background: 'rgba(245,158,11,0.12)', color: '#b45309', padding: '2px 7px', borderRadius: 4, fontWeight: 700, border: '1px solid rgba(245,158,11,0.25)' }}>GPA: {gpa}</span>
                         )}
                         {cumCgpa > 0 && (
-                          <span style={{ fontSize: 10, background: 'rgba(56,189,248,0.12)', color: 'var(--accent-blue)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>CGPA: {cumCgpa}</span>
+                          <span style={{ fontSize: 10, background: 'rgba(0,82,204,0.1)', color: '#0052cc', padding: '2px 7px', borderRadius: 4, fontWeight: 700, border: '1px solid rgba(0,82,204,0.2)' }}>CGPA: {cumCgpa}</span>
                         )}
                       </div>
-                      <span style={{ fontSize: 14, color: 'var(--text-muted)', transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
+                      <span style={{ fontSize: 14, color: '#64748b', transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
                     </div>
                     {isOpen && (
                       <div className="sem-accordion-content">

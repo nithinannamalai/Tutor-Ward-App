@@ -15,6 +15,7 @@ import { AIChatbot } from './components/AIChatbot';
 import { SplashScreen } from './components/SplashScreen';
 import { SignInPage } from './components/SignInPage';
 import { StudentDetailsCard } from './components/StudentDetailsCard';
+import { RequestLetters } from './components/RequestLetters';
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
@@ -517,9 +518,9 @@ function App() {
                   />
                 </div>
               )}
-              {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'letters' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
+              {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
+              {currentTab === 'letters' && <RequestLetters currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Student'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}

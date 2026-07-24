@@ -7,9 +7,10 @@ interface ProfileDocsProps {
   currentEmail: string;
   isAdmin: boolean;
   onBack: () => void;
+  mode?: 'documents' | 'certificates';
 }
 
-export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin, onBack }) => {
+export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin, onBack, mode = 'documents' }) => {
   const [student, setStudent] = useState<Student | null>(null);
   const [docs, setDocs] = useState<StudentDoc[]>([]);
   
@@ -159,23 +160,38 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
       const sizeKB = Math.round(file.size / 1024);
       
       try {
+        const prefix = mode === 'certificates' ? 'CERT_' : 'DOC_';
         await dbService.uploadDocument(student.email, {
-          name: file.name,
+          name: prefix + file.name,
           size: `${sizeKB} KB`,
           type: file.type,
           dataUrl: base64Data
         });
-        setStatusMessage('Document uploaded successfully!');
+        setStatusMessage(mode === 'certificates' ? 'Certificate uploaded successfully!' : 'Document uploaded successfully!');
         setTimeout(() => setStatusMessage(''), 3000);
         loadData();
       } catch (err) {
         console.error(err);
-        setStatusMessage('Error uploading document.');
+        setStatusMessage('Error uploading file.');
       } finally {
         setUploading(false);
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const filteredDocs = docs.filter(doc => {
+    if (mode === 'certificates') {
+      return doc.name.startsWith('CERT_');
+    } else {
+      return !doc.name.startsWith('CERT_') && !doc.name.startsWith('NPTEL_');
+    }
+  });
+
+  const getDisplayName = (docName: string) => {
+    if (docName.startsWith('CERT_')) return docName.substring(5);
+    if (docName.startsWith('DOC_')) return docName.substring(4);
+    return docName;
   };
 
   const handleDeleteDoc = async (id: string) => {
@@ -215,7 +231,7 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
           <ArrowLeft size={20} />
         </button>
         <span className="panel-title">
-          {isAdmin && !selectedStudentEmail ? 'Student Database' : 'Profile & Documents'}
+          {isAdmin && !selectedStudentEmail ? (mode === 'certificates' ? 'Certificates Directory' : 'Student Database') : (mode === 'certificates' ? 'Certificates & Badges' : 'Profile & Documents')}
         </span>
       </div>
 
@@ -381,10 +397,12 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
             {/* Document Uploader */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <h4 style={{ fontSize: 13, fontWeight: '700' }}>Uploaded PDF Documents</h4>
+                <h4 style={{ fontSize: 13, fontWeight: '700' }}>
+                  {mode === 'certificates' ? 'Uploaded Certificates (PDF)' : 'Uploaded PDF Documents'}
+                </h4>
                 <label className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 11 }}>
                   <Upload size={14} />
-                  Upload PDF
+                  {mode === 'certificates' ? 'Upload Certificate' : 'Upload PDF'}
                   <input 
                     type="file" 
                     accept="application/pdf" 
@@ -407,22 +425,22 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({ currentEmail, isAdmin,
               )}
 
               <div className="document-list">
-                {docs.length === 0 ? (
+                {filteredDocs.length === 0 ? (
                   <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>
-                    No PDF documents stored.
+                    {mode === 'certificates' ? 'No PDF certificates stored.' : 'No PDF documents stored.'}
                   </p>
                 ) : (
-                  docs.map(doc => (
+                  filteredDocs.map(doc => (
                     <div key={doc.id} className="document-item">
                       <div className="doc-info">
-                        <span className="doc-name" title={doc.name}>{doc.name}</span>
+                        <span className="doc-name" title={getDisplayName(doc.name)}>{getDisplayName(doc.name)}</span>
                         <span className="doc-meta">{doc.size} | {doc.uploadedAt}</span>
                       </div>
                       <div className="doc-actions">
-                        <button onClick={() => downloadDoc(doc)} className="doc-action-btn" title="Download Document">
+                        <button onClick={() => downloadDoc(doc)} className="doc-action-btn" title="Download">
                           <Download size={16} />
                         </button>
-                        <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" title="Delete Document">
+                        <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" title="Delete">
                           <Trash2 size={16} />
                         </button>
                       </div>

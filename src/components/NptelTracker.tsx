@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/db';
-import type { Student } from '../services/db';
-import { ArrowLeft, Plus, Trash2, Award, Search, UserCheck } from 'lucide-react';
+import type { Student, StudentDoc } from '../services/db';
+import { ArrowLeft, Plus, Trash2, Award, Search, UserCheck, Upload, Download } from 'lucide-react';
 
 interface NptelTrackerProps {
   currentEmail: string;
@@ -12,6 +12,8 @@ interface NptelTrackerProps {
 export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmin, onBack }) => {
   const [student, setStudent] = useState<Student | null>(null);
   const [exams, setExams] = useState<string[]>([]);
+  const [docs, setDocs] = useState<StudentDoc[]>([]);
+  const [uploading, setUploading] = useState(false);
   
   // Admin states
   const [allStudents, setAllStudents] = useState<Student[]>([]);
@@ -37,16 +39,21 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
         if (p) {
           setStudent(p);
           setExams(p.nptelExams || []);
+          const d = await dbService.getStudentDocuments(p.email);
+          setDocs(d);
         }
       } else {
         setStudent(null);
         setExams([]);
+        setDocs([]);
       }
     } else {
       const p = await dbService.getStudentProfile(currentEmail);
       if (p) {
         setStudent(p);
         setExams(p.nptelExams || []);
+        const d = await dbService.getStudentDocuments(p.email);
+        setDocs(d);
       } else {
         const fallbackStudent: Student = {
           id: currentEmail || 'student@eee.com',
@@ -67,6 +74,8 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
         };
         setStudent(fallbackStudent);
         setExams(fallbackStudent.nptelExams);
+        const d = await dbService.getStudentDocuments(fallbackStudent.email);
+        setDocs(d);
       }
     }
   };
@@ -85,6 +94,7 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
       setNewExam('');
       setStatusMessage('Exam registration added!');
       setTimeout(() => setStatusMessage(''), 3000);
+      loadData();
     } catch (err) {
       console.error(err);
       setStatusMessage('Error adding exam.');
@@ -105,12 +115,74 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
       setExams(updatedExams);
       setStatusMessage('Exam registration removed.');
       setTimeout(() => setStatusMessage(''), 3000);
+      loadData();
     } catch (err) {
       console.error(err);
       setStatusMessage('Error removing exam.');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, examName: string) => {
+    const file = e.target.files?.[0];
+    if (!file || !student) return;
+
+    if (file.type !== 'application/pdf') {
+      setStatusMessage('Only PDF documents are supported.');
+      return;
+    }
+
+    setUploading(true);
+    setStatusMessage('');
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Data = event.target?.result as string;
+      const sizeKB = Math.round(file.size / 1024);
+      
+      try {
+        await dbService.uploadDocument(student.email, {
+          name: `NPTEL_${examName}_${file.name}`,
+          size: `${sizeKB} KB`,
+          type: file.type,
+          dataUrl: base64Data
+        });
+        setStatusMessage('Certificate uploaded successfully!');
+        setTimeout(() => setStatusMessage(''), 3000);
+        loadData();
+      } catch (err) {
+        console.error(err);
+        setStatusMessage('Error uploading certificate.');
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteDoc = async (id: string) => {
+    if (!student) return;
+    if (!window.confirm('Are you sure you want to delete this certificate?')) return;
+
+    try {
+      await dbService.deleteDocument(student.email, id);
+      setStatusMessage('Certificate deleted.');
+      setTimeout(() => setStatusMessage(''), 3000);
+      loadData();
+    } catch (err) {
+      console.error(err);
+      setStatusMessage('Error deleting certificate.');
+    }
+  };
+
+  const downloadDoc = (doc: StudentDoc) => {
+    const link = document.createElement('a');
+    link.href = doc.dataUrl;
+    link.download = doc.name.substring(doc.name.indexOf('_', doc.name.indexOf('_') + 1) + 1); // remove prefix
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const filteredStudents = allStudents.filter(s => 
@@ -222,22 +294,66 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
             <div>
               <h4 style={{ fontSize: 13, fontWeight: '700', marginBottom: 8 }}>Registered NPTEL Examinations</h4>
               <div className="document-list">
+                {uploading && (
+                  <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8, textAlign: 'center', fontSize: 12, marginBottom: 8 }}>
+                    Encoding certificate to Base64 and uploading...
+                  </div>
+                )}
                 {exams.length === 0 ? (
                   <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>
                     No NPTEL courses registered yet.
                   </p>
                 ) : (
-                  exams.map((examName, index) => (
-                    <div key={index} className="document-item" style={{ padding: '10px 14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <Award size={18} style={{ color: 'var(--accent-gold)' }} />
-                        <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{examName}</span>
+                  exams.map((examName, index) => {
+                    const examDoc = docs.find(d => d.name.startsWith(`NPTEL_${examName}_`));
+                    return (
+                      <div key={index} className="document-item" style={{ padding: '10px 14px', flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Award size={18} style={{ color: 'var(--accent-gold)' }} />
+                            <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{examName}</span>
+                          </div>
+                          <button onClick={() => handleDeleteExam(examName)} className="doc-action-btn delete" style={{ background: 'none', border: 'none', cursor: 'pointer' }} disabled={saving}>
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)', padding: '6px 10px', borderRadius: 8, border: '1px dashed var(--card-border)' }}>
+                          {examDoc ? (
+                            <>
+                              <span style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }} title={examDoc.name.substring(`NPTEL_${examName}_`.length)}>
+                                📄 {examDoc.name.substring(`NPTEL_${examName}_`.length)}
+                              </span>
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <button onClick={() => downloadDoc(examDoc)} className="doc-action-btn" title="Download Certificate" style={{ padding: 4 }}>
+                                  <Download size={14} />
+                                </button>
+                                <button onClick={() => handleDeleteDoc(examDoc.id)} className="doc-action-btn delete" title="Delete Certificate" style={{ padding: 4 }}>
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                                No Certificate Uploaded
+                              </span>
+                              <label className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 10, padding: '3px 8px', borderRadius: 6 }}>
+                                <Upload size={12} />
+                                Upload Certificate (PDF)
+                                <input 
+                                  type="file" 
+                                  accept="application/pdf" 
+                                  onChange={(e) => handleFileUpload(e, examName)} 
+                                  style={{ display: 'none' }} 
+                                />
+                              </label>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <button onClick={() => handleDeleteExam(examName)} className="doc-action-btn delete" style={{ background: 'none', border: 'none', cursor: 'pointer' }} disabled={saving}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

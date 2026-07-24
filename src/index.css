@@ -5132,25 +5132,29 @@ button:active {
   transform: scale(1.05);
 }
 
-/* Semester Detailed Accordions */
+/* Semester Detailed Accordions - WHITE THEME */
 .sem-accordion-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.85) 100%);
+  background: #ffffff;
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid var(--card-border);
+  border: 1.5px solid rgba(0, 82, 204, 0.15);
+  border-left: 4px solid var(--accent-blue);
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 82, 204, 0.06);
 }
 .sem-accordion-header:hover {
-  border-color: var(--accent-gold);
-  background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,1) 100%);
+  border-color: var(--accent-blue);
+  border-left-color: var(--accent-blue);
+  background: #f0f5ff;
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.1);
 }
 .sem-accordion-content {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--card-border);
+  background: #f8fafc;
+  border: 1.5px solid rgba(0, 82, 204, 0.1);
   border-top: none;
   border-radius: 0 0 10px 10px;
   padding: 14px;
@@ -5163,29 +5167,29 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.02);
+  background: #ffffff;
   padding: 8px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 82, 204, 0.1);
 }
 .sem-accordion-field label {
   font-size: 9px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .sem-accordion-field span {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-main);
+  color: #0f172a;
 }
 .sem-accordion-field input {
-  background: var(--bg-primary);
-  border: 1px solid var(--card-border);
+  background: #f8fafc;
+  border: 1px solid rgba(0, 82, 204, 0.2);
   border-radius: 4px;
   padding: 4px 8px;
-  color: var(--text-main);
+  color: #0f172a;
   font-size: 12px;
   font-weight: 700;
   outline: none;
@@ -5194,6 +5198,7 @@ button:active {
 }
 .sem-accordion-field input:focus {
   border-color: var(--accent-blue);
+  background: #fff;
 }
 
 

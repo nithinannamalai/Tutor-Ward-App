@@ -67,6 +67,21 @@ export interface Course {
   semester: number;
 }
 
+export interface LetterRequest {
+  id: string;
+  studentEmail: string;
+  studentName: string;
+  rollNo: string;
+  letterType: 'Bonafide' | 'NOC' | 'Internship Request' | 'Course Completion';
+  purpose: string;
+  details: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  requestedAt: string;
+  pdfUrl?: string; // base64 signed PDF uploaded by admin
+  adminRemarks?: string;
+}
+
+
 // ----------------------------------------------------
 // DEFAULT SEED DATA FOR MOCK FALLBACK
 // ----------------------------------------------------
@@ -758,5 +773,93 @@ export const dbService = {
       localStorage.setItem('eee_suggestions', JSON.stringify(list));
       return true;
     }
+  },
+
+  // --- Letter Requests ---
+  async getLetterRequests(studentEmail?: string): Promise<LetterRequest[]> {
+    try {
+      const { data, error } = await supabase
+        .from('letter_requests')
+        .select('*');
+      if (error) throw error;
+      const list = (data || []).map(d => ({
+        id: d.id,
+        studentEmail: d.student_email,
+        studentName: d.student_name,
+        rollNo: d.roll_no,
+        letterType: d.letter_type,
+        purpose: d.purpose,
+        details: d.details,
+        status: d.status,
+        requestedAt: d.requested_at,
+        pdfUrl: d.pdf_url,
+        adminRemarks: d.admin_remarks
+      }));
+      if (studentEmail) {
+        return list.filter(r => r.studentEmail.toLowerCase() === studentEmail.toLowerCase());
+      }
+      return list;
+    } catch (err: any) {
+      console.warn('Supabase getLetterRequests failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_letter_requests');
+      const list: LetterRequest[] = localData ? JSON.parse(localData) : [];
+      if (studentEmail) {
+        return list.filter(r => r.studentEmail.toLowerCase() === studentEmail.toLowerCase());
+      }
+      return list;
+    }
+  },
+
+  async saveLetterRequest(req: LetterRequest): Promise<LetterRequest> {
+    try {
+      const payload = {
+        id: req.id,
+        student_email: req.studentEmail,
+        student_name: req.studentName,
+        roll_no: req.rollNo,
+        letter_type: req.letterType,
+        purpose: req.purpose,
+        details: req.details,
+        status: req.status,
+        requested_at: req.requestedAt,
+        pdf_url: req.pdfUrl,
+        admin_remarks: req.adminRemarks
+      };
+      const { error } = await supabase
+        .from('letter_requests')
+        .upsert(payload);
+      if (error) throw error;
+      return req;
+    } catch (err: any) {
+      console.warn('Supabase saveLetterRequest failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_letter_requests') || '[]';
+      const list: LetterRequest[] = JSON.parse(localData);
+      const idx = list.findIndex(r => r.id === req.id);
+      if (idx > -1) {
+        list[idx] = req;
+      } else {
+        list.push(req);
+      }
+      localStorage.setItem('eee_letter_requests', JSON.stringify(list));
+      return req;
+    }
+  },
+
+  async deleteLetterRequest(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('letter_requests')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteLetterRequest failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_letter_requests');
+      const list: LetterRequest[] = localData ? JSON.parse(localData) : [];
+      localStorage.setItem('eee_letter_requests', JSON.stringify(list.filter(r => r.id !== id)));
+      return true;
+    }
   }
 };
+

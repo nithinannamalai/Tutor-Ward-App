@@ -33,6 +33,13 @@ export interface UserProfile {
   yearOfStudy: string;
   semester: string;
   department: string;
+  // Extended personal details
+  phone?: string;
+  dob?: string;
+  bloodGroup?: string;
+  address?: string;
+  parentName?: string;
+  parentPhone?: string;
 }
 
 // Simulation accounts for testing
@@ -518,6 +525,7 @@ function App() {
                   />
                 </div>
               )}
+              {currentTab === 'profile-details' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="profile" currentUser={currentUser} onUpdateUser={(updated) => setCurrentUser(updated)} />}
               {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
               {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
               {currentTab === 'letters' && <RequestLetters currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Student'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
@@ -576,8 +584,8 @@ function App() {
         </button>
 
         <button
-          className={`bottom-tab-item ${currentTab === 'profile' ? 'active' : ''}`}
-          onClick={() => { setActiveBottomNav('profile'); handleCardClick('profile'); }}
+          className={`bottom-tab-item ${currentTab === 'profile-details' ? 'active' : ''}`}
+          onClick={() => { setActiveBottomNav('profile'); handleCardClick('profile-details'); }}
         >
           <User size={20} />
           <span className="bottom-tab-label">Profile</span>

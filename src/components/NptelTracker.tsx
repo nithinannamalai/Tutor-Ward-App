@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { dbService } from '../services/db';
 import type { Student, StudentDoc } from '../services/db';
-import { ArrowLeft, Plus, Trash2, Award, Search, UserCheck, Upload, Download } from 'lucide-react';
+import {
+  ArrowLeft, Plus, Trash2, Award, Search, UserCheck,
+  Upload, Download, CheckCircle2, BookOpen, X, Sparkles,
+  FileText, Clock, ChevronDown, ChevronUp
+} from 'lucide-react';
 
 interface NptelTrackerProps {
   currentEmail: string;
@@ -9,21 +13,37 @@ interface NptelTrackerProps {
   onBack: () => void;
 }
 
+const STATUS_CONFIG = {
+  registered: { label: 'Registered', color: '#0052cc', bg: 'rgba(0,82,204,0.1)', icon: Clock },
+  'in-progress': { label: 'In Progress', color: '#d97706', bg: 'rgba(217,119,6,0.1)', icon: BookOpen },
+  completed: { label: 'Completed', color: '#059669', bg: 'rgba(5,150,105,0.1)', icon: CheckCircle2 },
+};
+
 export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmin, onBack }) => {
   const [student, setStudent] = useState<Student | null>(null);
   const [exams, setExams] = useState<string[]>([]);
   const [docs, setDocs] = useState<StudentDoc[]>([]);
-  const [uploading, setUploading] = useState(false);
-  
+  const [uploading, setUploading] = useState<string | null>(null); // exam name being uploaded
+  const [expandedExam, setExpandedExam] = useState<string | null>(null);
+
   // Admin states
   const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudentEmail, setSelectedStudentEmail] = useState<string | null>(null);
 
-  // Form input state
+  // Form state
   const [newExam, setNewExam] = useState('');
+  const [newStatus, setNewStatus] = useState<'registered' | 'completed' | 'in-progress'>('registered');
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [statusType, setStatusType] = useState<'success' | 'error'>('success');
+  const [newlyAdded, setNewlyAdded] = useState<string | null>(null);
+
+  // Per-exam upload state
+  const [pendingFiles, setPendingFiles] = useState<Record<string, File | null>>({});
+  const [pendingNames, setPendingNames] = useState<Record<string, string>>({});
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     loadData();
@@ -33,7 +53,6 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
     if (isAdmin) {
       const list = await dbService.fetchAllStudents();
       setAllStudents(list);
-
       if (selectedStudentEmail) {
         const p = await dbService.getStudentProfile(selectedStudentEmail);
         if (p) {
@@ -43,9 +62,7 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
           setDocs(d);
         }
       } else {
-        setStudent(null);
-        setExams([]);
-        setDocs([]);
+        setStudent(null); setExams([]); setDocs([]);
       }
     } else {
       const p = await dbService.getStudentProfile(currentEmail);
@@ -55,7 +72,7 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
         const d = await dbService.getStudentDocuments(p.email);
         setDocs(d);
       } else {
-        const fallbackStudent: Student = {
+        const fallback: Student = {
           id: currentEmail || 'student@eee.com',
           rollNo: '7377221EE001',
           name: 'Nithin Annamalai',
@@ -72,32 +89,39 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
           nptelExams: ['Embedded Systems', 'Power Electronics'],
           documents: []
         };
-        setStudent(fallbackStudent);
-        setExams(fallbackStudent.nptelExams);
-        const d = await dbService.getStudentDocuments(fallbackStudent.email);
+        setStudent(fallback);
+        setExams(fallback.nptelExams);
+        const d = await dbService.getStudentDocuments(fallback.email);
         setDocs(d);
       }
     }
   };
 
+  const showStatus = (msg: string, type: 'success' | 'error' = 'success') => {
+    setStatusMessage(msg);
+    setStatusType(type);
+    setTimeout(() => setStatusMessage(''), 3000);
+  };
+
   const handleAddExam = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newExam || !student) return;
+    if (!newExam.trim() || !student) return;
     setSaving(true);
-    setStatusMessage('');
-
-    const updatedExams = [...exams, newExam.trim()];
-
+    const examEntry = newExam.trim();
+    const updatedExams = [...exams, examEntry];
     try {
       await dbService.updateStudentProfile(student.email, { nptelExams: updatedExams });
       setExams(updatedExams);
+      setNewlyAdded(examEntry);
+      setExpandedExam(examEntry);
+      setTimeout(() => setNewlyAdded(null), 1200);
       setNewExam('');
-      setStatusMessage('Exam registration added!');
-      setTimeout(() => setStatusMessage(''), 3000);
+      setNewStatus('registered');
+      showStatus('Course added successfully!');
       loadData();
     } catch (err) {
       console.error(err);
-      setStatusMessage('Error adding exam.');
+      showStatus('Error adding course.', 'error');
     } finally {
       setSaving(false);
     }
@@ -105,57 +129,61 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
 
   const handleDeleteExam = async (examName: string) => {
     if (!student) return;
-    if (!window.confirm(`Remove NPTEL Registration for: "${examName}"?`)) return;
+    if (!window.confirm(`Remove "${examName}" from NPTEL list?`)) return;
     setSaving(true);
-
     const updatedExams = exams.filter(e => e !== examName);
-
     try {
       await dbService.updateStudentProfile(student.email, { nptelExams: updatedExams });
       setExams(updatedExams);
-      setStatusMessage('Exam registration removed.');
-      setTimeout(() => setStatusMessage(''), 3000);
+      showStatus('Course removed.');
       loadData();
     } catch (err) {
-      console.error(err);
-      setStatusMessage('Error removing exam.');
+      showStatus('Error removing course.', 'error');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, examName: string) => {
-    const file = e.target.files?.[0];
-    if (!file || !student) return;
-
+  // Select file for a specific exam (stores in pending state)
+  const handleSelectFile = (examName: string, file: File | null) => {
+    if (!file) return;
     if (file.type !== 'application/pdf') {
-      setStatusMessage('Only PDF documents are supported.');
+      showStatus('Only PDF files are supported.', 'error');
       return;
     }
+    setPendingFiles(prev => ({ ...prev, [examName]: file }));
+    // Auto-fill cert name from file
+    const base = file.name.replace(/\.[^/.]+$/, '').replace(/[_\-\.]+/g, ' ');
+    const autoName = base.length > 2 ? base : `${examName} Certificate`;
+    setPendingNames(prev => ({ ...prev, [examName]: prev[examName] || autoName }));
+  };
 
-    setUploading(true);
-    setStatusMessage('');
+  // Actually upload the certificate for an exam
+  const handleUploadCertificate = async (examName: string) => {
+    const file = pendingFiles[examName];
+    const certName = (pendingNames[examName] || examName).trim();
+    if (!file || !student || !certName) return;
 
+    setUploading(examName);
     const reader = new FileReader();
     reader.onload = async (event) => {
       const base64Data = event.target?.result as string;
       const sizeKB = Math.round(file.size / 1024);
-      
       try {
         await dbService.uploadDocument(student.email, {
-          name: `NPTEL_${examName}_${file.name}`,
+          name: `NPTEL_${examName}_${certName}.pdf`,
           size: `${sizeKB} KB`,
           type: file.type,
           dataUrl: base64Data
         });
-        setStatusMessage('Certificate uploaded successfully!');
-        setTimeout(() => setStatusMessage(''), 3000);
+        showStatus('Certificate uploaded successfully! 🎉');
+        setPendingFiles(prev => { const n = { ...prev }; delete n[examName]; return n; });
+        setPendingNames(prev => { const n = { ...prev }; delete n[examName]; return n; });
         loadData();
       } catch (err) {
-        console.error(err);
-        setStatusMessage('Error uploading certificate.');
+        showStatus('Upload failed. Try again.', 'error');
       } finally {
-        setUploading(false);
+        setUploading(null);
       }
     };
     reader.readAsDataURL(file);
@@ -163,36 +191,37 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
 
   const handleDeleteDoc = async (id: string) => {
     if (!student) return;
-    if (!window.confirm('Are you sure you want to delete this certificate?')) return;
-
+    if (!window.confirm('Delete this certificate?')) return;
     try {
       await dbService.deleteDocument(student.email, id);
-      setStatusMessage('Certificate deleted.');
-      setTimeout(() => setStatusMessage(''), 3000);
+      showStatus('Certificate deleted.');
       loadData();
-    } catch (err) {
-      console.error(err);
-      setStatusMessage('Error deleting certificate.');
+    } catch {
+      showStatus('Error deleting certificate.', 'error');
     }
   };
 
   const downloadDoc = (doc: StudentDoc) => {
     const link = document.createElement('a');
     link.href = doc.dataUrl;
-    link.download = doc.name.substring(doc.name.indexOf('_', doc.name.indexOf('_') + 1) + 1); // remove prefix
+    link.download = doc.name;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const filteredStudents = allStudents.filter(s => 
+  const filteredStudents = allStudents.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.rollNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (s.nptelExams && s.nptelExams.some(e => e.toLowerCase().includes(searchQuery.toLowerCase())))
+    (s.nptelExams?.some(e => e.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
+  const nptelDocs = docs.filter(d => d.name.startsWith('NPTEL_'));
+  const completedCount = nptelDocs.length;
+  const totalCount = exams.length;
+
   return (
-    <div className="panel-view">
+    <div className="panel-view nptel-panel">
       <div className="panel-header">
         <button onClick={selectedStudentEmail ? () => setSelectedStudentEmail(null) : onBack} className="back-btn">
           <ArrowLeft size={20} />
@@ -203,159 +232,280 @@ export const NptelTracker: React.FC<NptelTrackerProps> = ({ currentEmail, isAdmi
       </div>
 
       <div className="panel-body">
+        {/* Status Toast */}
         {statusMessage && (
-          <div style={{ padding: 8, background: 'var(--bg-secondary)', borderRadius: 6, fontSize: 11, textAlign: 'center', color: 'var(--accent-gold)' }}>
+          <div className={`nptel-toast ${statusType}`}>
+            {statusType === 'success' ? <CheckCircle2 size={14} /> : <X size={14} />}
             {statusMessage}
           </div>
         )}
 
-        {/* --- ADMIN DIRECTORY VIEW --- */}
+        {/* --- ADMIN DIRECTORY --- */}
         {isAdmin && !selectedStudentEmail && (
-          <>
-            <div className="form-group" style={{ position: 'relative' }}>
+          <div className="nptel-admin-section">
+            <div className="nptel-search-wrap">
+              <Search size={15} className="nptel-search-icon" />
               <input
                 type="text"
-                placeholder="Search by student or exam name..."
+                placeholder="Search by student or course name..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="form-input"
-                style={{ paddingLeft: '36px' }}
-              />
-              <Search 
-                size={16} 
-                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} 
+                className="nptel-search-input"
               />
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-              <p className="form-label">Registrations by Student:</p>
-              {filteredStudents.length === 0 ? (
-                <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', padding: '20px 0' }}>
-                  No students matched query.
-                </p>
-              ) : (
-                filteredStudents.map(s => (
-                  <div 
-                    key={s.id} 
-                    className="attendance-mark-item" 
-                    onClick={() => setSelectedStudentEmail(s.email)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div>
-                      <h4 style={{ fontSize: 13, fontWeight: '700' }}>{s.name}</h4>
-                      <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Roll: {s.rollNo}</p>
-                      {s.nptelExams && s.nptelExams.length > 0 ? (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-                          {s.nptelExams.map((ex, i) => (
-                            <span key={i} style={{ fontSize: 9, background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-gold)', padding: '2px 6px', borderRadius: 4 }}>
-                              {ex}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 4 }}>No exams registered</p>
+            <p className="nptel-section-label">Select a student to view registrations:</p>
+            {filteredStudents.length === 0 ? (
+              <div className="nptel-empty-state">No students matched your search.</div>
+            ) : (
+              filteredStudents.map(s => (
+                <div key={s.id} className="nptel-student-row" onClick={() => setSelectedStudentEmail(s.email)}>
+                  <div>
+                    <h4 className="nptel-student-name">{s.name}</h4>
+                    <p className="nptel-student-meta">Roll: {s.rollNo}</p>
+                    <div className="nptel-tags">
+                      {(s.nptelExams || []).slice(0, 3).map((ex, i) => (
+                        <span key={i} className="nptel-tag">{ex}</span>
+                      ))}
+                      {(s.nptelExams?.length ?? 0) > 3 && (
+                        <span className="nptel-tag-more">+{(s.nptelExams?.length ?? 0) - 3}</span>
                       )}
                     </div>
-                    <UserCheck size={18} style={{ color: 'var(--accent-blue)' }} />
                   </div>
-                ))
-              )}
-            </div>
-          </>
+                  <UserCheck size={18} className="nptel-student-chevron" />
+                </div>
+              ))
+            )}
+          </div>
         )}
 
-        {/* --- STUDENT / INDIVIDUAL DETAILS VIEW --- */}
+        {/* --- STUDENT VIEW --- */}
         {(!isAdmin || selectedStudentEmail) && student && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="nptel-student-view">
             {isAdmin && (
-              <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: 10, borderRadius: 8, fontSize: 11, border: '1px solid rgba(56,189,248,0.2)' }}>
-                Viewing NPTEL list for: <strong>{student.name} ({student.rollNo})</strong>
+              <div className="nptel-admin-badge">
+                <Sparkles size={12} /> Viewing: <strong>{student.name} ({student.rollNo})</strong>
               </div>
             )}
 
-            <form onSubmit={handleAddExam} style={{ display: 'flex', flexDirection: 'column', gap: 10, background: 'var(--bg-secondary)', padding: 14, borderRadius: 12, border: '1px solid var(--card-border)' }}>
-              <div className="form-group">
-                <label className="form-label">{isAdmin ? "Add NPTEL Exam for Student" : "Register New NPTEL Exam"}</label>
-                <input
-                  type="text"
-                  value={newExam}
-                  onChange={e => setNewExam(e.target.value)}
-                  className="form-input"
-                  placeholder="e.g. Introduction to Smart Grid"
-                  required
-                />
+            {/* Stats Header */}
+            {!isAdmin && (
+              <div className="nptel-stats-row">
+                <div className="nptel-stat-card blue">
+                  <span className="nptel-stat-val">{totalCount}</span>
+                  <span className="nptel-stat-lbl">Registered</span>
+                </div>
+                <div className="nptel-stat-card green">
+                  <span className="nptel-stat-val">{completedCount}</span>
+                  <span className="nptel-stat-lbl">Certified</span>
+                </div>
+                <div className="nptel-stat-card gold">
+                  <span className="nptel-stat-val">{totalCount - completedCount}</span>
+                  <span className="nptel-stat-lbl">Pending</span>
+                </div>
               </div>
-              <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} disabled={saving}>
-                <Plus size={16} />
-                Add Course
+            )}
+
+            {/* Add Course Form */}
+            <form ref={formRef} onSubmit={handleAddExam} className="nptel-add-form">
+              <div className="nptel-form-header">
+                <Award size={16} className="nptel-form-icon" />
+                <span>Register New NPTEL Course</span>
+              </div>
+
+              <div className="nptel-field-wrap">
+                <label className="nptel-field-label">Course Name</label>
+                <div className="nptel-field-input-wrap">
+                  <BookOpen size={14} className="nptel-field-icon" />
+                  <input
+                    type="text"
+                    value={newExam}
+                    onChange={e => setNewExam(e.target.value)}
+                    className="nptel-field-input"
+                    placeholder="e.g. Introduction to Smart Grid"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="nptel-field-wrap">
+                <label className="nptel-field-label">Status</label>
+                <div className="nptel-status-picker">
+                  {(['registered', 'in-progress', 'completed'] as const).map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`nptel-status-chip ${newStatus === s ? 'active ' + s : ''}`}
+                      onClick={() => setNewStatus(s)}
+                    >
+                      {STATUS_CONFIG[s].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className={`nptel-add-btn ${saving ? 'loading' : ''}`}
+                disabled={saving || !newExam.trim()}
+              >
+                {saving ? (
+                  <span className="nptel-spinner" />
+                ) : (
+                  <Plus size={16} />
+                )}
+                {saving ? 'Adding...' : 'Add Course'}
               </button>
             </form>
 
-            <div>
-              <h4 style={{ fontSize: 13, fontWeight: '700', marginBottom: 8 }}>Registered NPTEL Examinations</h4>
-              <div className="document-list">
-                {uploading && (
-                  <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8, textAlign: 'center', fontSize: 12, marginBottom: 8 }}>
-                    Encoding certificate to Base64 and uploading...
-                  </div>
-                )}
-                {exams.length === 0 ? (
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>
-                    No NPTEL courses registered yet.
-                  </p>
-                ) : (
-                  exams.map((examName, index) => {
+            {/* Course List */}
+            <div className="nptel-courses-section">
+              <h4 className="nptel-courses-title">
+                <Award size={15} />
+                Registered Courses
+                <span className="nptel-count-badge">{exams.length}</span>
+              </h4>
+
+              {exams.length === 0 ? (
+                <div className="nptel-empty-state">
+                  <Award size={32} className="nptel-empty-icon" />
+                  <p>No NPTEL courses registered yet.</p>
+                  <span>Add your first course above!</span>
+                </div>
+              ) : (
+                <div className="nptel-course-list">
+                  {exams.map((examName, index) => {
                     const examDoc = docs.find(d => d.name.startsWith(`NPTEL_${examName}_`));
+                    const isExpanded = expandedExam === examName;
+                    const isNew = newlyAdded === examName;
+                    const pendingFile = pendingFiles[examName];
+                    const pendingName = pendingNames[examName] ?? '';
+                    const isUploading = uploading === examName;
+
                     return (
-                      <div key={index} className="document-item" style={{ padding: '10px 14px', flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <Award size={18} style={{ color: 'var(--accent-gold)' }} />
-                            <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{examName}</span>
+                      <div
+                        key={examName}
+                        className={`nptel-course-card ${isNew ? 'just-added' : ''} ${examDoc ? 'certified' : ''}`}
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                      >
+                        {/* Card Header */}
+                        <div
+                          className="nptel-course-card-header"
+                          onClick={() => setExpandedExam(isExpanded ? null : examName)}
+                        >
+                          <div className="nptel-course-left">
+                            <div className={`nptel-course-num ${examDoc ? 'done' : ''}`}>
+                              {examDoc ? <CheckCircle2 size={13} /> : index + 1}
+                            </div>
+                            <div className="nptel-course-info">
+                              <span className="nptel-course-name">{examName}</span>
+                              {examDoc ? (
+                                <span className="nptel-cert-label">✓ Certificate Uploaded</span>
+                              ) : (
+                                <span className="nptel-no-cert-label">No certificate yet</span>
+                              )}
+                            </div>
                           </div>
-                          <button onClick={() => handleDeleteExam(examName)} className="doc-action-btn delete" style={{ background: 'none', border: 'none', cursor: 'pointer' }} disabled={saving}>
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="nptel-course-actions">
+                            <button
+                              className="nptel-delete-btn"
+                              onClick={e => { e.stopPropagation(); handleDeleteExam(examName); }}
+                              title="Remove course"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                            <span className="nptel-expand-icon">
+                              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                            </span>
+                          </div>
                         </div>
-                        
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)', padding: '6px 10px', borderRadius: 8, border: '1px dashed var(--card-border)' }}>
-                          {examDoc ? (
-                            <>
-                              <span style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }} title={examDoc.name.substring(`NPTEL_${examName}_`.length)}>
-                                📄 {examDoc.name.substring(`NPTEL_${examName}_`.length)}
-                              </span>
-                              <div style={{ display: 'flex', gap: 6 }}>
-                                <button onClick={() => downloadDoc(examDoc)} className="doc-action-btn" title="Download Certificate" style={{ padding: 4 }}>
-                                  <Download size={14} />
-                                </button>
-                                <button onClick={() => handleDeleteDoc(examDoc.id)} className="doc-action-btn delete" title="Delete Certificate" style={{ padding: 4 }}>
-                                  <Trash2 size={14} />
+
+                        {/* Expanded Panel */}
+                        {isExpanded && (
+                          <div className="nptel-course-panel">
+                            {examDoc ? (
+                              /* ── Certificate already uploaded ── */
+                              <div className="nptel-cert-uploaded">
+                                <div className="nptel-cert-info">
+                                  <FileText size={16} className="nptel-cert-file-icon" />
+                                  <div>
+                                    <p className="nptel-cert-name">
+                                      {examDoc.name.replace(`NPTEL_${examName}_`, '').replace(/\.pdf$/i, '')}
+                                    </p>
+                                    <p className="nptel-cert-meta">{examDoc.size} · {examDoc.uploadedAt}</p>
+                                  </div>
+                                </div>
+                                <div className="nptel-cert-btns">
+                                  <button className="nptel-action-btn download" onClick={() => downloadDoc(examDoc)}>
+                                    <Download size={13} /> Download
+                                  </button>
+                                  <button className="nptel-action-btn delete-cert" onClick={() => handleDeleteDoc(examDoc.id)}>
+                                    <Trash2 size={13} /> Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              /* ── Upload section ── */
+                              <div className="nptel-upload-section">
+                                {/* Certificate Name */}
+                                <div className="nptel-field-wrap" style={{ marginBottom: 10 }}>
+                                  <label className="nptel-field-label">Certificate Name</label>
+                                  <input
+                                    type="text"
+                                    value={pendingName}
+                                    onChange={e => setPendingNames(prev => ({ ...prev, [examName]: e.target.value }))}
+                                    className="nptel-field-input"
+                                    style={{ paddingLeft: 10 }}
+                                    placeholder={`e.g. ${examName} NPTEL Certificate`}
+                                  />
+                                </div>
+
+                                {/* File picker */}
+                                {pendingFile ? (
+                                  <div className="nptel-file-preview">
+                                    <div className="nptel-file-preview-info">
+                                      <FileText size={15} />
+                                      <div>
+                                        <span className="nptel-file-name">{pendingFile.name}</span>
+                                        <span className="nptel-file-size">{Math.round(pendingFile.size / 1024)} KB</span>
+                                      </div>
+                                    </div>
+                                    <label className="nptel-change-file-btn">
+                                      Change
+                                      <input type="file" accept="application/pdf" style={{ display: 'none' }}
+                                        onChange={e => handleSelectFile(examName, e.target.files?.[0] ?? null)} />
+                                    </label>
+                                  </div>
+                                ) : (
+                                  <label className="nptel-drop-zone">
+                                    <Upload size={20} className="nptel-drop-icon" />
+                                    <span className="nptel-drop-title">Upload Certificate PDF</span>
+                                    <span className="nptel-drop-hint">Click to select · PDF only</span>
+                                    <input type="file" accept="application/pdf" style={{ display: 'none' }}
+                                      onChange={e => handleSelectFile(examName, e.target.files?.[0] ?? null)} />
+                                  </label>
+                                )}
+
+                                {/* Upload & Save button */}
+                                <button
+                                  className={`nptel-upload-save-btn ${isUploading ? 'uploading' : ''}`}
+                                  onClick={() => handleUploadCertificate(examName)}
+                                  disabled={!pendingFile || !pendingName.trim() || isUploading}
+                                >
+                                  {isUploading ? (
+                                    <><span className="nptel-spinner small" /> Uploading...</>
+                                  ) : (
+                                    <><Upload size={14} /> Upload & Save Certificate</>
+                                  )}
                                 </button>
                               </div>
-                            </>
-                          ) : (
-                            <>
-                              <span style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                                No Certificate Uploaded
-                              </span>
-                              <label className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 10, padding: '3px 8px', borderRadius: 6 }}>
-                                <Upload size={12} />
-                                Upload Certificate (PDF)
-                                <input 
-                                  type="file" 
-                                  accept="application/pdf" 
-                                  onChange={(e) => handleFileUpload(e, examName)} 
-                                  style={{ display: 'none' }} 
-                                />
-                              </label>
-                            </>
-                          )}
-                        </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
-                  })
-                )}
-              </div>
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -117,7 +117,18 @@ function App() {
   };
 
   const handleLoginSuccess = (userProfile: UserProfile) => {
-    setCurrentUser(userProfile);
+    // Merge any locally saved personal details (phone, dob, etc.)
+    try {
+      const saved = localStorage.getItem('eee_profile_extra_' + userProfile.email);
+      if (saved) {
+        const extras = JSON.parse(saved) as Partial<UserProfile>;
+        setCurrentUser({ ...userProfile, ...extras, email: userProfile.email, role: userProfile.role });
+      } else {
+        setCurrentUser(userProfile);
+      }
+    } catch {
+      setCurrentUser(userProfile);
+    }
     setIsAuthenticated(true);
     setShowSignInPage(false);
   };

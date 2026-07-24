@@ -5202,7 +5202,811 @@ button:active {
 }
 
 
+/* ====================================================
+   GLOBAL PREMIUM ANIMATIONS
+   ==================================================== */
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceIn {
+  0%   { opacity: 0; transform: scale(0.7); }
+  60%  { opacity: 1; transform: scale(1.08); }
+  80%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 82, 204, 0.25); }
+  50%       { box-shadow: 0 0 0 8px rgba(0, 82, 204, 0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes cardPop {
+  0%   { opacity: 0; transform: scale(0.88) translateY(12px); }
+  70%  { transform: scale(1.02) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes certBadgePop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* Apply subtle fade-in globally to panel bodies */
+.panel-body {
+  animation: fadeIn 0.3s ease;
+}
+.dedicated-page-body > * {
+  animation: fadeInUp 0.35s ease both;
+}
+
+/* ====================================================
+   NPTEL TRACKER — PREMIUM STYLES
+   ==================================================== */
+
+.nptel-panel .panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* Toast notification */
+.nptel-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nptel-toast.success {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+.nptel-toast.error {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+/* Admin section */
+.nptel-admin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nptel-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.nptel-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.nptel-search-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  font-size: 13px;
+  color: #0f172a;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.nptel-search-input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+.nptel-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.nptel-student-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.3s ease both;
+}
+.nptel-student-row:hover {
+  border-color: var(--accent-blue);
+  background: #f0f7ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.1);
+}
+.nptel-student-name { font-size: 13px; font-weight: 700; color: #0f172a; margin: 0; }
+.nptel-student-meta { font-size: 10px; color: var(--text-muted); margin: 2px 0 6px; }
+.nptel-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.nptel-tag {
+  font-size: 9px;
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.nptel-tag-more {
+  font-size: 9px;
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.nptel-student-chevron { color: var(--accent-blue); flex-shrink: 0; }
+
+/* Student view */
+.nptel-student-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.nptel-admin-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(56,189,248,0.08);
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #0369a1;
+}
+
+/* Stats row */
+.nptel-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  animation: fadeInUp 0.4s ease both;
+}
+.nptel-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 8px;
+  border-radius: 14px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.nptel-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.nptel-stat-card.blue {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1.5px solid rgba(0,82,204,0.15);
+}
+.nptel-stat-card.green {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 1.5px solid rgba(5,150,105,0.15);
+}
+.nptel-stat-card.gold {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1.5px solid rgba(217,119,6,0.15);
+}
+.nptel-stat-val {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.nptel-stat-card.blue .nptel-stat-val { color: #0052cc; }
+.nptel-stat-card.green .nptel-stat-val { color: #059669; }
+.nptel-stat-card.gold .nptel-stat-val { color: #d97706; }
+.nptel-stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Add course form */
+.nptel-add-form {
+  background: linear-gradient(135deg, #f8faff 0%, #eff6ff 100%);
+  border: 1.5px solid rgba(0, 82, 204, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0, 82, 204, 0.06);
+  animation: fadeInUp 0.35s ease both;
+}
+.nptel-form-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0052cc;
+}
+.nptel-form-icon { color: #7c3aed; }
+
+.nptel-field-wrap { display: flex; flex-direction: column; gap: 5px; }
+.nptel-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.nptel-field-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.nptel-field-input-wrap:focus-within {
+  border-color: #0052cc;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+.nptel-field-icon { color: #94a3b8; flex-shrink: 0; }
+.nptel-field-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+}
+
+/* Status picker */
+.nptel-status-picker {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.nptel-status-chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.nptel-status-chip:hover {
+  border-color: #0052cc;
+  color: #0052cc;
+}
+.nptel-status-chip.active.registered {
+  background: rgba(0,82,204,0.1);
+  border-color: #0052cc;
+  color: #0052cc;
+}
+.nptel-status-chip.active.in-progress {
+  background: rgba(217,119,6,0.1);
+  border-color: #d97706;
+  color: #d97706;
+}
+.nptel-status-chip.active.completed {
+  background: rgba(5,150,105,0.1);
+  border-color: #059669;
+  color: #059669;
+}
+
+/* Add button */
+.nptel-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  background: linear-gradient(135deg, #0052cc 0%, #3b82f6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 82, 204, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+.nptel-add-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+  pointer-events: none;
+}
+.nptel-add-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 82, 204, 0.45);
+}
+.nptel-add-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.nptel-add-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.nptel-add-btn.loading {
+  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  box-shadow: none;
+}
+
+/* Spinner */
+.nptel-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.nptel-spinner.small {
+  width: 13px;
+  height: 13px;
+  border-width: 2px;
+}
+
+/* Courses section */
+.nptel-courses-section { display: flex; flex-direction: column; gap: 10px; }
+.nptel-courses-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+.nptel-count-badge {
+  margin-left: auto;
+  background: #0052cc;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.nptel-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Empty state */
+.nptel-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  background: #f8fafc;
+  border: 1.5px dashed #e2e8f0;
+  border-radius: 14px;
+  text-align: center;
+  gap: 6px;
+}
+.nptel-empty-icon {
+  color: #cbd5e1;
+  animation: floatUp 3s ease-in-out infinite;
+}
+.nptel-empty-state p { font-size: 13px; font-weight: 700; color: #475569; margin: 0; }
+.nptel-empty-state span { font-size: 11px; color: #94a3b8; }
+
+/* Course card */
+.nptel-course-card {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  animation: fadeInUp 0.35s ease both;
+}
+.nptel-course-card:hover {
+  border-color: rgba(0, 82, 204, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 82, 204, 0.08);
+}
+.nptel-course-card.certified {
+  border-color: rgba(5, 150, 105, 0.25);
+}
+.nptel-course-card.certified:hover {
+  border-color: rgba(5, 150, 105, 0.4);
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.1);
+}
+.nptel-course-card.just-added {
+  animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.15);
+}
+
+/* Card header */
+.nptel-course-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+.nptel-course-card-header:hover { background: #fafbff; }
+.nptel-course-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.nptel-course-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+.nptel-course-num.done {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+  animation: certBadgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.nptel-course-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.nptel-course-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nptel-cert-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #059669;
+  margin-top: 2px;
+}
+.nptel-no-cert-label {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.nptel-course-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.nptel-delete-btn {
+  padding: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.nptel-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.nptel-expand-icon {
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+/* Expanded panel */
+.nptel-course-panel {
+  padding: 0 14px 14px;
+  border-top: 1px solid #f1f5f9;
+  animation: slideDown 0.22s ease both;
+}
+
+/* Certificate uploaded state */
+.nptel-cert-uploaded {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 10px;
+}
+.nptel-cert-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.nptel-cert-file-icon { color: #059669; flex-shrink: 0; }
+.nptel-cert-name { font-size: 12px; font-weight: 700; color: #166534; margin: 0; }
+.nptel-cert-meta { font-size: 10px; color: #4ade80; margin: 2px 0 0; font-weight: 600; }
+.nptel-cert-btns { display: flex; gap: 8px; }
+
+/* Action buttons */
+.nptel-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.nptel-action-btn.download {
+  background: #0052cc;
+  color: #fff;
+}
+.nptel-action-btn.download:hover {
+  background: #003d99;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+.nptel-action-btn.delete-cert {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.nptel-action-btn.delete-cert:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* Upload section */
+.nptel-upload-section {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Drop zone */
+.nptel-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 12px;
+  background: #f8fafc;
+  border: 2px dashed rgba(0, 82, 204, 0.25);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  gap: 4px;
+}
+.nptel-drop-zone:hover {
+  background: #eff6ff;
+  border-color: #0052cc;
+  border-style: solid;
+}
+.nptel-drop-icon {
+  color: #0052cc;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+.nptel-drop-zone:hover .nptel-drop-icon { transform: translateY(-3px); }
+.nptel-drop-title { font-size: 12px; font-weight: 700; color: #0052cc; }
+.nptel-drop-hint { font-size: 10px; color: #94a3b8; }
+
+/* File preview */
+.nptel-file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.nptel-file-preview-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #166534;
+  min-width: 0;
+}
+.nptel-file-name { display: block; font-size: 11px; font-weight: 700; color: #166534; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.nptel-file-size { display: block; font-size: 10px; color: #4ade80; }
+.nptel-change-file-btn {
+  font-size: 10px;
+  color: #0052cc;
+  border: 1px solid #0052cc;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.nptel-change-file-btn:hover { background: #0052cc; color: #fff; }
+
+/* Upload & Save button */
+.nptel-upload-save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+.nptel-upload-save-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+  pointer-events: none;
+}
+.nptel-upload-save-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.45);
+}
+.nptel-upload-save-btn:active:not(:disabled) { transform: scale(0.97); }
+.nptel-upload-save-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.nptel-upload-save-btn.uploading {
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  animation: pulseGlow 1.2s ease-in-out infinite;
+}
+
+/* ── Profile Panel Animations ── */
+.profile-hero-card,
+.nptel-add-form,
+.nptel-stats-row,
+.nptel-courses-section {
+  animation: fadeInUp 0.4s ease both;
+}
+
+/* ── Global button hover lift ── */
+.btn-primary {
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease !important;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0,82,204,0.35) !important;
+}
+.btn-primary:active:not(:disabled) { transform: scale(0.97) !important; }
+
+.btn-secondary {
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-1px) !important;
+}
+
+/* ── Document item hover ── */
+.document-item {
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+.document-item:hover {
+  transform: translateX(2px) !important;
+  box-shadow: 0 2px 10px rgba(0,82,204,0.08) !important;
+}
+
+/* ── Bottom nav active bounce ── */
+.bottom-tab-item.active .bottom-tab-label {
+  animation: bounceIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── App tile hover animation ── */
+.app-tile {
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease !important;
+}
+.app-tile:hover {
+  transform: translateY(-4px) scale(1.04) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+}
+.app-tile:active { transform: scale(0.95) !important; }
+
+/* ── Student metric pill hover ── */
+.student-metric-pill {
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease !important;
+}
+.student-metric-pill:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1) !important;
+}
+
+/* ── Attendance mark-item hover ── */
+.attendance-mark-item {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+.attendance-mark-item:hover {
+  border-color: rgba(0,82,204,0.3) !important;
+  box-shadow: 0 4px 12px rgba(0,82,204,0.08) !important;
+  transform: translateX(2px) !important;
+}
+
+/* ── Input focus ring global ── */
+.form-input:focus, .form-select:focus {
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.12) !important;
+  border-color: var(--accent-blue) !important;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+/* ── Poster modal entrance ── */
+.poster-content {
+  animation: bounceIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+}
 
 
 

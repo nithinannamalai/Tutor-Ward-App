@@ -16,6 +16,8 @@ import { SplashScreen } from './components/SplashScreen';
 import { SignInPage } from './components/SignInPage';
 import { StudentDetailsCard } from './components/StudentDetailsCard';
 import { RequestLetters } from './components/RequestLetters';
+import { Timetable } from './components/Timetable';
+import type { Faculty, Rule } from './services/db';
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
@@ -189,6 +191,7 @@ function App() {
         { key: 'calendar', label: 'Calendar', icon: <Calendar size={24} />, color: '#dc2626', bg: 'rgba(220, 38, 38, 0.12)' },
         { key: 'academics', label: 'CGPA', icon: <GraduationCap size={24} />, color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
         { key: 'nptel', label: 'NPTEL', icon: <Award size={24} />, color: '#7c3aed', bg: 'rgba(124, 58, 237, 0.12)' },
+        { key: 'timetable', label: 'Timetable', icon: <Calendar size={24} />, color: '#0f766e', bg: 'rgba(15, 118, 110, 0.12)' },
       ]
     },
     {
@@ -221,6 +224,9 @@ function App() {
     if (!currentTab) return null;
     if (currentTab === 'announcements') {
       return { key: 'announcements', label: 'Notifications & Notice Board', icon: <Bell size={24} />, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' };
+    }
+    if (currentTab === 'timetable') {
+      return { key: 'timetable', label: 'Class Timetable', icon: <Calendar size={24} />, color: '#0f766e', bg: 'rgba(15, 118, 110, 0.12)' };
     }
     for (const cat of appCategories) {
       const item = cat.items.find(i => i.key === currentTab);
@@ -368,6 +374,7 @@ function App() {
               {[
                 { label: 'Syllabus & Courses', key: 'courses', icon: <BookOpen size={16} />, color: '#0891b2' },
                 { label: 'Academic Calendar', key: 'calendar', icon: <Calendar size={16} />, color: '#dc2626' },
+                { label: 'Class Timetable', key: 'timetable', icon: <Calendar size={16} />, color: '#0f766e' },
                 { label: 'CGPA & Subject Arrears', key: 'academics', icon: <GraduationCap size={16} />, color: '#059669' },
                 { label: 'NPTEL Course Tracker', key: 'nptel', icon: <Award size={16} />, color: '#7c3aed' },
               ].map(item => (
@@ -478,7 +485,11 @@ function App() {
                     <div
                       key={item.key}
                       className="mobile-app-tile"
-                      style={{ position: 'relative' }}
+                      style={{
+                        position: 'relative',
+                        boxShadow: `0 2px 10px rgba(0,0,0,0.04), inset 0 0 0 1.5px ${item.color}30`,
+                        border: `1.5px solid ${item.color}25`,
+                      }}
                       onClick={() => handleCardClick(item.key)}
                     >
                       <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
@@ -546,6 +557,7 @@ function App() {
               {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
               {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="courses" initialEditMode={academicInitEdit} />}
               {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="calendar" initialEditMode={academicInitEdit} />}
+              {currentTab === 'timetable' && <Timetable onBack={() => setCurrentTab(null)} isAdmin={isAdmin} semester={6} />}
               {currentTab === 'suggestion' && (
                 <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
               )}
@@ -663,21 +675,11 @@ function SuggestionBox({ onClose }: { onClose: () => void; userName: string }) {
 
 // ── Campus Map Panel ──────────────────────────────────
 interface Lab {
+  id?: number;
   name: string;
   block: string;
   icon: string;
 }
-
-const DEFAULT_LABS: Lab[] = [
-  { name: 'Electrical Machinery Lab', block: 'Block A, GF', icon: '⚡' },
-  { name: 'Power Electronics Lab', block: 'Block A, 1F', icon: '🔌' },
-  { name: 'Microprocessor & Control Lab', block: 'Block B, GF', icon: '🖥️' },
-  { name: 'Smart Grid Research Centre', block: 'Block B, 2F', icon: '🌐' },
-  { name: 'High Voltage Lab', block: 'Block C, GF', icon: '⚠️' },
-  { name: 'EEE Seminar Hall', block: 'Block C, 1F', icon: '🎓' },
-  { name: 'HOD Office (Dr. Ramanujam)', block: 'Block A, 2F – Room 204', icon: '🏫' },
-  { name: 'Department Library', block: 'Block B, 1F', icon: '📚' },
-];
 
 function CampusMapPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => void; isAdmin?: boolean }) {
   const [labs, setLabs] = useState<Lab[]>([]);
@@ -688,34 +690,24 @@ function CampusMapPanel({ onClose: _onClose, isAdmin = false }: { onClose: () =>
   const [newIcon, setNewIcon] = useState('⚡');
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('eee_labs');
-      setLabs(stored ? JSON.parse(stored) : DEFAULT_LABS);
-    } catch {
-      setLabs(DEFAULT_LABS);
-    }
+    dbService.getLabs().then(setLabs);
   }, []);
 
-  const saveLabs = (list: Lab[]) => {
-    localStorage.setItem('eee_labs', JSON.stringify(list));
-    setLabs(list);
-  };
-
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newBlock.trim()) return;
-    const updated = [...labs, { name: newName.trim(), block: newBlock.trim(), icon: newIcon.trim() }];
-    saveLabs(updated);
+    const saved = await dbService.saveLab({ name: newName.trim(), block: newBlock.trim(), icon: newIcon.trim() });
+    setLabs(prev => [...prev, saved]);
     setNewName('');
     setNewBlock('');
     setNewIcon('⚡');
     setShowAddForm(false);
   };
 
-  const handleDelete = (idx: number) => {
-    if (!window.confirm('Delete this facility entry?')) return;
-    const updated = labs.filter((_, i) => i !== idx);
-    saveLabs(updated);
+  const handleDelete = async (id?: number) => {
+    if (!id || !window.confirm('Delete this facility entry?')) return;
+    await dbService.deleteLab(id);
+    setLabs(prev => prev.filter(l => l.id !== id));
   };
 
   return (
@@ -774,10 +766,10 @@ function CampusMapPanel({ onClose: _onClose, isAdmin = false }: { onClose: () =>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
         {labs.map((l, i) => (
-          <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 14, padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 4, position: 'relative' }}>
+          <div key={l.id ?? i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 14, padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 4, position: 'relative' }}>
             {editMode && (
               <button
-                onClick={() => handleDelete(i)}
+                onClick={() => handleDelete(l.id)}
                 style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
               >
                 <Trash2 size={13} />
@@ -794,21 +786,6 @@ function CampusMapPanel({ onClose: _onClose, isAdmin = false }: { onClose: () =>
 }
 
 // ── College Rules Panel ───────────────────────────────
-interface Rule {
-  icon: string;
-  title: string;
-  desc: string;
-}
-
-const DEFAULT_RULES: Rule[] = [
-  { icon: '👔', title: 'Dress Code', desc: 'Formal attire on working days. Lab coat mandatory during sessions.' },
-  { icon: '📊', title: 'Attendance', desc: 'Minimum 75% attendance per subject required for semester exams.' },
-  { icon: '🥾', title: 'Lab Safety', desc: 'Safety shoes and lab coat compulsory. Mobile usage prohibited.' },
-  { icon: '🤫', title: 'Discipline', desc: 'Maintain quiet in classrooms & library. Zero tolerance for ragging.' },
-  { icon: '📱', title: 'Mobile Policy', desc: 'Keep phones in silent mode inside academic blocks.' },
-  { icon: '🏆', title: 'Integrity', desc: 'Strict anti-malpractice rules apply to all internal & end-sem exams.' },
-];
-
 function CollegeRulesPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => void; isAdmin?: boolean }) {
   const [rules, setRules] = useState<Rule[]>([]);
   const [editMode, setEditMode] = useState(false);
@@ -818,34 +795,24 @@ function CollegeRulesPanel({ onClose: _onClose, isAdmin = false }: { onClose: ()
   const [newDesc, setNewDesc] = useState('');
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('eee_rules');
-      setRules(stored ? JSON.parse(stored) : DEFAULT_RULES);
-    } catch {
-      setRules(DEFAULT_RULES);
-    }
+    dbService.getRules().then(setRules);
   }, []);
 
-  const saveRules = (list: Rule[]) => {
-    localStorage.setItem('eee_rules', JSON.stringify(list));
-    setRules(list);
-  };
-
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newDesc.trim()) return;
-    const updated = [...rules, { icon: newIcon.trim(), title: newTitle.trim(), desc: newDesc.trim() }];
-    saveRules(updated);
+    const saved = await dbService.saveRule({ icon: newIcon.trim(), title: newTitle.trim(), desc: newDesc.trim() });
+    setRules(prev => [...prev, saved]);
     setNewIcon('📜');
     setNewTitle('');
     setNewDesc('');
     setShowAddForm(false);
   };
 
-  const handleDelete = (idx: number) => {
-    if (!window.confirm('Delete this rule?')) return;
-    const updated = rules.filter((_, i) => i !== idx);
-    saveRules(updated);
+  const handleDelete = async (id?: number) => {
+    if (!id || !window.confirm('Delete this rule?')) return;
+    await dbService.deleteRule(id);
+    setRules(prev => prev.filter(r => r.id !== id));
   };
 
   return (
@@ -904,7 +871,7 @@ function CollegeRulesPanel({ onClose: _onClose, isAdmin = false }: { onClose: ()
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {rules.map((r, i) => (
-          <div key={i} style={{ display: 'flex', gap: 12, background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '12px 14px', alignItems: 'flex-start', position: 'relative' }}>
+          <div key={r.id ?? i} style={{ display: 'flex', gap: 12, background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '12px 14px', alignItems: 'flex-start', position: 'relative' }}>
             <span style={{ fontSize: 22, flexShrink: 0 }}>{r.icon}</span>
             <div style={{ flex: 1, paddingRight: editMode ? 24 : 0 }}>
               <div style={{ fontWeight: 700, fontSize: 12, marginBottom: 2 }}>{r.title}</div>
@@ -912,7 +879,7 @@ function CollegeRulesPanel({ onClose: _onClose, isAdmin = false }: { onClose: ()
             </div>
             {editMode && (
               <button
-                onClick={() => handleDelete(i)}
+                onClick={() => handleDelete(r.id)}
                 style={{ position: 'absolute', right: 12, top: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
               >
                 <Trash2 size={13} />
@@ -926,22 +893,6 @@ function CollegeRulesPanel({ onClose: _onClose, isAdmin = false }: { onClose: ()
 }
 
 // ── Faculty Contacts Panel ────────────────────────────
-interface Faculty {
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-}
-
-const DEFAULT_FACULTY: Faculty[] = [
-  { name: 'Dr. R. Ramanujam', role: 'Head of Department', email: 'hod.eee@srec.ac.in', phone: '+91-98400-00001' },
-  { name: 'Dr. S. Kavitha', role: 'Professor – Power Systems', email: 's.kavitha@srec.ac.in', phone: '+91-98400-00002' },
-  { name: 'Dr. M. Arulkumar', role: 'Professor – Machines & Drives', email: 'm.arulkumar@srec.ac.in', phone: '+91-98400-00003' },
-  { name: 'Ms. P. Vijayalakshmi', role: 'Asst. Professor – Control', email: 'p.vijaya@srec.ac.in', phone: '+91-98400-00004' },
-  { name: 'Mr. K. Senthilkumar', role: 'Asst. Professor – Power Elec.', email: 'k.senthil@srec.ac.in', phone: '+91-98400-00005' },
-  { name: 'Ms. R. Priyanka', role: 'Asst. Professor – Microprocessors', email: 'r.priyanka@srec.ac.in', phone: '+91-98400-00006' },
-];
-
 function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => void; isAdmin?: boolean }) {
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [editMode, setEditMode] = useState(false);
@@ -952,24 +903,14 @@ function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => v
   const [newPhone, setNewPhone] = useState('');
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('eee_faculty');
-      setFaculty(stored ? JSON.parse(stored) : DEFAULT_FACULTY);
-    } catch {
-      setFaculty(DEFAULT_FACULTY);
-    }
+    dbService.getFaculty().then(setFaculty);
   }, []);
 
-  const saveFaculty = (list: Faculty[]) => {
-    localStorage.setItem('eee_faculty', JSON.stringify(list));
-    setFaculty(list);
-  };
-
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newRole.trim() || !newEmail.trim() || !newPhone.trim()) return;
-    const updated = [...faculty, { name: newName.trim(), role: newRole.trim(), email: newEmail.trim(), phone: newPhone.trim() }];
-    saveFaculty(updated);
+    const saved = await dbService.saveFaculty({ name: newName.trim(), role: newRole.trim(), email: newEmail.trim(), phone: newPhone.trim() });
+    setFaculty(prev => [...prev, saved]);
     setNewName('');
     setNewRole('');
     setNewEmail('');
@@ -977,10 +918,10 @@ function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => v
     setShowAddForm(false);
   };
 
-  const handleDelete = (idx: number) => {
-    if (!window.confirm('Delete this faculty record?')) return;
-    const updated = faculty.filter((_, i) => i !== idx);
-    saveFaculty(updated);
+  const handleDelete = async (id?: number) => {
+    if (!id || !window.confirm('Delete this faculty record?')) return;
+    await dbService.deleteFaculty(id);
+    setFaculty(prev => prev.filter(f => f.id !== id));
   };
 
   return (
@@ -1043,10 +984,10 @@ function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => v
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
         {faculty.map((f, i) => (
-          <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '14px 12px', position: 'relative' }}>
+          <div key={f.id ?? i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '14px 12px', position: 'relative' }}>
             {editMode && (
               <button
-                onClick={() => handleDelete(i)}
+                onClick={() => handleDelete(f.id)}
                 style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
               >
                 <Trash2 size={13} />

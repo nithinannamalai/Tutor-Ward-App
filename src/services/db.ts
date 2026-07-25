@@ -65,6 +65,31 @@ export interface Course {
   name: string;
   credits: number;
   semester: number;
+  teacherName?: string;
+}
+
+export interface Faculty {
+  id?: number;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+}
+
+export interface Rule {
+  id?: number;
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface TimetableEntry {
+  id?: number;
+  day: string;    // 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+  period: number; // 1–7
+  subject: string;
+  teacher?: string;
+  semester: number;
 }
 
 export interface LetterRequest {
@@ -157,12 +182,81 @@ const DEFAULT_STUDENTS: Student[] = [
 ];
 
 const DEFAULT_COURSES: Course[] = [
-  { code: 'EE8601', name: 'Power System Operation and Control', credits: 3, semester: 6 },
-  { code: 'EE8602', name: 'Transmission and Distribution', credits: 4, semester: 6 },
-  { code: 'EE8603', name: 'Power Electronics', credits: 3, semester: 6 },
-  { code: 'EE8691', name: 'Embedded Systems', credits: 3, semester: 6 },
-  { code: 'EE8611', name: 'Power Electronics and Drives Laboratory', credits: 2, semester: 6 },
-  { code: 'EE8612', name: 'Renewable Energy Systems Laboratory', credits: 2, semester: 6 }
+  { code: 'EE8601', name: 'Power System Operation and Control', credits: 3, semester: 6, teacherName: 'Dr. S. Kavitha' },
+  { code: 'EE8602', name: 'Transmission and Distribution', credits: 4, semester: 6, teacherName: 'Dr. R. Ramanujam' },
+  { code: 'EE8603', name: 'Digital Logic Circuits', credits: 3, semester: 6, teacherName: 'Ms. R. Priyanka' },
+  { code: 'EE8691', name: 'Embedded Systems', credits: 3, semester: 6, teacherName: 'Dr. M. Arulkumar' },
+  { code: 'EE8611', name: 'Power Electronics and Drives Laboratory', credits: 2, semester: 6, teacherName: 'Mr. K. Senthilkumar' },
+  { code: 'EE8612', name: 'Renewable Energy Systems Laboratory', credits: 2, semester: 6, teacherName: 'Ms. P. Vijayalakshmi' }
+];
+
+const DEFAULT_FACULTY: Faculty[] = [
+  { id: 1, name: 'Dr. R. Ramanujam', role: 'Head of Department', email: 'hod.eee@srec.ac.in', phone: '+91-98400-00001' },
+  { id: 2, name: 'Dr. S. Kavitha', role: 'Professor – Power Systems', email: 's.kavitha@srec.ac.in', phone: '+91-98400-00002' },
+  { id: 3, name: 'Dr. M. Arulkumar', role: 'Professor – Machines & Drives', email: 'm.arulkumar@srec.ac.in', phone: '+91-98400-00003' },
+  { id: 4, name: 'Ms. P. Vijayalakshmi', role: 'Asst. Professor – Control', email: 'p.vijaya@srec.ac.in', phone: '+91-98400-00004' },
+  { id: 5, name: 'Mr. K. Senthilkumar', role: 'Asst. Professor – Power Elec.', email: 'k.senthil@srec.ac.in', phone: '+91-98400-00005' },
+  { id: 6, name: 'Ms. R. Priyanka', role: 'Asst. Professor – Microprocessors', email: 'r.priyanka@srec.ac.in', phone: '+91-98400-00006' },
+];
+
+const DEFAULT_RULES: Rule[] = [
+  { id: 1, icon: '👔', title: 'Dress Code', desc: 'Formal attire on working days. Lab coat mandatory during lab sessions.' },
+  { id: 2, icon: '📊', title: 'Attendance', desc: 'Minimum 75% attendance per subject required to sit for semester exams.' },
+  { id: 3, icon: '🥾', title: 'Lab Safety', desc: 'Safety shoes and lab coat compulsory. Mobile usage prohibited during lab.' },
+  { id: 4, icon: '🤫', title: 'Discipline', desc: 'Maintain quiet in classrooms & library. Zero tolerance for ragging.' },
+  { id: 5, icon: '📱', title: 'Mobile Policy', desc: 'Keep phones in silent mode inside all academic blocks.' },
+  { id: 6, icon: '🏆', title: 'Integrity', desc: 'Strict anti-malpractice rules apply to all internal & end-semester exams.' },
+];
+
+const DEFAULT_TIMETABLE: TimetableEntry[] = [
+  // Monday
+  { id:1, day:'Mon', period:1, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
+  { id:2, day:'Mon', period:2, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
+  { id:3, day:'Mon', period:3, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
+  { id:4, day:'Mon', period:4, subject:'LUNCH', teacher:'', semester:6 },
+  { id:5, day:'Mon', period:5, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
+  { id:6, day:'Mon', period:6, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
+  { id:7, day:'Mon', period:7, subject:'Advisory Hour', teacher:'', semester:6 },
+  // Tuesday
+  { id:8, day:'Tue', period:1, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
+  { id:9, day:'Tue', period:2, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  { id:10, day:'Tue', period:3, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
+  { id:11, day:'Tue', period:4, subject:'LUNCH', teacher:'', semester:6 },
+  { id:12, day:'Tue', period:5, subject:'Renewable Energy Lab', teacher:'Ms. P. Vijayalakshmi', semester:6 },
+  { id:13, day:'Tue', period:6, subject:'Renewable Energy Lab', teacher:'Ms. P. Vijayalakshmi', semester:6 },
+  { id:14, day:'Tue', period:7, subject:'Library / Free Hour', teacher:'', semester:6 },
+  // Wednesday
+  { id:15, day:'Wed', period:1, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
+  { id:16, day:'Wed', period:2, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  { id:17, day:'Wed', period:3, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
+  { id:18, day:'Wed', period:4, subject:'LUNCH', teacher:'', semester:6 },
+  { id:19, day:'Wed', period:5, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
+  { id:20, day:'Wed', period:6, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
+  { id:21, day:'Wed', period:7, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  // Thursday
+  { id:22, day:'Thu', period:1, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  { id:23, day:'Thu', period:2, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
+  { id:24, day:'Thu', period:3, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
+  { id:25, day:'Thu', period:4, subject:'LUNCH', teacher:'', semester:6 },
+  { id:26, day:'Thu', period:5, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
+  { id:27, day:'Thu', period:6, subject:'Sports / NCC / NSS', teacher:'', semester:6 },
+  { id:28, day:'Thu', period:7, subject:'Tutorial', teacher:'', semester:6 },
+  // Friday
+  { id:29, day:'Fri', period:1, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
+  { id:30, day:'Fri', period:2, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
+  { id:31, day:'Fri', period:3, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  { id:32, day:'Fri', period:4, subject:'LUNCH', teacher:'', semester:6 },
+  { id:33, day:'Fri', period:5, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
+  { id:34, day:'Fri', period:6, subject:'Seminar / Guest Lecture', teacher:'', semester:6 },
+  { id:35, day:'Fri', period:7, subject:'Sports / NSS', teacher:'', semester:6 },
+  // Saturday
+  { id:36, day:'Sat', period:1, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  { id:37, day:'Sat', period:2, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
+  { id:38, day:'Sat', period:3, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
+  { id:39, day:'Sat', period:4, subject:'LUNCH', teacher:'', semester:6 },
+  { id:40, day:'Sat', period:5, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
+  { id:41, day:'Sat', period:6, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
+  { id:42, day:'Sat', period:7, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
 ];
 
 // Initialize local storage fallback
@@ -551,19 +645,30 @@ export const dbService = {
         .select('*');
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map((d: any) => ({
+        code: d.code,
+        name: d.name,
+        credits: d.credits,
+        semester: d.semester,
+        teacherName: d.teacher_name || ''
+      }));
     } catch (err: any) {
       console.warn('Supabase getCourses failed, using localStorage:', err.message || err);
       const localData = localStorage.getItem('eee_courses');
-      return localData ? JSON.parse(localData) : [];
+      return localData ? JSON.parse(localData) : DEFAULT_COURSES;
     }
   },
 
   async saveCourse(course: Course): Promise<Course> {
     try {
-      const { error } = await supabase
-        .from('courses')
-        .upsert(course);
+      const payload: any = {
+        code: course.code,
+        name: course.name,
+        credits: course.credits,
+        semester: course.semester,
+        teacher_name: course.teacherName || ''
+      };
+      const { error } = await supabase.from('courses').upsert(payload);
       if (error) throw error;
       return course;
     } catch (err: any) {
@@ -698,7 +803,7 @@ export const dbService = {
         .select('*')
         .order('id', { ascending: true });
       if (error) throw error;
-      return data || [];
+      return (data || []).map((d: any) => ({ id: d.id, name: d.name, block: d.block, icon: d.icon }));
     } catch (err: any) {
       console.warn('Supabase getLabs failed, using localStorage:', err.message || err);
       const localData = localStorage.getItem('eee_labs');
@@ -708,28 +813,18 @@ export const dbService = {
 
   async saveLab(lab: Lab): Promise<Lab> {
     try {
-      const payload = { ...lab };
-      if (!payload.id) delete payload.id;
-
-      const { data, error } = await supabase
-        .from('labs')
-        .upsert(payload)
-        .select()
-        .single();
+      const payload: any = { name: lab.name, block: lab.block, icon: lab.icon };
+      if (lab.id) payload.id = lab.id;
+      const { data, error } = await supabase.from('labs').upsert(payload).select().single();
       if (error) throw error;
       return data;
     } catch (err: any) {
       console.warn('Supabase saveLab failed, using localStorage:', err.message || err);
       const localData = localStorage.getItem('eee_labs') || '[]';
       const list: Lab[] = JSON.parse(localData);
-      
       if (lab.id) {
         const idx = list.findIndex(l => l.id === lab.id);
-        if (idx > -1) {
-          list[idx] = lab;
-        } else {
-          list.push(lab);
-        }
+        if (idx > -1) { list[idx] = lab; } else { list.push(lab); }
       } else {
         const newL = { ...lab, id: Date.now() };
         list.push(newL);
@@ -742,10 +837,7 @@ export const dbService = {
 
   async deleteLab(id: number): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('labs')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('labs').delete().eq('id', id);
       if (error) throw error;
       return true;
     } catch (err: any) {
@@ -754,6 +846,147 @@ export const dbService = {
       const list: Lab[] = localData ? JSON.parse(localData) : [];
       localStorage.setItem('eee_labs', JSON.stringify(list.filter(l => l.id !== id)));
       return true;
+    }
+  },
+
+  // --- Faculty ---
+  async getFaculty(): Promise<Faculty[]> {
+    try {
+      const { data, error } = await supabase.from('faculty').select('*').order('id', { ascending: true });
+      if (error) throw error;
+      return (data || []).map((d: any) => ({ id: d.id, name: d.name, role: d.role, email: d.email, phone: d.phone }));
+    } catch (err: any) {
+      console.warn('Supabase getFaculty failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_faculty');
+      return localData ? JSON.parse(localData) : DEFAULT_FACULTY;
+    }
+  },
+
+  async saveFaculty(faculty: Faculty): Promise<Faculty> {
+    try {
+      const payload: any = { name: faculty.name, role: faculty.role, email: faculty.email, phone: faculty.phone };
+      if (faculty.id) payload.id = faculty.id;
+      const { data, error } = await supabase.from('faculty').upsert(payload).select().single();
+      if (error) throw error;
+      return data;
+    } catch (err: any) {
+      console.warn('Supabase saveFaculty failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_faculty') || JSON.stringify(DEFAULT_FACULTY);
+      const list: Faculty[] = JSON.parse(localData);
+      if (faculty.id) {
+        const idx = list.findIndex(f => f.id === faculty.id);
+        if (idx > -1) { list[idx] = faculty; } else { list.push(faculty); }
+      } else {
+        const newF = { ...faculty, id: Date.now() };
+        list.push(newF);
+        faculty.id = newF.id;
+      }
+      localStorage.setItem('eee_faculty', JSON.stringify(list));
+      return faculty;
+    }
+  },
+
+  async deleteFaculty(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase.from('faculty').delete().eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteFaculty failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_faculty');
+      const list: Faculty[] = localData ? JSON.parse(localData) : [];
+      localStorage.setItem('eee_faculty', JSON.stringify(list.filter(f => f.id !== id)));
+      return true;
+    }
+  },
+
+  // --- Rules ---
+  async getRules(): Promise<Rule[]> {
+    try {
+      const { data, error } = await supabase.from('rules').select('*').order('id', { ascending: true });
+      if (error) throw error;
+      return (data || []).map((d: any) => ({ id: d.id, icon: d.icon, title: d.title, desc: d.desc }));
+    } catch (err: any) {
+      console.warn('Supabase getRules failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_rules');
+      return localData ? JSON.parse(localData) : DEFAULT_RULES;
+    }
+  },
+
+  async saveRule(rule: Rule): Promise<Rule> {
+    try {
+      const payload: any = { icon: rule.icon, title: rule.title, desc: rule.desc };
+      if (rule.id) payload.id = rule.id;
+      const { data, error } = await supabase.from('rules').upsert(payload).select().single();
+      if (error) throw error;
+      return data;
+    } catch (err: any) {
+      console.warn('Supabase saveRule failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_rules') || JSON.stringify(DEFAULT_RULES);
+      const list: Rule[] = JSON.parse(localData);
+      if (rule.id) {
+        const idx = list.findIndex(r => r.id === rule.id);
+        if (idx > -1) { list[idx] = rule; } else { list.push(rule); }
+      } else {
+        const newR = { ...rule, id: Date.now() };
+        list.push(newR);
+        rule.id = newR.id;
+      }
+      localStorage.setItem('eee_rules', JSON.stringify(list));
+      return rule;
+    }
+  },
+
+  async deleteRule(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase.from('rules').delete().eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteRule failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_rules');
+      const list: Rule[] = localData ? JSON.parse(localData) : [];
+      localStorage.setItem('eee_rules', JSON.stringify(list.filter(r => r.id !== id)));
+      return true;
+    }
+  },
+
+  // --- Timetable ---
+  async getTimetable(semester: number = 6): Promise<TimetableEntry[]> {
+    try {
+      const { data, error } = await supabase
+        .from('timetable_entries')
+        .select('*')
+        .eq('semester', semester)
+        .order('id', { ascending: true });
+      if (error) throw error;
+      if (data && data.length > 0) {
+        return data.map((d: any) => ({ id: d.id, day: d.day, period: d.period, subject: d.subject, teacher: d.teacher || '', semester: d.semester }));
+      }
+      throw new Error('No timetable in Supabase');
+    } catch (err: any) {
+      console.warn('Supabase getTimetable failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem(`eee_timetable_${semester}`);
+      return localData ? JSON.parse(localData) : DEFAULT_TIMETABLE.filter(e => e.semester === semester);
+    }
+  },
+
+  async saveTimetableEntry(entry: TimetableEntry): Promise<TimetableEntry> {
+    try {
+      const payload: any = { day: entry.day, period: entry.period, subject: entry.subject, teacher: entry.teacher || '', semester: entry.semester };
+      if (entry.id) payload.id = entry.id;
+      const { data, error } = await supabase.from('timetable_entries').upsert(payload).select().single();
+      if (error) throw error;
+      return data;
+    } catch (err: any) {
+      console.warn('Supabase saveTimetableEntry failed, using localStorage:', err.message || err);
+      const key = `eee_timetable_${entry.semester}`;
+      const localData = localStorage.getItem(key) || JSON.stringify(DEFAULT_TIMETABLE.filter(e => e.semester === entry.semester));
+      const list: TimetableEntry[] = JSON.parse(localData);
+      const idx = list.findIndex(e => e.day === entry.day && e.period === entry.period);
+      if (idx > -1) { list[idx] = { ...list[idx], ...entry }; } else { list.push(entry); }
+      localStorage.setItem(key, JSON.stringify(list));
+      return entry;
     }
   },
 

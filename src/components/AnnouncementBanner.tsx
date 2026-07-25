@@ -92,7 +92,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !newContent || !newDate) return;
-    
+
     onAddAnnouncement({
       id: editAnnouncementId || undefined,
       title: newTitle,
@@ -137,8 +137,8 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <h3 className="dashboard-grid-title" style={{ margin: 0, cursor: 'pointer' }} onClick={onOpenAnnouncements}>Announcements</h3>
         {isAdmin && (
-          <button 
-            onClick={() => { setEditAnnouncementId(null); setShowAddModal(true); }} 
+          <button
+            onClick={() => { setEditAnnouncementId(null); setShowAddModal(true); }}
             className="btn-png-add"
           >
             <img src={addIcon} alt="Add" style={{ width: 14, height: 14 }} /> Add
@@ -146,10 +146,85 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
         )}
       </div>
 
-      {announcements.length > 0 && (
-        <div 
-          className="announcement-card" 
-          style={{ cursor: 'pointer' }} 
+      {/* Full-page mode: show all announcements as a stacked readable list */}
+      {!onOpenAnnouncements && announcements.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {announcements.map((ann) => {
+            const colors = ann.type === 'exam'
+              ? { badge: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: '#ef444430' }
+              : ann.type === 'hackathon'
+                ? { badge: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: '#f59e0b30' }
+                : ann.type === 'event'
+                  ? { badge: '#0891b2', bg: 'rgba(8,145,178,0.08)', border: '#0891b230' }
+                  : { badge: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: '#6366f130' };
+            return (
+              <div key={ann.id} style={{
+                background: colors.bg,
+                border: `1.5px solid ${colors.border}`,
+                borderRadius: 14,
+                padding: '14px 16px',
+                position: 'relative',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{
+                    fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1,
+                    background: colors.badge, color: '#fff', padding: '2px 8px', borderRadius: 20,
+                    display: 'inline-flex', alignItems: 'center', gap: 4
+                  }}>
+                    {getIcon(ann.type)} {ann.type}
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>{ann.date}</span>
+                </div>
+                <h4 style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-main)', marginBottom: 8, lineHeight: 1.3 }}>{ann.title}</h4>
+                <p style={{ fontSize: 12, color: 'var(--text-main)', lineHeight: 1.65, margin: 0 }}>{ann.content}</p>
+                {ann.posterUrl && (
+                  <div style={{ marginTop: 12 }}>
+                    <img
+                      src={ann.posterUrl}
+                      alt="Event Poster"
+                      style={{ width: '100%', borderRadius: 10, objectFit: 'contain', maxHeight: '45vh', background: 'var(--bg-secondary)' }}
+                    />
+                  </div>
+                )}
+                {isAdmin && (
+                  <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                    <button
+                      onClick={() => {
+                        setEditAnnouncementId(ann.id);
+                        setNewTitle(ann.title);
+                        setNewContent(ann.content);
+                        setNewType(ann.type);
+                        setNewDate(ann.date);
+                        setNewPosterUrl(ann.posterUrl || '');
+                        setShowAddModal(true);
+                      }}
+                      className="btn-secondary"
+                      style={{ padding: '4px 10px', fontSize: 10, borderColor: 'var(--accent-blue)', color: 'var(--accent-blue)', display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                    >
+                      <Pencil size={10} /> Edit
+                    </button>
+                    {onDeleteAnnouncement && (
+                      <button
+                        onClick={() => { if (window.confirm('Delete this announcement?')) onDeleteAnnouncement(ann.id); }}
+                        className="btn-secondary"
+                        style={{ padding: '4px 10px', fontSize: 10, borderColor: '#f87171', color: '#f87171' }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Widget / carousel mode */}
+      {onOpenAnnouncements && announcements.length > 0 && (
+        <div
+          className="announcement-card"
+          style={{ cursor: 'pointer' }}
           onClick={handleCardClick}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -173,20 +248,20 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', gap: 6 }}>
               {(current.type === 'hackathon' || current.type === 'event' || current.posterUrl) ? (
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); viewPoster(current); }}
-                  className="btn-secondary" 
+                  className="btn-secondary"
                   style={{ padding: '3px 8px', fontSize: 10, borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
                 >
                   View Poster
                 </button>
               ) : <div />}
-              
+
               {isAdmin && (
                 <>
-                  <button 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setEditAnnouncementId(current.id);
                       setNewTitle(current.title);
                       setNewContent(current.content);
@@ -195,21 +270,21 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
                       setNewPosterUrl(current.posterUrl || '');
                       setShowAddModal(true);
                     }}
-                    className="btn-secondary" 
+                    className="btn-secondary"
                     style={{ padding: '3px 8px', fontSize: 10, borderColor: 'var(--accent-blue)', color: 'var(--accent-blue)', display: 'inline-flex', alignItems: 'center', gap: 2 }}
                   >
                     <Pencil size={10} /> Edit
                   </button>
                   {onDeleteAnnouncement && (
-                    <button 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (window.confirm('Delete this announcement?')) {
-                          onDeleteAnnouncement(current.id); 
+                          onDeleteAnnouncement(current.id);
                           setActiveIndex(0);
                         }
                       }}
-                      className="btn-secondary" 
+                      className="btn-secondary"
                       style={{ padding: '3px 8px', fontSize: 10, borderColor: '#f87171', color: '#f87171' }}
                     >
                       Delete
@@ -221,8 +296,8 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
 
             <div className="ann-indicator-container" style={{ margin: 0 }}>
               {announcements.map((_, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className={`ann-indicator ${idx === activeIndex ? 'active' : ''}`}
                   onClick={() => handleNext(idx)}
                 />
@@ -261,21 +336,21 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
 
             <div className="form-group">
               <label className="form-label">Announcement Title</label>
-              <input 
-                type="text" 
-                value={newTitle} 
-                onChange={e => setNewTitle(e.target.value)} 
-                className="form-input" 
-                placeholder="e.g. Hackathon Registration" 
-                required 
+              <input
+                type="text"
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                className="form-input"
+                placeholder="e.g. Hackathon Registration"
+                required
               />
             </div>
 
             <div className="form-group">
               <label className="form-label">Type</label>
-              <select 
-                value={newType} 
-                onChange={e => setNewType(e.target.value as any)} 
+              <select
+                value={newType}
+                onChange={e => setNewType(e.target.value as any)}
                 className="form-select"
               >
                 <option value="general">General</option>
@@ -287,35 +362,35 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
 
             <div className="form-group">
               <label className="form-label">Date</label>
-              <input 
-                type="date" 
-                value={newDate} 
-                onChange={e => setNewDate(e.target.value)} 
-                className="form-input" 
-                required 
+              <input
+                type="date"
+                value={newDate}
+                onChange={e => setNewDate(e.target.value)}
+                className="form-input"
+                required
               />
             </div>
 
             <div className="form-group">
               <label className="form-label">Content</label>
-              <textarea 
-                value={newContent} 
-                onChange={e => setNewContent(e.target.value)} 
-                className="form-textarea" 
-                rows={3} 
-                placeholder="Details of the announcement..." 
-                required 
+              <textarea
+                value={newContent}
+                onChange={e => setNewContent(e.target.value)}
+                className="form-textarea"
+                rows={3}
+                placeholder="Details of the announcement..."
+                required
               />
             </div>
 
             <div className="form-group">
               <label className="form-label">Poster URL or SVG string (Optional)</label>
-              <input 
-                type="text" 
-                value={newPosterUrl} 
-                onChange={e => setNewPosterUrl(e.target.value)} 
-                className="form-input" 
-                placeholder="data:image/svg+xml;... or Web Image Link" 
+              <input
+                type="text"
+                value={newPosterUrl}
+                onChange={e => setNewPosterUrl(e.target.value)}
+                className="form-input"
+                placeholder="data:image/svg+xml;... or Web Image Link"
               />
             </div>
 

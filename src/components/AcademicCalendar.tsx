@@ -38,6 +38,7 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
   const [newName, setNewName] = useState('');
   const [newCredits, setNewCredits] = useState('');
   const [newSem, setNewSem] = useState('6');
+  const [newTeacher, setNewTeacher] = useState('');
   const [courseStatus, setCourseStatus] = useState('');
 
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
@@ -76,6 +77,7 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
       name: newName.trim(),
       credits: parseInt(newCredits),
       semester: parseInt(newSem),
+      teacherName: newTeacher.trim() || undefined,
     };
     if (editCourseCode && editCourseCode !== course.code) {
       await dbService.deleteCourse(editCourseCode);
@@ -83,7 +85,7 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
     await dbService.saveCourse(course);
     setCourseStatus(editCourseCode ? 'Course updated!' : 'Course added!');
     setTimeout(() => setCourseStatus(''), 2500);
-    setNewCode(''); setNewName(''); setNewCredits(''); setNewSem('6');
+    setNewCode(''); setNewName(''); setNewCredits(''); setNewSem('6'); setNewTeacher('');
     setEditCourseCode(null);
     setShowCourseForm(false);
     loadCourses();
@@ -191,6 +193,10 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
                   <input value={newName} onChange={e => setNewName(e.target.value)} className="form-input" placeholder="e.g. Digital Signal Processing" required style={{ fontSize: 11 }} />
                 </div>
                 <div>
+                  <label className="form-label">Teacher / Faculty Name</label>
+                  <input value={newTeacher} onChange={e => setNewTeacher(e.target.value)} className="form-input" placeholder="e.g. Dr. A. Rajan" style={{ fontSize: 11 }} />
+                </div>
+                <div>
                   <label className="form-label">Semester</label>
                   <select value={newSem} onChange={e => setNewSem(e.target.value)} className="form-select" style={{ fontSize: 11 }}>
                     {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Semester {s}</option>)}
@@ -218,6 +224,11 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
                       <div className="doc-info" style={{ gap: 0 }}>
                         <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{course.name}</span>
                         <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{course.code} · Sem {course.semester}</span>
+                        {course.teacherName && (
+                          <span style={{ fontSize: 10, color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 }}>
+                            👤 {course.teacherName}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -233,6 +244,7 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
                               setNewName(course.name);
                               setNewCredits(course.credits.toString());
                               setNewSem(course.semester.toString());
+                              setNewTeacher(course.teacherName || '');
                               setShowCourseForm(true);
                             }}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-blue)', padding: 4 }}

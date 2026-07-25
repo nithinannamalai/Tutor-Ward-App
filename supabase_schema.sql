@@ -57,7 +57,35 @@ CREATE TABLE IF NOT EXISTS courses (
   name TEXT NOT NULL,
   credits INTEGER NOT NULL,
   semester INTEGER NOT NULL,
+  teacher_name TEXT DEFAULT '',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 9. FACULTY TABLE
+CREATE TABLE IF NOT EXISTS faculty (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL
+);
+
+-- 10. RULES TABLE
+CREATE TABLE IF NOT EXISTS rules (
+  id SERIAL PRIMARY KEY,
+  icon TEXT NOT NULL DEFAULT '📜',
+  title TEXT NOT NULL,
+  desc TEXT NOT NULL
+);
+
+-- 11. TIMETABLE ENTRIES TABLE
+CREATE TABLE IF NOT EXISTS timetable_entries (
+  id SERIAL PRIMARY KEY,
+  day TEXT NOT NULL,        -- 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+  period INTEGER NOT NULL,  -- 1-7
+  subject TEXT NOT NULL,
+  teacher TEXT DEFAULT '',
+  semester INTEGER DEFAULT 6
 );
 
 -- ====================================================
@@ -253,3 +281,55 @@ CREATE POLICY "Allow write access to labs" ON labs FOR ALL USING (auth.role() = 
 CREATE POLICY "Allow public insert suggestions" ON suggestions FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow teacher read suggestions" ON suggestions FOR SELECT USING (auth.jwt() ->> 'email' = 'teacher@eee.com' OR auth.role() = 'authenticated');
 
+-- ====================================================
+-- NEW TABLES: FACULTY, RULES, TIMETABLE
+-- ====================================================
+
+-- Enable RLS
+ALTER TABLE faculty ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timetable_entries ENABLE ROW LEVEL SECURITY;
+
+-- Faculty Policies
+CREATE POLICY "Allow public read access to faculty" ON faculty FOR SELECT USING (true);
+CREATE POLICY "Allow write access to faculty" ON faculty FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+-- Rules Policies
+CREATE POLICY "Allow public read access to rules" ON rules FOR SELECT USING (true);
+CREATE POLICY "Allow write access to rules" ON rules FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+-- Timetable Policies
+CREATE POLICY "Allow public read access to timetable" ON timetable_entries FOR SELECT USING (true);
+CREATE POLICY "Allow write access to timetable" ON timetable_entries FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+-- ====================================================
+-- SEED DATA FOR NEW TABLES
+-- ====================================================
+
+-- Seed Faculty
+INSERT INTO faculty (name, role, email, phone) VALUES
+('Dr. R. Ramanujam', 'Head of Department', 'hod.eee@srec.ac.in', '+91-98400-00001'),
+('Dr. S. Kavitha', 'Professor – Power Systems', 's.kavitha@srec.ac.in', '+91-98400-00002'),
+('Dr. M. Arulkumar', 'Professor – Machines & Drives', 'm.arulkumar@srec.ac.in', '+91-98400-00003'),
+('Ms. P. Vijayalakshmi', 'Asst. Professor – Control', 'p.vijaya@srec.ac.in', '+91-98400-00004'),
+('Mr. K. Senthilkumar', 'Asst. Professor – Power Elec.', 'k.senthil@srec.ac.in', '+91-98400-00005'),
+('Ms. R. Priyanka', 'Asst. Professor – Microprocessors', 'r.priyanka@srec.ac.in', '+91-98400-00006')
+ON CONFLICT DO NOTHING;
+
+-- Seed Rules
+INSERT INTO rules (icon, title, desc) VALUES
+('👔', 'Dress Code', 'Formal attire on working days. Lab coat mandatory during lab sessions.'),
+('📊', 'Attendance', 'Minimum 75% attendance per subject required to sit for semester exams.'),
+('🥾', 'Lab Safety', 'Safety shoes and lab coat compulsory. Mobile usage prohibited during lab.'),
+('🤫', 'Discipline', 'Maintain quiet in classrooms & library. Zero tolerance for ragging.'),
+('📱', 'Mobile Policy', 'Keep phones in silent mode inside all academic blocks.'),
+('🏆', 'Integrity', 'Strict anti-malpractice rules apply to all internal & end-semester exams.')
+ON CONFLICT DO NOTHING;
+
+-- Update courses with teacher names
+UPDATE courses SET teacher_name = 'Dr. S. Kavitha' WHERE code = 'EE8601';
+UPDATE courses SET teacher_name = 'Dr. R. Ramanujam' WHERE code = 'EE8602';
+UPDATE courses SET teacher_name = 'Ms. R. Priyanka' WHERE code = 'EE8603';
+UPDATE courses SET teacher_name = 'Dr. M. Arulkumar' WHERE code = 'EE8691';
+UPDATE courses SET teacher_name = 'Mr. K. Senthilkumar' WHERE code = 'EE8611';
+UPDATE courses SET teacher_name = 'Ms. P. Vijayalakshmi' WHERE code = 'EE8612';

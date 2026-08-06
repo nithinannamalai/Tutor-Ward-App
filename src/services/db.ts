@@ -209,54 +209,60 @@ const DEFAULT_RULES: Rule[] = [
 ];
 
 const DEFAULT_TIMETABLE: TimetableEntry[] = [
-  // Monday
-  { id:1, day:'Mon', period:1, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
-  { id:2, day:'Mon', period:2, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
-  { id:3, day:'Mon', period:3, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
-  { id:4, day:'Mon', period:4, subject:'LUNCH', teacher:'', semester:6 },
-  { id:5, day:'Mon', period:5, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
-  { id:6, day:'Mon', period:6, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
-  { id:7, day:'Mon', period:7, subject:'Advisory Hour', teacher:'', semester:6 },
+  // Monday  (2+2 | lunch | 2+2, with tea break after P2 and P6)
+  { id:1,  day:'Mon', period:1, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:2,  day:'Mon', period:2, subject:'Transmission and Distribution',      teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:3,  day:'Mon', period:3, subject:'Embedded Systems',                    teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:4,  day:'Mon', period:4, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:5,  day:'Mon', period:5, subject:'Power Electronics Lab',                teacher:'Mr. K. Senthilkumar',semester:6 },
+  { id:6,  day:'Mon', period:6, subject:'Power Electronics Lab',                teacher:'Mr. K. Senthilkumar',semester:6 },
+  { id:7,  day:'Mon', period:7, subject:'Renewable Energy Lab',                 teacher:'Ms. P. Vijayalakshmi',semester:6 },
+  { id:8,  day:'Mon', period:8, subject:'Advisory Hour',                        teacher:'',                    semester:6 },
   // Tuesday
-  { id:8, day:'Tue', period:1, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
-  { id:9, day:'Tue', period:2, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
-  { id:10, day:'Tue', period:3, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
-  { id:11, day:'Tue', period:4, subject:'LUNCH', teacher:'', semester:6 },
-  { id:12, day:'Tue', period:5, subject:'Renewable Energy Lab', teacher:'Ms. P. Vijayalakshmi', semester:6 },
-  { id:13, day:'Tue', period:6, subject:'Renewable Energy Lab', teacher:'Ms. P. Vijayalakshmi', semester:6 },
-  { id:14, day:'Tue', period:7, subject:'Library / Free Hour', teacher:'', semester:6 },
+  { id:9,  day:'Tue', period:1, subject:'Transmission and Distribution',        teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:10, day:'Tue', period:2, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:11, day:'Tue', period:3, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:12, day:'Tue', period:4, subject:'Embedded Systems',                     teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:13, day:'Tue', period:5, subject:'Renewable Energy Lab',                 teacher:'Ms. P. Vijayalakshmi',semester:6 },
+  { id:14, day:'Tue', period:6, subject:'Renewable Energy Lab',                 teacher:'Ms. P. Vijayalakshmi',semester:6 },
+  { id:15, day:'Tue', period:7, subject:'Power Electronics Lab',                teacher:'Mr. K. Senthilkumar',semester:6 },
+  { id:16, day:'Tue', period:8, subject:'Library / Free Hour',                  teacher:'',                    semester:6 },
   // Wednesday
-  { id:15, day:'Wed', period:1, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
-  { id:16, day:'Wed', period:2, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
-  { id:17, day:'Wed', period:3, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
-  { id:18, day:'Wed', period:4, subject:'LUNCH', teacher:'', semester:6 },
-  { id:19, day:'Wed', period:5, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
-  { id:20, day:'Wed', period:6, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
-  { id:21, day:'Wed', period:7, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
+  { id:17, day:'Wed', period:1, subject:'Embedded Systems',                     teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:18, day:'Wed', period:2, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:19, day:'Wed', period:3, subject:'Transmission and Distribution',        teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:20, day:'Wed', period:4, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:21, day:'Wed', period:5, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:22, day:'Wed', period:6, subject:'Embedded Systems',                     teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:23, day:'Wed', period:7, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:24, day:'Wed', period:8, subject:'Tutorial',                             teacher:'',                    semester:6 },
   // Thursday
-  { id:22, day:'Thu', period:1, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
-  { id:23, day:'Thu', period:2, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
-  { id:24, day:'Thu', period:3, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
-  { id:25, day:'Thu', period:4, subject:'LUNCH', teacher:'', semester:6 },
-  { id:26, day:'Thu', period:5, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
-  { id:27, day:'Thu', period:6, subject:'Sports / NCC / NSS', teacher:'', semester:6 },
-  { id:28, day:'Thu', period:7, subject:'Tutorial', teacher:'', semester:6 },
+  { id:25, day:'Thu', period:1, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:26, day:'Thu', period:2, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:27, day:'Thu', period:3, subject:'Transmission and Distribution',        teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:28, day:'Thu', period:4, subject:'Embedded Systems',                     teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:29, day:'Thu', period:5, subject:'Transmission and Distribution',        teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:30, day:'Thu', period:6, subject:'Sports / NCC / NSS',                   teacher:'',                    semester:6 },
+  { id:31, day:'Thu', period:7, subject:'Sports / NCC / NSS',                   teacher:'',                    semester:6 },
+  { id:32, day:'Thu', period:8, subject:'Tutorial',                             teacher:'',                    semester:6 },
   // Friday
-  { id:29, day:'Fri', period:1, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
-  { id:30, day:'Fri', period:2, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
-  { id:31, day:'Fri', period:3, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
-  { id:32, day:'Fri', period:4, subject:'LUNCH', teacher:'', semester:6 },
-  { id:33, day:'Fri', period:5, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
-  { id:34, day:'Fri', period:6, subject:'Seminar / Guest Lecture', teacher:'', semester:6 },
-  { id:35, day:'Fri', period:7, subject:'Sports / NSS', teacher:'', semester:6 },
+  { id:33, day:'Fri', period:1, subject:'Transmission and Distribution',        teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:34, day:'Fri', period:2, subject:'Embedded Systems',                     teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:35, day:'Fri', period:3, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:36, day:'Fri', period:4, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:37, day:'Fri', period:5, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:38, day:'Fri', period:6, subject:'Seminar / Guest Lecture',              teacher:'',                    semester:6 },
+  { id:39, day:'Fri', period:7, subject:'Seminar / Guest Lecture',              teacher:'',                    semester:6 },
+  { id:40, day:'Fri', period:8, subject:'Sports / NSS',                         teacher:'',                    semester:6 },
   // Saturday
-  { id:36, day:'Sat', period:1, subject:'Digital Logic Circuits', teacher:'Ms. R. Priyanka', semester:6 },
-  { id:37, day:'Sat', period:2, subject:'Transmission and Distribution', teacher:'Dr. R. Ramanujam', semester:6 },
-  { id:38, day:'Sat', period:3, subject:'Embedded Systems', teacher:'Dr. M. Arulkumar', semester:6 },
-  { id:39, day:'Sat', period:4, subject:'LUNCH', teacher:'', semester:6 },
-  { id:40, day:'Sat', period:5, subject:'Power System Operation and Control', teacher:'Dr. S. Kavitha', semester:6 },
-  { id:41, day:'Sat', period:6, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
-  { id:42, day:'Sat', period:7, subject:'Power Electronics Lab', teacher:'Mr. K. Senthilkumar', semester:6 },
+  { id:41, day:'Sat', period:1, subject:'Digital Logic Circuits',               teacher:'Ms. R. Priyanka',    semester:6 },
+  { id:42, day:'Sat', period:2, subject:'Transmission and Distribution',        teacher:'Dr. R. Ramanujam',   semester:6 },
+  { id:43, day:'Sat', period:3, subject:'Embedded Systems',                     teacher:'Dr. M. Arulkumar',   semester:6 },
+  { id:44, day:'Sat', period:4, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:45, day:'Sat', period:5, subject:'Power System Operation and Control',   teacher:'Dr. S. Kavitha',      semester:6 },
+  { id:46, day:'Sat', period:6, subject:'Power Electronics Lab',                teacher:'Mr. K. Senthilkumar',semester:6 },
+  { id:47, day:'Sat', period:7, subject:'Power Electronics Lab',                teacher:'Mr. K. Senthilkumar',semester:6 },
+  { id:48, day:'Sat', period:8, subject:'Library / Free Hour',                  teacher:'',                    semester:6 },
 ];
 
 // Initialize local storage fallback
@@ -276,19 +282,31 @@ const initLocalDB = () => {
   } else {
     try {
       const parsed = JSON.parse(localCourses);
-      const needsMigration = parsed.some((c: any) => c.teacherName === undefined || c.teacherName === '');
+      const needsMigration = parsed.some((c: any) => !c.teacherName);
       if (needsMigration) {
         const updated = parsed.map((c: any) => {
           const defaultCourse = DEFAULT_COURSES.find(dc => dc.code === c.code);
-          return {
-            ...c,
-            teacherName: c.teacherName || defaultCourse?.teacherName || ''
-          };
+          return { ...c, teacherName: c.teacherName || defaultCourse?.teacherName || '' };
         });
         localStorage.setItem('eee_courses', JSON.stringify(updated));
       }
     } catch (e) {
       localStorage.setItem('eee_courses', JSON.stringify(DEFAULT_COURSES));
+    }
+  }
+  // Migrate timetable: if stored data still uses 7-period (with LUNCH), reset it to 8-period
+  const ttKey = 'eee_timetable_6';
+  const localTT = localStorage.getItem(ttKey);
+  if (localTT) {
+    try {
+      const parsed: TimetableEntry[] = JSON.parse(localTT);
+      const hasLunch = parsed.some(e => e.subject === 'LUNCH');
+      const maxPeriod = Math.max(...parsed.map(e => e.period));
+      if (hasLunch || maxPeriod < 8) {
+        localStorage.removeItem(ttKey);
+      }
+    } catch (e) {
+      localStorage.removeItem(ttKey);
     }
   }
 };

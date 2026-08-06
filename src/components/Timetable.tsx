@@ -10,16 +10,17 @@ interface TimetableProps {
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const PERIODS = [1, 2, 3, 4, 5, 6, 7];
+const PERIODS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const PERIOD_TIMES: Record<number, string> = {
   1: '8:00–8:50',
   2: '8:50–9:40',
-  3: '9:40–10:30',
-  4: '10:30–11:00',  // Lunch
-  5: '11:00–11:50',
-  6: '11:50–12:40',
-  7: '12:40–1:30',
+  3: '9:55–10:45',
+  4: '10:45–11:35',
+  5: '12:15–1:05',
+  6: '1:05–1:55',
+  7: '2:10–3:00',
+  8: '3:00–3:50',
 };
 
 // Colour palette per subject (auto-assigned by hash)
@@ -166,118 +167,154 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {activeDayEntries.map(({ period, entry }) => {
-              const isLunch = period === 4;
-              const subject = entry?.subject || (isLunch ? 'LUNCH' : '—');
-              const teacher = entry?.teacher || '';
-              const colors = hashColor(subject);
-              const isEditing = editCell?.day === activeDay && editCell?.period === period;
+            {(() => {
+              const rows: React.ReactNode[] = [];
 
-              return (
+              const renderInterval = (title: string, time: string, icon: string) => (
                 <div
-                  key={period}
-                  onClick={() => openEdit(activeDay, period)}
+                  key={`interval-${title}-${time}`}
                   style={{
                     display: 'flex',
-                    alignItems: 'stretch',
-                    gap: 0,
+                    alignItems: 'center',
+                    gap: 12,
                     borderRadius: 12,
-                    overflow: 'hidden',
-                    border: `1.5px solid ${editMode && !isLunch ? colors.border + '80' : 'var(--card-border)'}`,
-                    background: 'var(--bg-primary)',
-                    cursor: editMode && !isLunch ? 'pointer' : 'default',
-                    transition: 'all 0.18s ease',
-                    boxShadow: isEditing ? `0 0 0 2px ${colors.border}` : '0 1px 4px rgba(0,0,0,0.04)',
+                    border: '1.5px dashed var(--card-border)',
+                    background: 'rgba(251, 191, 36, 0.05)',
+                    padding: '8px 14px',
+                    margin: '2px 0'
                   }}
                 >
-                  {/* Period Number Column */}
-                  <div style={{
-                    width: 44,
-                    flexShrink: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: isLunch ? 'rgba(251,191,36,0.15)' : colors.bg,
-                    borderRight: `2px solid ${colors.border}30`,
-                    padding: '10px 4px',
-                  }}>
-                    <span style={{ fontSize: 15, fontWeight: 900, color: isLunch ? '#b45309' : colors.text }}>
-                      {isLunch ? '☕' : `P${period}`}
-                    </span>
-                    <span style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 2, textAlign: 'center', lineHeight: 1.2 }}>
-                      {PERIOD_TIMES[period]}
-                    </span>
+                  <span style={{ fontSize: 16 }}>{icon}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontWeight: 700, fontSize: 12, color: '#b45309' }}>{title}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>({time})</span>
                   </div>
-
-                  {/* Content */}
-                  <div style={{ flex: 1, padding: '10px 12px' }}>
-                    {isEditing ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} onClick={e => e.stopPropagation()}>
-                        <input
-                          value={editSubject}
-                          onChange={e => setEditSubject(e.target.value)}
-                          placeholder="Subject name"
-                          autoFocus
-                          style={{
-                            width: '100%', padding: '5px 8px', borderRadius: 8, border: '1.5px solid var(--accent-blue)',
-                            fontSize: 12, fontWeight: 700, background: 'var(--bg-secondary)', color: 'var(--text-main)', outline: 'none'
-                          }}
-                        />
-                        <input
-                          value={editTeacher}
-                          onChange={e => setEditTeacher(e.target.value)}
-                          placeholder="Teacher name (optional)"
-                          style={{
-                            width: '100%', padding: '5px 8px', borderRadius: 8, border: '1.5px solid var(--card-border)',
-                            fontSize: 11, background: 'var(--bg-secondary)', color: 'var(--text-muted)', outline: 'none'
-                          }}
-                        />
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button
-                            onClick={saveCell}
-                            disabled={saving}
-                            style={{ flex: 1, padding: '5px 0', borderRadius: 8, background: 'var(--accent-blue)', color: '#fff', border: 'none', fontWeight: 700, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
-                          >
-                            <Check size={12} /> {saving ? 'Saving…' : 'Save'}
-                          </button>
-                          <button
-                            onClick={e => { e.stopPropagation(); setEditCell(null); }}
-                            style={{ padding: '5px 10px', borderRadius: 8, background: 'var(--bg-secondary)', color: 'var(--text-muted)', border: '1.5px solid var(--card-border)', fontSize: 11, cursor: 'pointer' }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ fontWeight: 700, fontSize: 13, color: isLunch ? '#b45309' : 'var(--text-main)', marginBottom: teacher ? 4 : 0 }}>
-                          {subject}
-                        </div>
-                        {teacher && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)' }}>
-                            <User size={11} />
-                            {teacher}
-                          </div>
-                        )}
-                        {!entry && !isLunch && (
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                            {editMode ? 'Tap to add' : 'Free period'}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                  {/* Edit indicator */}
-                  {editMode && !isLunch && !isEditing && (
-                    <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', color: 'var(--text-muted)' }}>
-                      <Pencil size={12} />
-                    </div>
-                  )}
                 </div>
               );
-            })}
+
+              activeDayEntries.forEach(({ period, entry }) => {
+                const subject = entry?.subject || '—';
+                const teacher = entry?.teacher || '';
+                const colors = hashColor(subject);
+                const isEditing = editCell?.day === activeDay && editCell?.period === period;
+
+                rows.push(
+                  <div
+                    key={period}
+                    onClick={() => openEdit(activeDay, period)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'stretch',
+                      gap: 0,
+                      borderRadius: 12,
+                      overflow: 'hidden',
+                      border: `1.5px solid ${editMode ? colors.border + '80' : 'var(--card-border)'}`,
+                      background: 'var(--bg-primary)',
+                      cursor: editMode ? 'pointer' : 'default',
+                      transition: 'all 0.18s ease',
+                      boxShadow: isEditing ? `0 0 0 2px ${colors.border}` : '0 1px 4px rgba(0,0,0,0.04)',
+                    }}
+                  >
+                    {/* Period Number Column */}
+                    <div style={{
+                      width: 44,
+                      flexShrink: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: colors.bg,
+                      borderRight: `2px solid ${colors.border}30`,
+                      padding: '10px 4px',
+                    }}>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: colors.text }}>
+                        P{period}
+                      </span>
+                      <span style={{ fontSize: 8, color: 'var(--text-muted)', marginTop: 2, textAlign: 'center', lineHeight: 1.2 }}>
+                        {PERIOD_TIMES[period]}
+                      </span>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ flex: 1, padding: '10px 12px' }}>
+                      {isEditing ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} onClick={e => e.stopPropagation()}>
+                          <input
+                            value={editSubject}
+                            onChange={e => setEditSubject(e.target.value)}
+                            placeholder="Subject name"
+                            autoFocus
+                            style={{
+                              width: '100%', padding: '5px 8px', borderRadius: 8, border: '1.5px solid var(--accent-blue)',
+                              fontSize: 12, fontWeight: 700, background: 'var(--bg-secondary)', color: 'var(--text-main)', outline: 'none'
+                            }}
+                          />
+                          <input
+                            value={editTeacher}
+                            onChange={e => setEditTeacher(e.target.value)}
+                            placeholder="Teacher name (optional)"
+                            style={{
+                              width: '100%', padding: '5px 8px', borderRadius: 8, border: '1.5px solid var(--card-border)',
+                              fontSize: 11, background: 'var(--bg-secondary)', color: 'var(--text-muted)', outline: 'none'
+                            }}
+                          />
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button
+                              onClick={saveCell}
+                              disabled={saving}
+                              style={{ flex: 1, padding: '5px 0', borderRadius: 8, background: 'var(--accent-blue)', color: '#fff', border: 'none', fontWeight: 700, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+                            >
+                              <Check size={12} /> {saving ? 'Saving…' : 'Save'}
+                            </button>
+                            <button
+                              onClick={e => { e.stopPropagation(); setEditCell(null); }}
+                              style={{ padding: '5px 10px', borderRadius: 8, background: 'var(--bg-secondary)', color: 'var(--text-muted)', border: '1.5px solid var(--card-border)', fontSize: 11, cursor: 'pointer' }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-main)', marginBottom: teacher ? 4 : 0 }}>
+                            {subject}
+                          </div>
+                          {teacher && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)' }}>
+                              <User size={11} />
+                              {teacher}
+                            </div>
+                          )}
+                          {!entry && (
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                              {editMode ? 'Tap to add' : 'Free period'}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* Edit indicator */}
+                    {editMode && !isEditing && (
+                      <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', color: 'var(--text-muted)' }}>
+                        <Pencil size={12} />
+                      </div>
+                    )}
+                  </div>
+                );
+
+                // Insert intervals after specific periods
+                if (period === 2) {
+                  rows.push(renderInterval('TEA BREAK', '9:40–9:55', '☕'));
+                } else if (period === 4) {
+                  rows.push(renderInterval('LUNCH BREAK', '11:35–12:15', '🍱'));
+                } else if (period === 6) {
+                  rows.push(renderInterval('TEA BREAK', '1:55–2:10', '☕'));
+                }
+              });
+
+              return rows;
+            })()}
           </div>
         )}
 

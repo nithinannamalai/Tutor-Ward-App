@@ -16,7 +16,7 @@ import { AIChatbot } from './components/AIChatbot';
 import { SplashScreen } from './components/SplashScreen';
 import { SignInPage } from './components/SignInPage';
 import { StudentDetailsCard } from './components/StudentDetailsCard';
-import { RequestLetters } from './components/RequestLetters';
+import { ODForm } from './components/ODForm';
 import { Timetable } from './components/Timetable';
 import type { Faculty, Rule } from './services/db';
 import {
@@ -277,7 +277,7 @@ function App() {
       items: [
         { key: 'profile', label: 'Documents', icon: <BookOpen size={24} />, color: '#0052cc', bg: 'rgba(0, 82, 204, 0.12)' },
         { key: 'certificates', label: 'Certificates', icon: <Award size={24} />, color: '#be185d', bg: 'rgba(190, 24, 93, 0.12)' },
-        { key: 'letters', label: 'Letters', icon: <FileText size={24} />, color: '#4f46e5', bg: 'rgba(79, 70, 229, 0.12)' },
+        { key: 'od-form', label: 'OD Form', icon: <FileText size={24} />, color: '#4f46e5', bg: 'rgba(79, 70, 229, 0.12)' },
       ]
     },
     {
@@ -471,7 +471,7 @@ function App() {
               {[
                 { label: 'Student Document Vault', key: 'profile', icon: <BookOpen size={16} />, color: '#0052cc' },
                 { label: 'Certificates & Badges', key: 'certificates', icon: <Award size={16} />, color: '#be185d' },
-                { label: 'Request Letters', key: 'letters', icon: <FileText size={16} />, color: '#4f46e5' },
+                { label: 'OD Form', key: 'od-form', icon: <FileText size={16} />, color: '#4f46e5' },
               ].map(item => (
                 <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
                   <div className="drawer-item-left">
@@ -628,7 +628,7 @@ function App() {
               {currentTab === 'profile-details' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="profile" currentUser={currentUser} onUpdateUser={(updated) => setCurrentUser(updated)} />}
               {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
               {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
-              {currentTab === 'letters' && <RequestLetters currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Student'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'od-form' && <ODForm currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Student'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} currentUser={currentUser} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}

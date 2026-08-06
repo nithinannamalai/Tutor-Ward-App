@@ -106,6 +106,31 @@ export interface LetterRequest {
   adminRemarks?: string;
 }
 
+export interface ODStudent {
+  rollNo: string;
+  name: string;
+  year: string;
+  className: string;
+}
+
+export interface ODRequest {
+  id: string;
+  studentEmail: string;
+  studentName: string;
+  rollNo: string;
+  odType: 'External OD' | 'Internal OD';
+  odSubCategory: 'SAC OD' | 'Other';
+  eventName: string;
+  eventDate: string;
+  venue: string;
+  facultyCoordinator: string;
+  students: ODStudent[];
+  status: 'Pending' | 'Approved' | 'Rejected';
+  requestedAt: string;
+  pdfUrl?: string;
+  adminRemarks?: string;
+}
+
 
 // ----------------------------------------------------
 // DEFAULT SEED DATA FOR MOCK FALLBACK
@@ -1127,6 +1152,101 @@ export const dbService = {
       const localData = localStorage.getItem('eee_letter_requests');
       const list: LetterRequest[] = localData ? JSON.parse(localData) : [];
       localStorage.setItem('eee_letter_requests', JSON.stringify(list.filter(r => r.id !== id)));
+      return true;
+    }
+  },
+
+  // --- OD Requests ---
+  async getODRequests(studentEmail?: string): Promise<ODRequest[]> {
+    try {
+      const { data, error } = await supabase
+        .from('od_requests')
+        .select('*');
+      if (error) throw error;
+      const list = (data || []).map(d => ({
+        id: d.id,
+        studentEmail: d.student_email,
+        studentName: d.student_name,
+        rollNo: d.roll_no,
+        odType: d.od_type,
+        odSubCategory: d.od_sub_category,
+        eventName: d.event_name,
+        eventDate: d.event_date,
+        venue: d.venue,
+        facultyCoordinator: d.faculty_coordinator,
+        students: typeof d.students === 'string' ? JSON.parse(d.students) : d.students,
+        status: d.status,
+        requestedAt: d.requested_at,
+        pdfUrl: d.pdf_url,
+        adminRemarks: d.admin_remarks
+      }));
+      if (studentEmail) {
+        return list.filter(r => r.studentEmail.toLowerCase() === studentEmail.toLowerCase());
+      }
+      return list;
+    } catch (err: any) {
+      console.warn('Supabase getODRequests failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_od_requests');
+      const list: ODRequest[] = localData ? JSON.parse(localData) : [];
+      if (studentEmail) {
+        return list.filter(r => r.studentEmail.toLowerCase() === studentEmail.toLowerCase());
+      }
+      return list;
+    }
+  },
+
+  async saveODRequest(req: ODRequest): Promise<ODRequest> {
+    try {
+      const payload = {
+        id: req.id,
+        student_email: req.studentEmail,
+        student_name: req.studentName,
+        roll_no: req.rollNo,
+        od_type: req.odType,
+        od_sub_category: req.odSubCategory,
+        event_name: req.eventName,
+        event_date: req.eventDate,
+        venue: req.venue,
+        faculty_coordinator: req.facultyCoordinator,
+        students: JSON.stringify(req.students),
+        status: req.status,
+        requested_at: req.requestedAt,
+        pdf_url: req.pdfUrl,
+        admin_remarks: req.adminRemarks
+      };
+      const { error } = await supabase
+        .from('od_requests')
+        .upsert(payload);
+      if (error) throw error;
+      return req;
+    } catch (err: any) {
+      console.warn('Supabase saveODRequest failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_od_requests') || '[]';
+      const list: ODRequest[] = JSON.parse(localData);
+      const idx = list.findIndex(r => r.id === req.id);
+      if (idx > -1) {
+        list[idx] = req;
+      } else {
+        list.push(req);
+      }
+      localStorage.setItem('eee_od_requests', JSON.stringify(list));
+      return req;
+    }
+  },
+
+  async deleteODRequest(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('od_requests')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err: any) {
+      console.warn('Supabase deleteODRequest failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_od_requests');
+      const list: ODRequest[] = localData ? JSON.parse(localData) : [];
+      localStorage.setItem('eee_od_requests', JSON.stringify(list.filter(r => r.id !== id)));
       return true;
     }
   }

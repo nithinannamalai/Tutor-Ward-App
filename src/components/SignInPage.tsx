@@ -589,7 +589,19 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
             <button
               type="button"
               className="signin-guest-btn"
-              onClick={onClose}
+              onClick={() => {
+                const guestProfile: UserProfile = demoProfiles[0] || {
+                  email: 'guest@eee.com',
+                  name: 'Guest User',
+                  rollNo: '7377221EE999',
+                  role: 'student',
+                  className: 'III EEE-A',
+                  yearOfStudy: '3rd Year',
+                  semester: 'Semester VI',
+                  department: 'Dept of EEE'
+                };
+                onLoginSuccess(guestProfile);
+              }}
               style={{
                 width: '100%',
                 marginTop: 8,

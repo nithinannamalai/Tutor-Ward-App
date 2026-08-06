@@ -1060,24 +1060,73 @@ function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => v
         </form>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {faculty.map((f, i) => (
-          <div key={f.id ?? i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '14px 12px', position: 'relative' }}>
+          <div
+            key={f.id ?? i}
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--card-border)',
+              borderRadius: 16,
+              padding: '16px 14px',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
             {editMode && (
               <button
                 onClick={() => handleDelete(f.id)}
-                style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
+                style={{ position: 'absolute', right: 10, top: 10, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
               >
-                <Trash2 size={13} />
+                <Trash2 size={14} />
               </button>
             )}
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: `hsl(${i * 60}, 60%, 85%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, marginBottom: 8, color: '#111' }}>
-              {f.name.charAt(0)}
+
+            {/* LEFT: Avatar + Name */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 68, flexShrink: 0 }}>
+              <div style={{
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                background: `hsl(${i * 60}, 60%, 85%)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 22,
+                fontWeight: 900,
+                color: '#111',
+                boxShadow: `0 0 0 3px hsl(${i * 60}, 50%, 75%)40`,
+              }}>
+                {f.name.charAt(0)}
+              </div>
+              <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--text-main)', textAlign: 'center', lineHeight: 1.3, maxWidth: 80 }}>
+                {f.name}
+              </div>
             </div>
-            <div style={{ fontWeight: 800, fontSize: 12 }}>{f.name}</div>
-            <div style={{ fontSize: 10, color: 'var(--accent-blue)', marginBottom: 6 }}>{f.role}</div>
-            <a href={`mailto:${f.email}`} style={{ display: 'block', fontSize: 10, color: 'var(--text-muted)', textDecoration: 'none', marginBottom: 2 }}>✉️ {f.email}</a>
-            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>📱 {f.phone}</span>
+
+            {/* Divider */}
+            <div style={{ width: 1, alignSelf: 'stretch', background: 'var(--card-border)', flexShrink: 0 }} />
+
+            {/* RIGHT: Designation, Dept, Email, Phone */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-blue)', lineHeight: 1.3 }}>
+                {f.role}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>
+                Dept of EEE · SREC
+              </div>
+              <a
+                href={`mailto:${f.email}`}
+                style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              >
+                ✉️ {f.email}
+              </a>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--text-muted)' }}>
+                📱 {f.phone}
+              </div>
+            </div>
           </div>
         ))}
       </div>

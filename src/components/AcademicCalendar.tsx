@@ -5,6 +5,16 @@ import { ArrowLeft, BookOpen, Calendar, Trash2, Pencil, X, Check } from 'lucide-
 
 import addIcon from '../assets/add-icon.png';
 
+// Hardcoded teacher name fallback — used when DB/localStorage is missing teacher_name
+const TEACHER_MAP: Record<string, string> = {
+  'EE8601': 'Dr. S. Kavitha',
+  'EE8602': 'Dr. R. Ramanujam',
+  'EE8603': 'Ms. R. Priyanka',
+  'EE8691': 'Dr. M. Arulkumar',
+  'EE8611': 'Mr. K. Senthilkumar',
+  'EE8612': 'Ms. P. Vijayalakshmi',
+};
+
 interface AcademicCalendarProps {
   onBack: () => void;
   isAdmin?: boolean;
@@ -58,7 +68,12 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
   const loadCourses = async () => {
     setLoading(true);
     const list = await dbService.getCourses();
-    setCourses(list);
+    // Merge teacher names from local fallback map when DB returns empty
+    const merged = list.map(c => ({
+      ...c,
+      teacherName: c.teacherName || TEACHER_MAP[c.code] || '',
+    }));
+    setCourses(merged);
     setLoading(false);
   };
 
@@ -224,11 +239,9 @@ export const AcademicCalendar: React.FC<AcademicCalendarProps> = ({
                       <div className="doc-info" style={{ gap: 0 }}>
                         <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{course.name}</span>
                         <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{course.code} · Sem {course.semester}</span>
-                        {course.teacherName && (
-                          <span style={{ fontSize: 10, color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 }}>
-                            👤 {course.teacherName}
-                          </span>
-                        )}
+                        <span style={{ fontSize: 10, color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 }}>
+                          👤 {course.teacherName || TEACHER_MAP[course.code] || '—'}
+                        </span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>

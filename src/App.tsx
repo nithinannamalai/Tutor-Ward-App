@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { App as CapApp } from '@capacitor/app';
+import { supabase } from './services/supabaseClient';
 import { dbService } from './services/db';
 import type { Announcement } from './services/db';
 import { AnnouncementBanner } from './components/AnnouncementBanner';
@@ -86,6 +87,75 @@ function App() {
   useEffect(() => {
     loadAnnouncements();
 
+    // Check active session on mount
+    const checkSession = async () => {
+      const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+      if (isSupabaseConfigured) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const email = session.user.email || '';
+            let role: 'student' | 'teacher' = 'student';
+            let name = session.user.user_metadata?.name || email.split('@')[0].toUpperCase();
+            let rollNo = session.user.user_metadata?.rollNo || '';
+
+            // Check if teacher
+            const { data: facultyData } = await supabase
+              .from('faculty')
+              .select('*')
+              .eq('email', email)
+              .maybeSingle();
+
+            if (facultyData || email.toLowerCase() === 'teacher@eee.com') {
+              role = 'teacher';
+              name = facultyData?.name || 'Dr. EEE HOD / Faculty';
+              rollNo = 'FAC001';
+            } else {
+              const { data: studentData } = await supabase
+                .from('student_profiles')
+                .select('*')
+                .eq('email', email)
+                .maybeSingle();
+
+              if (studentData) {
+                name = studentData.name;
+                rollNo = studentData.roll_no;
+              }
+            }
+
+            const userProfile: UserProfile = {
+              email,
+              name,
+              rollNo,
+              role,
+              className: role === 'teacher' ? 'All EEE Classes' : 'III EEE-A',
+              yearOfStudy: role === 'teacher' ? 'Staff' : '3rd Year',
+              semester: role === 'teacher' ? 'Staff Portal' : 'Semester VI',
+              department: 'Dept of EEE'
+            };
+
+            // Merge local extras
+            try {
+              const saved = localStorage.getItem('eee_profile_extra_' + email);
+              if (saved) {
+                const extras = JSON.parse(saved) as Partial<UserProfile>;
+                setCurrentUser({ ...userProfile, ...extras, email, role });
+              } else {
+                setCurrentUser(userProfile);
+              }
+            } catch {
+              setCurrentUser(userProfile);
+            }
+            setIsAuthenticated(true);
+            setDismissedSignIn(true);
+          }
+        } catch (err) {
+          console.warn('Failed to fetch Supabase session on mount:', err);
+        }
+      }
+    };
+    checkSession();
+
     // Hardware Back Button Handler
     const backListener = CapApp.addListener('backButton', () => {
       setCurrentTab(prev => {
@@ -135,7 +205,15 @@ function App() {
     setShowSignInPage(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.warn('Failed to sign out from Supabase:', err);
+      }
+    }
     setCurrentUser(null);
     setIsAuthenticated(false);
     setCurrentTab(null);

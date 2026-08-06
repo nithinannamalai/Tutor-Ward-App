@@ -88,6 +88,65 @@ CREATE TABLE IF NOT EXISTS timetable_entries (
   semester INTEGER DEFAULT 6
 );
 
+-- 6. MILESTONES TABLE
+CREATE TABLE IF NOT EXISTS milestones (
+  id SERIAL PRIMARY KEY,
+  date TEXT NOT NULL,
+  event TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('academic', 'exam', 'holiday'))
+);
+
+-- 7. LABS TABLE
+CREATE TABLE IF NOT EXISTS labs (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  block TEXT NOT NULL,
+  icon TEXT NOT NULL
+);
+
+-- 8. SUGGESTIONS TABLE
+CREATE TABLE IF NOT EXISTS suggestions (
+  id SERIAL PRIMARY KEY,
+  category TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+
+-- ====================================================
+-- HELPER FUNCTIONS & NEW TABLES
+-- ====================================================
+
+-- 1. Helper function to check if the authenticated user is a faculty member
+CREATE OR REPLACE FUNCTION is_faculty()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN (
+    auth.jwt() ->> 'email' = 'teacher@eee.com'
+    OR auth.jwt() ->> 'email' LIKE '%@srec.ac.in'
+    OR EXISTS (
+      SELECT 1 FROM faculty WHERE email = auth.jwt() ->> 'email'
+    )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 2. Letter Requests Table
+CREATE TABLE IF NOT EXISTS letter_requests (
+  id TEXT PRIMARY KEY,
+  student_email TEXT NOT NULL,
+  student_name TEXT NOT NULL,
+  roll_no TEXT NOT NULL,
+  letter_type TEXT NOT NULL,
+  purpose TEXT NOT NULL,
+  details TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Rejected')),
+  requested_at TEXT NOT NULL,
+  pdf_url TEXT,
+  admin_remarks TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- ====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ====================================================
@@ -98,55 +157,56 @@ ALTER TABLE student_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE student_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attendance_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE labs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE faculty ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timetable_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE letter_requests ENABLE ROW LEVEL SECURITY;
 
 -- A. ANNOUNCEMENTS POLICIES
--- 1. Anyone (public or authenticated) can view announcements
 CREATE POLICY "Allow public read access to announcements" 
 ON announcements FOR SELECT 
 USING (true);
 
--- 2. Only authenticated administrators/teachers can insert/edit/delete announcements
-CREATE POLICY "Allow write access for authenticated users on announcements" 
+CREATE POLICY "Allow write access for faculty on announcements" 
 ON announcements FOR ALL 
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+USING (is_faculty())
+WITH CHECK (is_faculty());
 
 
 -- B. STUDENT PROFILES POLICIES
--- 1. Students can view their own profile; teachers can view all profiles
 CREATE POLICY "View student profiles policy" 
 ON student_profiles FOR SELECT 
 USING (
   auth.jwt() ->> 'email' = email 
-  OR auth.jwt() ->> 'email' = 'teacher@eee.com' 
+  OR is_faculty()
   OR auth.role() = 'authenticated' -- Fallback allowance for dev testing
 );
 
--- 2. Students can update their own profile details; teachers can update all
 CREATE POLICY "Update student profiles policy" 
 ON student_profiles FOR UPDATE 
 USING (
   auth.jwt() ->> 'email' = email 
-  OR auth.jwt() ->> 'email' = 'teacher@eee.com'
+  OR is_faculty()
 )
 WITH CHECK (
   auth.jwt() ->> 'email' = email 
-  OR auth.jwt() ->> 'email' = 'teacher@eee.com'
+  OR is_faculty()
 );
 
--- 3. Authenticated signups or admins can insert profiles
 CREATE POLICY "Insert student profiles policy" 
 ON student_profiles FOR INSERT 
 WITH CHECK (true);
 
 
 -- C. STUDENT DOCUMENTS POLICIES
--- 1. Students can read/manage their own files; teachers can access everything
 CREATE POLICY "Access own documents select" 
 ON student_documents FOR SELECT 
 USING (
   auth.jwt() ->> 'email' = student_email 
-  OR auth.jwt() ->> 'email' = 'teacher@eee.com'
+  OR is_faculty()
   OR auth.role() = 'authenticated'
 );
 
@@ -154,7 +214,7 @@ CREATE POLICY "Insert own documents"
 ON student_documents FOR INSERT 
 WITH CHECK (
   auth.jwt() ->> 'email' = student_email 
-  OR auth.jwt() ->> 'email' = 'teacher@eee.com'
+  OR is_faculty()
   OR auth.role() = 'authenticated'
 );
 
@@ -162,41 +222,119 @@ CREATE POLICY "Delete own documents"
 ON student_documents FOR DELETE 
 USING (
   auth.jwt() ->> 'email' = student_email 
-  OR auth.jwt() ->> 'email' = 'teacher@eee.com'
+  OR is_faculty()
 );
 
 
 -- D. ATTENDANCE LOGS POLICIES
--- 1. Students can view attendance logs; teachers can view everything
 CREATE POLICY "View attendance logs" 
 ON attendance_logs FOR SELECT 
 USING (true);
 
--- 2. Only teachers (e.g. authenticated teacher@eee.com) can mark attendance
 CREATE POLICY "Mark attendance logs" 
 ON attendance_logs FOR ALL 
-USING (
-  auth.jwt() ->> 'email' = 'teacher@eee.com'
-  OR auth.role() = 'authenticated'
-)
-WITH CHECK (
-  auth.jwt() ->> 'email' = 'teacher@eee.com'
-  OR auth.role() = 'authenticated'
-);
+USING (is_faculty())
+WITH CHECK (is_faculty());
 
 
 -- E. COURSES POLICIES
--- 1. Anyone can view courses
 CREATE POLICY "Allow public read access to courses" 
 ON courses FOR SELECT 
 USING (true);
 
--- 2. Only authenticated administrators/teachers can edit courses
-CREATE POLICY "Allow write access to courses" 
+CREATE POLICY "Allow write access to courses for faculty" 
 ON courses FOR ALL 
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+USING (is_faculty())
+WITH CHECK (is_faculty());
 
+
+-- F. MILESTONES POLICIES
+CREATE POLICY "Allow public read access to milestones" 
+ON milestones FOR SELECT 
+USING (true);
+
+CREATE POLICY "Allow write access to milestones for faculty" 
+ON milestones FOR ALL 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+
+-- G. LABS POLICIES
+CREATE POLICY "Allow public read access to labs" 
+ON labs FOR SELECT 
+USING (true);
+
+CREATE POLICY "Allow write access to labs for faculty" 
+ON labs FOR ALL 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+
+-- H. SUGGESTIONS POLICIES
+CREATE POLICY "Allow public insert suggestions" 
+ON suggestions FOR INSERT 
+WITH CHECK (true);
+
+CREATE POLICY "Allow faculty read suggestions" 
+ON suggestions FOR SELECT 
+USING (is_faculty());
+
+
+-- I. FACULTY POLICIES
+CREATE POLICY "Allow public read access to faculty" 
+ON faculty FOR SELECT 
+USING (true);
+
+CREATE POLICY "Allow write access to faculty for faculty" 
+ON faculty FOR ALL 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+
+-- J. RULES POLICIES
+CREATE POLICY "Allow public read access to rules" 
+ON rules FOR SELECT 
+USING (true);
+
+CREATE POLICY "Allow write access to rules for faculty" 
+ON rules FOR ALL 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+
+-- K. TIMETABLE POLICIES
+CREATE POLICY "Allow public read access to timetable" 
+ON timetable_entries FOR SELECT 
+USING (true);
+
+CREATE POLICY "Allow write access to timetable for faculty" 
+ON timetable_entries FOR ALL 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+
+-- L. LETTER REQUESTS POLICIES
+CREATE POLICY "Allow users to read their own letter requests, or faculty to read all" 
+ON letter_requests FOR SELECT 
+USING (
+  auth.jwt() ->> 'email' = student_email 
+  OR is_faculty()
+);
+
+CREATE POLICY "Allow users to insert their own letter requests" 
+ON letter_requests FOR INSERT 
+WITH CHECK (
+  auth.jwt() ->> 'email' = student_email
+);
+
+CREATE POLICY "Allow faculty to update any letter request" 
+ON letter_requests FOR UPDATE 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+CREATE POLICY "Allow faculty to delete any letter request" 
+ON letter_requests FOR DELETE 
+USING (is_faculty());
 
 -- ====================================================
 -- SEED INITIAL DATA
@@ -235,101 +373,3 @@ VALUES
 ('EE8611', 'Power Electronics and Drives Laboratory', 2, 6),
 ('EE8612', 'Renewable Energy Systems Laboratory', 2, 6)
 ON CONFLICT (code) DO NOTHING;
-
--- ====================================================
--- NEW TABLES FOR CLOUD STORAGE (MILESTONES, LABS, SUGGESTIONS)
--- ====================================================
-
--- 6. MILESTONES TABLE
-CREATE TABLE IF NOT EXISTS milestones (
-  id SERIAL PRIMARY KEY,
-  date TEXT NOT NULL,
-  event TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('academic', 'exam', 'holiday'))
-);
-
--- 7. LABS TABLE
-CREATE TABLE IF NOT EXISTS labs (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  block TEXT NOT NULL,
-  icon TEXT NOT NULL
-);
-
--- 8. SUGGESTIONS TABLE
-CREATE TABLE IF NOT EXISTS suggestions (
-  id SERIAL PRIMARY KEY,
-  category TEXT NOT NULL,
-  content TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
--- Enable RLS
-ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
-ALTER TABLE labs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
-
--- Milestones Policies
-CREATE POLICY "Allow public read access to milestones" ON milestones FOR SELECT USING (true);
-CREATE POLICY "Allow write access to milestones" ON milestones FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
-
--- Labs Policies
-CREATE POLICY "Allow public read access to labs" ON labs FOR SELECT USING (true);
-CREATE POLICY "Allow write access to labs" ON labs FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
-
--- Suggestions Policies
-CREATE POLICY "Allow public insert suggestions" ON suggestions FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow teacher read suggestions" ON suggestions FOR SELECT USING (auth.jwt() ->> 'email' = 'teacher@eee.com' OR auth.role() = 'authenticated');
-
--- ====================================================
--- NEW TABLES: FACULTY, RULES, TIMETABLE
--- ====================================================
-
--- Enable RLS
-ALTER TABLE faculty ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
-ALTER TABLE timetable_entries ENABLE ROW LEVEL SECURITY;
-
--- Faculty Policies
-CREATE POLICY "Allow public read access to faculty" ON faculty FOR SELECT USING (true);
-CREATE POLICY "Allow write access to faculty" ON faculty FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
-
--- Rules Policies
-CREATE POLICY "Allow public read access to rules" ON rules FOR SELECT USING (true);
-CREATE POLICY "Allow write access to rules" ON rules FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
-
--- Timetable Policies
-CREATE POLICY "Allow public read access to timetable" ON timetable_entries FOR SELECT USING (true);
-CREATE POLICY "Allow write access to timetable" ON timetable_entries FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
-
--- ====================================================
--- SEED DATA FOR NEW TABLES
--- ====================================================
-
--- Seed Faculty
-INSERT INTO faculty (name, role, email, phone) VALUES
-('Dr. R. Ramanujam', 'Head of Department', 'hod.eee@srec.ac.in', '+91-98400-00001'),
-('Dr. S. Kavitha', 'Professor – Power Systems', 's.kavitha@srec.ac.in', '+91-98400-00002'),
-('Dr. M. Arulkumar', 'Professor – Machines & Drives', 'm.arulkumar@srec.ac.in', '+91-98400-00003'),
-('Ms. P. Vijayalakshmi', 'Asst. Professor – Control', 'p.vijaya@srec.ac.in', '+91-98400-00004'),
-('Mr. K. Senthilkumar', 'Asst. Professor – Power Elec.', 'k.senthil@srec.ac.in', '+91-98400-00005'),
-('Ms. R. Priyanka', 'Asst. Professor – Microprocessors', 'r.priyanka@srec.ac.in', '+91-98400-00006')
-ON CONFLICT DO NOTHING;
-
--- Seed Rules
-INSERT INTO rules (icon, title, desc) VALUES
-('👔', 'Dress Code', 'Formal attire on working days. Lab coat mandatory during lab sessions.'),
-('📊', 'Attendance', 'Minimum 75% attendance per subject required to sit for semester exams.'),
-('🥾', 'Lab Safety', 'Safety shoes and lab coat compulsory. Mobile usage prohibited during lab.'),
-('🤫', 'Discipline', 'Maintain quiet in classrooms & library. Zero tolerance for ragging.'),
-('📱', 'Mobile Policy', 'Keep phones in silent mode inside all academic blocks.'),
-('🏆', 'Integrity', 'Strict anti-malpractice rules apply to all internal & end-semester exams.')
-ON CONFLICT DO NOTHING;
-
--- Update courses with teacher names
-UPDATE courses SET teacher_name = 'Dr. S. Kavitha' WHERE code = 'EE8601';
-UPDATE courses SET teacher_name = 'Dr. R. Ramanujam' WHERE code = 'EE8602';
-UPDATE courses SET teacher_name = 'Ms. R. Priyanka' WHERE code = 'EE8603';
-UPDATE courses SET teacher_name = 'Dr. M. Arulkumar' WHERE code = 'EE8691';
-UPDATE courses SET teacher_name = 'Mr. K. Senthilkumar' WHERE code = 'EE8611';
-UPDATE courses SET teacher_name = 'Ms. P. Vijayalakshmi' WHERE code = 'EE8612';

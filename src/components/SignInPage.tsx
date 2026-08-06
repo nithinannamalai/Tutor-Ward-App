@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
+import { supabase } from '../services/supabaseClient';
 import type { UserProfile } from '../App';
 import appLogo from '../assets/app-logo.png';
 
@@ -15,7 +16,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
   const [email, setEmail] = useState('student@eee.com');
   const [name, setName] = useState('Nithin Annamalai');
   const [rollNo, setRollNo] = useState('7377221EE001');
-  const [password, setPassword] = useState('••••••••');
+  const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,46 +40,299 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
     return () => clearInterval(timer);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and password.');
-      return;
-    }
-
     setLoading(true);
 
-    setTimeout(() => {
-      const matchedProfile = demoProfiles.find(
-        p => p.email.toLowerCase() === email.toLowerCase().trim()
-      );
+    const targetEmail = email.trim();
+    const targetPassword = password.trim();
 
-      if (matchedProfile) {
-        onLoginSuccess(matchedProfile);
+    const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+
+    if (isSignUp) {
+      if (!name.trim() || !rollNo.trim()) {
+        setError('Please fill in your name and roll number.');
+        setLoading(false);
+        return;
+      }
+
+      if (isSupabaseConfigured) {
+        try {
+          const { data, error: signUpError } = await supabase.auth.signUp({
+            email: targetEmail,
+            password: targetPassword,
+            options: {
+              data: {
+                name: name.trim(),
+                rollNo: rollNo.trim(),
+              }
+            }
+          });
+
+          if (signUpError) {
+            setError(signUpError.message);
+            setLoading(false);
+            return;
+          }
+
+          if (data.user) {
+            // Check if teacher
+            let role: 'student' | 'teacher' = 'student';
+            const { data: facultyCheck } = await supabase
+              .from('faculty')
+              .select('*')
+              .eq('email', targetEmail)
+              .maybeSingle();
+
+            if (facultyCheck || targetEmail.toLowerCase() === 'teacher@eee.com') {
+              role = 'teacher';
+            } else {
+              // Create student profile in database
+              const { error: profileError } = await supabase
+                .from('student_profiles')
+                .insert({
+                  id: targetEmail,
+                  roll_no: rollNo.trim(),
+                  name: name.trim(),
+                  email: targetEmail,
+                  cgpa_json: {},
+                  arrears_count: 0,
+                  nptel_exams: []
+                });
+              if (profileError) {
+                console.warn('Profile creation error:', profileError.message);
+              }
+            }
+
+            onLoginSuccess({
+              email: targetEmail,
+              name: name.trim(),
+              rollNo: rollNo.trim(),
+              role,
+              className: role === 'teacher' ? 'All EEE Classes' : 'III EEE-A',
+              yearOfStudy: role === 'teacher' ? 'Staff' : '3rd Year',
+              semester: role === 'teacher' ? 'Staff Portal' : 'Semester VI',
+              department: 'Dept of EEE'
+            });
+            setLoading(false);
+            return;
+          }
+        } catch (err: any) {
+          setError(err.message || 'An unexpected error occurred during signup.');
+          setLoading(false);
+          return;
+        }
       } else {
+        // Fallback mock signup
         onLoginSuccess({
-          email: email.trim(),
-          name: name.trim() || email.split('@')[0].toUpperCase(),
-          rollNo: rollNo.trim() || '7377221EE' + Math.floor(100 + Math.random() * 900),
+          email: targetEmail,
+          name: name.trim(),
+          rollNo: rollNo.trim(),
           role: 'student',
           className: 'III EEE-A',
           yearOfStudy: '3rd Year',
           semester: 'Semester VI',
           department: 'Dept of EEE'
         });
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    }, 500);
+    } else {
+      // SIGN IN MODE
+      if (isSupabaseConfigured) {
+        try {
+          const { data, error: signInError } = await supabase.auth.signInWithPassword({
+            email: targetEmail,
+            password: targetPassword
+          });
+
+          if (signInError) {
+            // Check if user is clicking demo and user profile is not registered in Supabase
+            const matchedDemo = demoProfiles.find(
+              p => p.email.toLowerCase() === targetEmail.toLowerCase()
+            );
+            if (matchedDemo && (targetPassword === '••••••••' || targetPassword === 'password123' || targetPassword === '12345678')) {
+              const demoPass = 'password123';
+              const { data: signUpData, error: demoSignUpError } = await supabase.auth.signUp({
+                email: targetEmail,
+                password: demoPass,
+                options: {
+                  data: {
+                    name: matchedDemo.name,
+                    rollNo: matchedDemo.rollNo,
+                  }
+                }
+              });
+
+              if (!demoSignUpError && signUpData.user) {
+                if (matchedDemo.role !== 'teacher') {
+                  await supabase.from('student_profiles').insert({
+                    id: targetEmail,
+                    roll_no: matchedDemo.rollNo,
+                    name: matchedDemo.name,
+                    email: targetEmail,
+                    cgpa_json: {},
+                    arrears_count: 0,
+                    nptel_exams: []
+                  });
+                }
+                
+                const { data: secondSignIn, error: secondSignInErr } = await supabase.auth.signInWithPassword({
+                  email: targetEmail,
+                  password: demoPass
+                });
+                if (!secondSignInErr && secondSignIn.user) {
+                  onLoginSuccess(matchedDemo);
+                  setLoading(false);
+                  return;
+                }
+              }
+            }
+
+            setError(signInError.message);
+            setLoading(false);
+            return;
+          }
+
+          if (data.user) {
+            let role: 'student' | 'teacher' = 'student';
+            let profileName = data.user.user_metadata?.name || targetEmail.split('@')[0].toUpperCase();
+            let profileRollNo = data.user.user_metadata?.rollNo || '';
+
+            const { data: facultyData } = await supabase
+              .from('faculty')
+              .select('*')
+              .eq('email', targetEmail)
+              .maybeSingle();
+
+            if (facultyData || targetEmail.toLowerCase() === 'teacher@eee.com') {
+              role = 'teacher';
+              profileName = facultyData?.name || 'Dr. EEE HOD / Faculty';
+              profileRollNo = 'FAC001';
+            } else {
+              const { data: studentData } = await supabase
+                .from('student_profiles')
+                .select('*')
+                .eq('email', targetEmail)
+                .maybeSingle();
+              if (studentData) {
+                profileName = studentData.name;
+                profileRollNo = studentData.roll_no;
+              }
+            }
+
+            onLoginSuccess({
+              email: targetEmail,
+              name: profileName,
+              rollNo: profileRollNo,
+              role,
+              className: role === 'teacher' ? 'All EEE Classes' : 'III EEE-A',
+              yearOfStudy: role === 'teacher' ? 'Staff' : '3rd Year',
+              semester: role === 'teacher' ? 'Staff Portal' : 'Semester VI',
+              department: 'Dept of EEE'
+            });
+            setLoading(false);
+            return;
+          }
+        } catch (err: any) {
+          setError(err.message || 'An unexpected error occurred.');
+          setLoading(false);
+          return;
+        }
+      } else {
+        const matchedProfile = demoProfiles.find(
+          p => p.email.toLowerCase() === targetEmail.toLowerCase()
+        );
+        if (matchedProfile) {
+          onLoginSuccess(matchedProfile);
+        } else {
+          onLoginSuccess({
+            email: targetEmail,
+            name: targetEmail.split('@')[0].toUpperCase(),
+            rollNo: '7377221EE' + Math.floor(100 + Math.random() * 900),
+            role: 'student',
+            className: 'III EEE-A',
+            yearOfStudy: '3rd Year',
+            semester: 'Semester VI',
+            department: 'Dept of EEE'
+          });
+        }
+        setLoading(false);
+        return;
+      }
+    }
   };
 
-  const handleQuickLogin = (profile: UserProfile) => {
+  const handleQuickLogin = async (profile: UserProfile) => {
     setLoading(true);
-    setTimeout(() => {
+    setError('');
+    const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+
+    if (isSupabaseConfigured) {
+      try {
+        const demoPass = 'password123';
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: profile.email,
+          password: demoPass
+        });
+
+        if (error) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: profile.email,
+            password: demoPass,
+            options: {
+              data: {
+                name: profile.name,
+                rollNo: profile.rollNo,
+              }
+            }
+          });
+
+          if (!signUpError && signUpData.user) {
+            if (profile.role !== 'teacher') {
+              await supabase.from('student_profiles').insert({
+                id: profile.email,
+                roll_no: profile.rollNo,
+                name: profile.name,
+                email: profile.email,
+                cgpa_json: {},
+                arrears_count: 0,
+                nptel_exams: []
+              });
+            }
+
+            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+              email: profile.email,
+              password: demoPass
+            });
+
+            if (!retryError && retryData.user) {
+              onLoginSuccess(profile);
+              setLoading(false);
+              return;
+            }
+          }
+          setError(error.message || 'Failed to authenticate quick login.');
+          setLoading(false);
+          return;
+        }
+
+        if (data.user) {
+          onLoginSuccess(profile);
+          setLoading(false);
+          return;
+        }
+      } catch (err: any) {
+        console.warn('Quick login error:', err);
+        onLoginSuccess(profile);
+        setLoading(false);
+        return;
+      }
+    } else {
       onLoginSuccess(profile);
       setLoading(false);
-    }, 300);
+    }
   };
 
   const handleForgotPassword = () => {

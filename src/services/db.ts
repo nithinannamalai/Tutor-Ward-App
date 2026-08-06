@@ -270,8 +270,26 @@ const initLocalDB = () => {
   if (!localStorage.getItem('eee_attendance')) {
     localStorage.setItem('eee_attendance', JSON.stringify([]));
   }
-  if (!localStorage.getItem('eee_courses')) {
+  const localCourses = localStorage.getItem('eee_courses');
+  if (!localCourses) {
     localStorage.setItem('eee_courses', JSON.stringify(DEFAULT_COURSES));
+  } else {
+    try {
+      const parsed = JSON.parse(localCourses);
+      const needsMigration = parsed.some((c: any) => c.teacherName === undefined || c.teacherName === '');
+      if (needsMigration) {
+        const updated = parsed.map((c: any) => {
+          const defaultCourse = DEFAULT_COURSES.find(dc => dc.code === c.code);
+          return {
+            ...c,
+            teacherName: c.teacherName || defaultCourse?.teacherName || ''
+          };
+        });
+        localStorage.setItem('eee_courses', JSON.stringify(updated));
+      }
+    } catch (e) {
+      localStorage.setItem('eee_courses', JSON.stringify(DEFAULT_COURSES));
+    }
   }
 };
 initLocalDB();

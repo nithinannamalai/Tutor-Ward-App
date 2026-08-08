@@ -34,22 +34,17 @@ const getBase64Image = (imgUrl: string): Promise<string> =>
   });
 
 export const ODForm: React.FC<ODFormProps> = ({
-  currentEmail,
-  currentName,
-  currentRollNo,
-  isAdmin,
-  currentUser,
   onBack
 }) => {
   // Form fields
   const [odType, setOdType] = useState<'External OD' | 'Internal OD'>('Internal OD');
   const [odSubCategory, setOdSubCategory] = useState<'SAC OD' | 'Other'>('SAC OD');
-  const [eventName, setEventName]           = useState('');
-  const [eventDate, setEventDate]           = useState('');
-  const [venue, setVenue]                   = useState('');
+  const [eventName, setEventName] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [venue, setVenue] = useState('');
   const [facultyCoordinator, setFacultyCoordinator] = useState('');
-  const [studentCount, setStudentCount]     = useState(1);
-  const [generating, setGenerating]         = useState(false);
+  const [studentCount, setStudentCount] = useState(1);
+  const [generating, setGenerating] = useState(false);
 
   // Additional fields for "Other" category
   const [deptName, setDeptName] = useState('DEPARTMENT OF ELECTRICAL AND ELECTRONICS ENGINEERING');
@@ -59,7 +54,7 @@ export const ODForm: React.FC<ODFormProps> = ({
   const buildPDF = async (doc: jsPDF) => {
     /* Header image occupying very top part: y = 5 instead of 15 */
     let imgBase64 = '';
-    try { imgBase64 = await getBase64Image(headerImage); } catch (_) {}
+    try { imgBase64 = await getBase64Image(headerImage); } catch (_) { }
     if (imgBase64) {
       doc.addImage(imgBase64, 'PNG', 15, 5, 180, 32);
     } else {
@@ -101,10 +96,10 @@ export const ODForm: React.FC<ODFormProps> = ({
       doc.setLineDashPattern([], 0);
     };
 
-    field('Name of the Event/Purpose: ', eventName,         61);
-    field('Date and timing of the Event: ', eventDate,      70);
-    field('Venue: ', venue,                                  80);
-    field('Faculty Co-ordinator: ', facultyCoordinator,     90);
+    field('Name of the Event/Purpose: ', eventName, 61);
+    field('Date and timing of the Event: ', eventDate, 70);
+    field('Venue: ', venue, 80);
+    field('Faculty Co-ordinator: ', facultyCoordinator, 90);
 
     /* Signature line */
     doc.setFont('Helvetica', 'bold').setFontSize(11);
@@ -117,11 +112,11 @@ export const ODForm: React.FC<ODFormProps> = ({
     doc.setFont('Helvetica', 'bold').setFontSize(11);
     doc.text('Student Details:', 15, 112);
 
-    const tableTop   = 117;
-    const rowH       = 9;
-    const cols       = [15, 35, 65, 25, 40]; // widths in mm
-    const colLabels  = ['S.No.', 'Roll.No', 'Name', 'Year', 'Class'];
-    const tableW     = cols.reduce((a, b) => a + b, 0); // = 180
+    const tableTop = 117;
+    const rowH = 9;
+    const cols = [15, 35, 65, 25, 40]; // widths in mm
+    const colLabels = ['S.No.', 'Roll.No', 'Name', 'Year', 'Class'];
+    const tableW = cols.reduce((a, b) => a + b, 0); // = 180
 
     /* Header row background & text */
     doc.setFillColor(235, 240, 245);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sparkles, Award, GraduationCap, UserCheck, ChevronRight, ShieldCheck, BookOpen, Calendar, Hash, Layers } from 'lucide-react';
 import type { UserProfile } from '../App';
 
@@ -15,6 +15,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
   onOpenProfile,
   onOpenTab
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const isAdmin = currentUser?.role === 'teacher';
 
   const name = currentUser?.name || 'Nithin Annamalai';
@@ -30,7 +31,20 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
         {/* Top Header Info Row */}
         <div className="student-info-top">
           <div className="student-profile-left">
-            <div className="student-avatar-badge">
+            <div 
+              className="student-avatar-badge" 
+              onClick={() => setIsExpanded(prev => !prev)}
+              style={{ 
+                cursor: 'pointer',
+                background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
+                borderColor: 'rgba(255, 255, 255, 0.7)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              title="Click to view full info"
+            >
               {name.charAt(0)}
               <span className="student-online-dot" />
             </div>
@@ -38,12 +52,16 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
             <div className="student-identity-text">
               <div className="student-name-row">
                 <h3 className="student-full-name">{name}</h3>
-                <span className={`student-status-chip ${isAdmin ? 'admin' : 'student'}`}>
-                  <ShieldCheck size={10} />
-                  {isAdmin ? 'Faculty Admin' : 'UG Scholar'}
-                </span>
+                {isExpanded && (
+                  <span className={`student-status-chip ${isAdmin ? 'admin' : 'student'}`}>
+                    <ShieldCheck size={10} />
+                    {isAdmin ? 'Faculty Admin' : 'UG Scholar'}
+                  </span>
+                )}
               </div>
-              <p className="student-dept-tag">{department} · Sri Ramakrishna Eng. College</p>
+              {isExpanded && (
+                <p className="student-dept-tag">{department} · Sri Ramakrishna Eng. College</p>
+              )}
             </div>
           </div>
 
@@ -53,7 +71,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
           </button>
         </div>
 
-        {/* 🎓 Clean 5-Field Student Info Chips (Name, Roll No, Class, Year of Study, Sem - Auto-adjusts to screen size) */}
+        {/* 🎓 Clean Student Info Chips (Name, Roll No, Class, Year of Study, Sem - Auto-adjusts to screen size) */}
         {!isAdmin && (
           <div className="student-details-grid">
             <div className="detail-chip">
@@ -74,17 +92,19 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
               <span className="detail-value">{yearOfStudy}</span>
             </div>
 
-            <div className="detail-chip">
-              <BookOpen size={12} className="detail-icon" />
-              <span className="detail-label">Sem:</span>
-              <span className="detail-value">{semester}</span>
-            </div>
+            {isExpanded && (
+              <div className="detail-chip">
+                <BookOpen size={12} className="detail-icon" />
+                <span className="detail-label">Sem:</span>
+                <span className="detail-value">{semester}</span>
+              </div>
+            )}
           </div>
         )}
 
         {/* 4 Stat Metrics Grid */}
-        {!isAdmin && (
-          <div className="student-metrics-row">
+        {!isAdmin && isExpanded && (
+          <div className="student-metrics-row" style={{ animation: 'fadeIn 0.2s ease-in-out' }}>
             <div className="student-metric-pill" onClick={() => onOpenTab('attendance')}>
               <div className="metric-icon-wrap attendance">
                 <UserCheck size={14} />
@@ -130,3 +150,4 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
     </div>
   );
 };
+

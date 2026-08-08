@@ -367,38 +367,64 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
         <div className="panel-body" style={{ paddingBottom: 32 }}>
           {/* Hero Card */}
           <div style={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #0052cc 60%, #3b82f6 100%)',
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #0052cc 55%, #2563eb 100%)',
             borderRadius: 20,
-            padding: '24px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
+            padding: '20px 18px',
             marginBottom: 24,
-            boxShadow: '0 8px 32px rgba(0,82,204,0.3)'
+            boxShadow: '0 10px 28px rgba(0,82,204,0.35)',
+            position: 'relative',
+            overflow: 'hidden',
           }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.2)',
-              border: '3px solid rgba(255,255,255,0.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 26, fontWeight: 800, color: '#fff', flexShrink: 0
-            }}>
-              {initials}
-            </div>
-            <div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0 }}>
-                {profileName || currentUser?.name || 'Student Name'}
-              </h3>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: '4px 0 0' }}>
-                {profileRollNo || currentUser?.rollNo} · {profileDept || currentUser?.department}
-              </p>
-              <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                {[profileClass || currentUser?.className, profileSem || currentUser?.semester].filter(Boolean).map((tag, i) => (
-                  <span key={i} style={{ fontSize: 10, background: 'rgba(255,255,255,0.18)', color: '#fff', padding: '3px 9px', borderRadius: 20, fontWeight: 700 }}>
-                    {tag}
-                  </span>
-                ))}
+            {/* Decorative glows */}
+            <div style={{ position: 'absolute', top: -30, right: -30, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -20, left: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,95,31,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+            {/* Top row: avatar + name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
+                  border: '3px solid rgba(255,255,255,0.5)',
+                  boxShadow: '0 0 0 5px rgba(255,255,255,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 26, fontWeight: 900, color: '#fff',
+                }}>
+                  {initials}
+                </div>
+                <div style={{ position: 'absolute', bottom: 2, right: 2, width: 13, height: 13, borderRadius: '50%', background: '#22c55e', border: '2px solid #0052cc' }} />
               </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: 19, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>
+                  {profileName || currentUser?.name || 'Student Name'}
+                </h3>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '3px 0 0', fontWeight: 600 }}>Sri Ramakrishna Engineering College</p>
+                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', margin: '2px 0 0', fontWeight: 500 }}>
+                  {profileDept || currentUser?.department || 'Dept of EEE'} · {profileRollNo || currentUser?.rollNo}
+                </p>
+              </div>
+            </div>
+
+            {/* Info chips grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              {[
+                { label: 'Class', value: profileClass || currentUser?.className || '—' },
+                { label: 'Year', value: profileYear || currentUser?.yearOfStudy || '—' },
+                { label: 'Semester', value: profileSem || currentUser?.semester || '—' },
+                { label: 'Email', value: currentUser?.email || '—' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  borderRadius: 10,
+                  padding: '7px 10px',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  minWidth: 0,
+                }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{label}</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -550,18 +576,60 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
         {(!isAdmin || selectedStudentEmail) && student && (
           <>
             {/* Profile Hero */}
-            <div className="profile-hero-card">
-              <div className="profile-avatar-wrapper">
-                <div className="profile-avatar-large">{student.name.charAt(0)}</div>
-                <div className="profile-avatar-online" />
-              </div>
-              <div className="profile-hero-info">
-                <h3 className="profile-hero-name">{student.name}</h3>
-                <p className="profile-hero-roll">Roll No: {student.rollNo}</p>
-                <div className="profile-hero-badges">
-                  <span className="profile-badge class-badge">III EEE-A</span>
-                  <span className="profile-badge dept-badge">Dept of EEE</span>
+            <div style={{
+              background: 'linear-gradient(135deg, #1e3a8a 0%, #0052cc 55%, #2563eb 100%)',
+              borderRadius: 20,
+              padding: '20px 18px',
+              marginBottom: 16,
+              boxShadow: '0 10px 28px rgba(0,82,204,0.35)',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              {/* Decorative glows */}
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: -20, left: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,95,31,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+              {/* Top row: avatar + name block */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <div style={{
+                    width: 58, height: 58, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
+                    border: '3px solid rgba(255,255,255,0.5)',
+                    boxShadow: '0 0 0 4px rgba(255,255,255,0.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 22, fontWeight: 900, color: '#fff',
+                  }}>
+                    {student.name.charAt(0)}
+                  </div>
+                  <div style={{ position: 'absolute', bottom: 1, right: 1, width: 12, height: 12, borderRadius: '50%', background: '#22c55e', border: '2px solid #0052cc' }} />
                 </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>{student.name}</h3>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: '3px 0 0', fontWeight: 600 }}>Sri Ramakrishna Engineering College</p>
+                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', margin: '2px 0 0', fontWeight: 500 }}>Dept of EEE · Roll: {student.rollNo}</p>
+                </div>
+              </div>
+
+              {/* Info chips grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                {[
+                  { label: 'Class', value: 'III EEE-A' },
+                  { label: 'Year', value: '3rd Year' },
+                  { label: 'Semester', value: 'Sem VI' },
+                  { label: 'Dept', value: 'EEE' },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    borderRadius: 10,
+                    padding: '7px 10px',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                  }}>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>{value}</div>
+                  </div>
+                ))}
               </div>
             </div>
 

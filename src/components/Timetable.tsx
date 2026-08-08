@@ -65,7 +65,7 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
   const [editMode, setEditMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date('2026-08-05')); // Default to Wednesday 05-Aug-2026 as per user screenshot
   const [editCell, setEditCell] = useState<{ day: string; period: number } | null>(null);
-  
+
   // Custom states for editing
   const [editCourseCode, setEditCourseCode] = useState('');
   const [editBatch, setEditBatch] = useState('2025');
@@ -101,7 +101,7 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
     if (!editMode) return;
     const e = getEntry(day, period);
     setEditCell({ day, period });
-    
+
     const details = parseSubject(e?.subject || '');
     setEditCourseCode(details.courseCode === '—' ? '' : details.courseCode);
     setEditBatch(details.batch);
@@ -113,7 +113,7 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
     if (!editCell) return;
     setSaving(true);
     const existing = getEntry(editCell.day, editCell.period);
-    
+
     // Store fields as JSON string inside subject field
     const subjectJson = JSON.stringify({
       courseCode: editCourseCode.trim(),
@@ -248,7 +248,7 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
           >
             <ChevronLeft size={16} />
           </button>
-          
+
           <button
             onClick={() => dateInputRef.current?.showPicker()}
             style={{
@@ -411,7 +411,7 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
               activeDayEntries.forEach(({ period, entry }) => {
                 const subjectDetails = parseSubject(entry?.subject || '');
                 const isAllocated = !!entry && subjectDetails.courseCode !== '' && subjectDetails.courseCode !== '—';
-                
+
                 rows.push(
                   <div
                     key={`hour-${period}`}
@@ -464,7 +464,7 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
                             <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.3 }}>Course:</span>
                             <span style={{ fontSize: 11, fontWeight: 800, color: '#1E293B', marginTop: 1 }}>{subjectDetails.courseCode}</span>
                           </div>
-                          
+
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.3 }}>Batch:</span>
                             <span style={{ fontSize: 10, fontWeight: 700, color: '#1E293B', marginTop: 1 }}>{subjectDetails.batch}</span>

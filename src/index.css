@@ -2554,43 +2554,45 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.88);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 82, 204, 0.12);
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border-bottom: 1.5px solid rgba(0, 82, 204, 0.12);
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 300;
   gap: 10px;
-  box-shadow: 0 4px 20px rgba(0, 82, 204, 0.06);
+  box-shadow: 0 4px 24px rgba(0, 82, 204, 0.08);
 }
 
-.page-back-btn {
-  display: flex;
+.page-back-btn, .back-btn {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   background: rgba(0, 82, 204, 0.08);
-  border: 1px solid rgba(0, 82, 204, 0.18);
+  border: 1px solid rgba(0, 82, 204, 0.2);
   color: var(--accent-blue);
   font-weight: 800;
   font-size: 13px;
-  padding: 7px 15px;
-  border-radius: 22px;
+  padding: 7px 16px;
+  border-radius: 24px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.08);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 3px 10px rgba(0, 82, 204, 0.1);
+  transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.page-back-btn:hover {
-  background: var(--accent-blue);
+.page-back-btn:hover, .back-btn:hover {
+  background: linear-gradient(135deg, #0052cc 0%, #2563eb 100%);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 82, 204, 0.25);
-  transform: translateY(-1px);
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(0, 82, 204, 0.3);
+  transform: translateY(-2px);
 }
 
-.page-back-btn:active {
-  transform: scale(0.93);
+.page-back-btn:active, .back-btn:active {
+  transform: scale(0.94);
+  box-shadow: 0 2px 6px rgba(0, 82, 204, 0.2);
 }
 
 .page-header-badge {
@@ -2600,7 +2602,8 @@ html, body {
   padding: 6px 14px;
   border-radius: 24px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
   animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -2613,8 +2616,8 @@ html, body {
 }
 
 .page-close-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1.5px solid var(--card-border);
   background: var(--bg-secondary);
@@ -2623,18 +2626,20 @@ html, body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .page-close-btn:hover {
   background: #fee2e2;
   border-color: #ef4444;
   color: #ef4444;
-  transform: scale(1.08) rotate(90deg);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .page-close-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .dedicated-page-body {
@@ -2831,58 +2836,71 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.95);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(0, 82, 204, 0.08);
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 1.5px solid rgba(0, 82, 204, 0.1);
   position: sticky;
   top: 0;
   z-index: 300;
+  box-shadow: 0 4px 20px rgba(0, 82, 204, 0.06);
 }
 
 .mobile-top-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .hamburger-btn {
-  background: rgba(0, 82, 204, 0.06);
-  border: 1px solid rgba(0, 82, 204, 0.12);
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  background: rgba(0, 82, 204, 0.08);
+  border: 1px solid rgba(0, 82, 204, 0.18);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--accent-blue);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.08);
 }
 
-.hamburger-btn:hover, .hamburger-btn:active {
-  background: var(--accent-blue);
+.hamburger-btn:hover {
+  background: linear-gradient(135deg, #0052cc 0%, #2563eb 100%);
   color: #ffffff;
-  transform: scale(0.96);
+  border-color: transparent;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 82, 204, 0.3);
+}
+
+.hamburger-btn:active {
+  transform: scale(0.92);
 }
 
 .mobile-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .mobile-brand-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background: var(--accent-orange);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(255, 95, 31, 0.25);
+  box-shadow: 0 4px 12px rgba(255, 95, 31, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.mobile-brand:hover .mobile-brand-logo {
+  transform: rotate(-8deg) scale(1.08);
 }
 
 .mobile-brand-text h1 {
@@ -2890,13 +2908,17 @@ html, body {
   font-weight: 800;
   line-height: 1.1;
   color: var(--text-main);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, var(--text-main) 0%, #0052cc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 .mobile-brand-text p {
   font-size: 9.5px;
   color: var(--text-muted);
   margin: 0;
+  font-weight: 600;
 }
 
 .mobile-top-right {
@@ -2906,8 +2928,8 @@ html, body {
 }
 
 .icon-circle-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: 1px solid var(--card-border);
   background: var(--bg-secondary);
@@ -2917,39 +2939,59 @@ html, body {
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: var(--transition-fast);
+  transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .icon-circle-btn:hover {
-  background: rgba(0, 82, 204, 0.08);
+  background: rgba(0, 82, 204, 0.1);
   color: var(--accent-blue);
+  border-color: rgba(0, 82, 204, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 82, 204, 0.18);
+}
+
+.icon-circle-btn:active {
+  transform: scale(0.92);
 }
 
 .notification-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
+  top: 5px;
+  right: 5px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: #ef4444;
-  border: 1.5px solid #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+  animation: pulseGlow 2s infinite;
 }
 
 .avatar-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-blue) 0%, #4f46e5 100%);
   color: #ffffff;
   font-weight: 800;
-  font-size: 13px;
+  font-size: 13.5px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.25);
+  box-shadow: 0 3px 12px rgba(0, 82, 204, 0.3);
   cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.avatar-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 82, 204, 0.4);
+}
+
+.avatar-btn:active {
+  transform: scale(0.92);
 }
 
 /* AIRTEL THANKS STYLE SIDE DRAWER */
@@ -3145,7 +3187,7 @@ html, body {
 .mobile-app-content {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 12px 84px;
+  padding: 14px 12px 96px;
   background-color: var(--bg-secondary);
   display: flex;
   flex-direction: column;
@@ -3341,19 +3383,19 @@ html, body {
   bottom: 12px;
   left: 12px;
   right: 12px;
-  height: 64px;
+  height: 68px;
   background: rgba(255, 255, 255, 0.88);
-  -webkit-backdrop-filter: blur(28px);
-  backdrop-filter: blur(28px);
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(32px);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   border-radius: 36px;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   z-index: 300;
-  padding: 4px 6px;
-  box-shadow: 0 12px 36px rgba(0, 82, 204, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 5px 8px;
+  box-shadow: 0 16px 40px rgba(0, 82, 204, 0.2), 0 4px 12px rgba(0, 0, 0, 0.04), inset 0 1.5px 0 rgba(255, 255, 255, 0.95);
   overflow: hidden;
 }
 
@@ -3365,34 +3407,42 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 3.5px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 8px 2px;
+  padding: 8px 4px;
   border-radius: 26px;
   transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
 }
 
 .bottom-tab-item:hover {
   transform: translateY(-2px);
   color: var(--accent-blue);
+  background: rgba(0, 82, 204, 0.05);
 }
 
 .bottom-tab-item.active {
   color: #ffffff;
   font-weight: 800;
-  background: linear-gradient(135deg, #0052cc 0%, #1d4ed8 100%);
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 6px 18px rgba(0, 82, 204, 0.35);
-  transform: translateY(-1px) scale(1.02);
-  animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(135deg, #0052cc 0%, #2563eb 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 82, 204, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px) scale(1.03);
+  animation: navPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes navPop {
+  0% { transform: translateY(0) scale(0.92); }
+  60% { transform: translateY(-3px) scale(1.06); }
+  100% { transform: translateY(-2px) scale(1.03); }
 }
 
 .bottom-tab-item.active svg {
-  transform: translateY(-1px) scale(1.15);
-  filter: drop-shadow(0 2px 6px rgba(255, 255, 255, 0.5));
+  transform: scale(1.15);
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.6));
 }
 
 .bottom-tab-label {
@@ -3405,7 +3455,7 @@ html, body {
 /* Floating AI Chatbot trigger button */
 .mobile-ai-float {
   position: absolute;
-  bottom: 84px;
+  bottom: 90px;
   right: 16px;
   background: linear-gradient(135deg, var(--accent-orange) 0%, #ea580c 100%);
   color: #ffffff;

@@ -2541,6 +2541,32 @@ html, body {
   z-index: 10;
 }
 
+/* 💻 Full-bleed Desktop Workspace Page View Styles */
+@media (min-width: 992px) {
+  .mobile-app-content {
+    flex: 1 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .dedicated-page-view {
+    width: 100% !important;
+    min-height: 100vh !important;
+    background: #f8fafc !important;
+    padding: 28px 40px !important;
+  }
+
+  .dedicated-page-header {
+    border-radius: 20px !important;
+    margin-bottom: 24px !important;
+    padding: 16px 28px !important;
+    border: 1px solid rgba(0, 82, 204, 0.12) !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+  }
+}
+
 .page-slide-enter {
   animation: pageSlideRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -4773,6 +4799,176 @@ button {
 
 button:active {
   transform: scale(0.96);
+}
+
+/* ====================================================
+   🔮 VISIONA DESKTOP DASHBOARD (Matching Reference Screenshot)
+   ==================================================== */
+.visiona-dashboard-canvas {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 40%, #f3e8ff 80%, #fae8ff 100%);
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+.visiona-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.visiona-welcome-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1e1b4b;
+  margin: 2px 0 0 0;
+  letter-spacing: -0.5px;
+}
+
+.visiona-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+  width: 320px;
+}
+
+.visiona-search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+/* 4 KPI Cards Row */
+.visiona-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.visiona-kpi-card {
+  border-radius: 20px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.06);
+}
+
+.gradient-blue-kpi {
+  background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(67, 56, 202, 0.35);
+}
+
+.white-kpi {
+  background: #ffffff;
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+.kpi-icon-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Middle & Bottom Grids */
+.visiona-middle-grid, .visiona-bottom-grid {
+  display: flex;
+  gap: 20px;
+}
+
+.visiona-widget-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 10px 35px rgba(99, 102, 241, 0.07);
+}
+
+.visiona-primary-btn {
+  background: #4338ca;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 24px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(67, 56, 202, 0.3);
+  transition: all 0.2s ease;
+}
+
+.visiona-primary-btn:hover {
+  background: #3730a3;
+  transform: translateY(-2px);
+}
+
+.history-row-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.history-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-approved {
+  font-size: 10px;
+  font-weight: 800;
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.badge-pending {
+  font-size: 10px;
+  font-weight: 800;
+  color: #d97706;
+  background: #fef3c7;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.student-big-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(67, 56, 202, 0.3);
 }
 
 /* ====================================================

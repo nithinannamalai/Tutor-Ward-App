@@ -25,7 +25,8 @@ import {
   AnnouncementBanner,
   DesktopLandingPage,
   DesktopLoginPage,
-  DesktopSidebar
+  DesktopSidebar,
+  DesktopVisionaDashboard
 } from './components';
 
 import {
@@ -570,99 +571,102 @@ function App() {
       {/* ── PURE MOBILE APP MAIN CONTENT: HOME HUB OR DEDICATED FULL-SCREEN PAGE ── */}
       <main className="mobile-app-content">
         {currentTab === null ? (
-          /* ── HOME DASHBOARD VIEW ── */
-          <div className="home-dashboard-view">
-            {/* Primary Left Main Column */}
-            <div className="desktop-primary-col" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
-              <StudentDetailsCard
-                isAuthenticated={isAuthenticated}
-                currentUser={currentUser}
-                onOpenProfile={() => handleCardClick('profile')}
-                onOpenSignIn={() => setShowSignInPage(true)}
-                onOpenTab={handleCardClick}
-              />
+          isDesktop ? (
+            <DesktopVisionaDashboard currentUser={currentUser} onOpenTab={handleCardClick} />
+          ) : (
+            /* ── HOME DASHBOARD VIEW ── */
+            <div className="home-dashboard-view">
+              {/* Primary Left Main Column */}
+              <div className="desktop-primary-col" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
+                <StudentDetailsCard
+                  isAuthenticated={isAuthenticated}
+                  currentUser={currentUser}
+                  onOpenProfile={() => handleCardClick('profile')}
+                  onOpenSignIn={() => setShowSignInPage(true)}
+                  onOpenTab={handleCardClick}
+                />
 
-              {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
-              <div id="announcements-widget">
-                <div className="mobile-section-header">
-                  <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
-                </div>
-                <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 12 }}>
-                  <AnnouncementBanner
-                    announcements={announcements}
-                    isAdmin={isAdmin}
-                    onAddAnnouncement={handleAddAnnouncement}
-                    onDeleteAnnouncement={handleDeleteAnnouncement}
-                    onOpenAnnouncements={() => handleCardClick('announcements')}
-                  />
-                </div>
-              </div>
-
-              {/* Mobile & Desktop Icon Grid Categories (Separated Folder Cards) */}
-              {filteredCategories.map((cat, idx) => (
-                <div key={idx} className="category-folder-card">
+                {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
+                <div id="announcements-widget">
                   <div className="mobile-section-header">
-                    <span className="mobile-section-title">{cat.title}</span>
-                    <span className="category-count-badge">{cat.items.length} Modules</span>
+                    <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
                   </div>
-                  <div className="mobile-grid-4col">
-                    {cat.items.map((item) => (
-                      <div
-                        key={item.key}
-                        className="mobile-app-tile"
-                        style={{
-                          position: 'relative',
-                          boxShadow: `0 2px 10px rgba(0,0,0,0.04), inset 0 0 0 1.5px ${item.color}30`,
-                          border: `1.5px solid ${item.color}25`,
-                        }}
-                        onClick={() => handleCardClick(item.key)}
-                      >
-                        <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
-                          {item.icon}
-                        </div>
-                        <span className="mobile-tile-label">{item.label}</span>
-                      </div>
-                    ))}
+                  <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 12 }}>
+                    <AnnouncementBanner
+                      announcements={announcements}
+                      isAdmin={isAdmin}
+                      onAddAnnouncement={handleAddAnnouncement}
+                      onDeleteAnnouncement={handleDeleteAnnouncement}
+                      onOpenAnnouncements={() => handleCardClick('announcements')}
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Desktop Right Analytics & Schedule Sidebar Column */}
-            <div className="desktop-widgets-col">
-              {/* Today's Schedule Card */}
-              <div style={{ background: 'var(--bg-primary)', borderRadius: 20, padding: 20, border: '1px solid var(--card-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Calendar size={16} style={{ color: 'var(--accent-blue)' }} /> TODAY'S SCHEDULE
-                  </h3>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#059669', background: 'rgba(5,150,105,0.1)', padding: '2px 8px', borderRadius: 10 }}>SEM VI</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div style={{ background: 'rgba(0,82,204,0.06)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid var(--accent-blue)' }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent-blue)' }}>09:00 AM - 10:00 AM · PERIOD 1</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8601 Power Systems</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-204 · Dr. K. Senthilkumar</div>
+                {/* Mobile & Desktop Icon Grid Categories (Separated Folder Cards) */}
+                {filteredCategories.map((cat, idx) => (
+                  <div key={idx} className="category-folder-card">
+                    <div className="mobile-section-header">
+                      <span className="mobile-section-title">{cat.title}</span>
+                      <span className="category-count-badge">{cat.items.length} Modules</span>
+                    </div>
+                    <div className="mobile-grid-4col">
+                      {cat.items.map((item) => (
+                        <div
+                          key={item.key}
+                          className="mobile-app-tile"
+                          style={{
+                            position: 'relative',
+                            boxShadow: `0 2px 10px rgba(0,0,0,0.04), inset 0 0 0 1.5px ${item.color}30`,
+                            border: `1.5px solid ${item.color}25`,
+                          }}
+                          onClick={() => handleCardClick(item.key)}
+                        >
+                          <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
+                            {item.icon}
+                          </div>
+                          <span className="mobile-tile-label">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>10:15 AM - 11:15 AM · PERIOD 2</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8602 Microprocessors</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-206 · Ms. P. Vijayalakshmi</div>
-                  </div>
-                  <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>01:30 PM - 04:30 PM · LAB SESSION</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>Power Electronics Lab</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>EEE Lab 2 · Dr. M. Arulkumar</div>
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Quick Action Tools Card */}
-              <div style={{ background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)', borderRadius: 20, padding: 20, color: '#fff', boxShadow: '0 8px 24px rgba(0,82,204,0.2)' }}>
-                <h3 style={{ fontSize: 13, fontWeight: 800, color: '#fff', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Zap size={16} /> QUICK DESKTOP ACTIONS
-                </h3>
+              {/* Desktop Right Analytics & Schedule Sidebar Column */}
+              <div className="desktop-widgets-col">
+                {/* Today's Schedule Card */}
+                <div style={{ background: 'var(--bg-primary)', borderRadius: 20, padding: 20, border: '1px solid var(--card-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Calendar size={16} style={{ color: 'var(--accent-blue)' }} /> TODAY'S SCHEDULE
+                    </h3>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#059669', background: 'rgba(5,150,105,0.1)', padding: '2px 8px', borderRadius: 10 }}>SEM VI</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ background: 'rgba(0,82,204,0.06)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid var(--accent-blue)' }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent-blue)' }}>09:00 AM - 10:00 AM · PERIOD 1</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8601 Power Systems</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-204 · Dr. K. Senthilkumar</div>
+                    </div>
+                    <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>10:15 AM - 11:15 AM · PERIOD 2</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8602 Microprocessors</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-206 · Ms. P. Vijayalakshmi</div>
+                    </div>
+                    <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>01:30 PM - 04:30 PM · LAB SESSION</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>Power Electronics Lab</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>EEE Lab 2 · Dr. M. Arulkumar</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Action Tools Card */}
+                <div style={{ background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)', borderRadius: 20, padding: 20, color: '#fff', boxShadow: '0 8px 24px rgba(0,82,204,0.2)' }}>
+                  <h3 style={{ fontSize: 13, fontWeight: 800, color: '#fff', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Zap size={16} /> QUICK DESKTOP ACTIONS
+                  </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <button onClick={() => handleCardClick('od-form')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
                     📄 Apply OD
@@ -680,7 +684,8 @@ function App() {
               </div>
             </div>
           </div>
-        ) : (
+        )
+      ) : (
           /* ── DEDICATED FULL PAGE SCREEN VIEW ── */
           <div className="dedicated-page-view page-slide-enter">
             {/* Dedicated Top Navigation Header Bar */}

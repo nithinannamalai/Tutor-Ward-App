@@ -28,3 +28,4 @@ export { RequestLetters } from './services/RequestLetters';
 export { DesktopLandingPage } from './desktop/DesktopLandingPage';
 export { DesktopLoginPage } from './desktop/DesktopLoginPage';
 export { DesktopSidebar } from './desktop/DesktopSidebar';
+export { DesktopVisionaDashboard } from './desktop/DesktopVisionaDashboard';

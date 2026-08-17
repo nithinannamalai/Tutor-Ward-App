@@ -14,7 +14,6 @@ import {
   CareerHub,
   AcademicCalendar,
   AIChatbot,
-  SplashScreen,
   SignInPage,
   StudentDetailsCard,
   ODForm,
@@ -81,11 +80,9 @@ const USER_PROFILES: UserProfile[] = [
 
 function App() {
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 992);
-  const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [showSignInPage, setShowSignInPage] = useState(false);
-  const [dismissedSignIn, setDismissedSignIn] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 992);
@@ -316,7 +313,7 @@ function App() {
       }
       return (
         <DesktopLandingPage
-          onOpenLogin={(isSignUp) => {
+          onOpenLogin={(_isSignUp) => {
             setShowSignInPage(true);
           }}
         />

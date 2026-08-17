@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Calendar, Award, UserCheck, FileText, ArrowRight, Sparkles, User, CheckCircle2, Clock } from 'lucide-react';
+import { Search, Award, UserCheck, FileText, ArrowRight } from 'lucide-react';
 import { dbService } from '../../services/db';
-import type { Student, AttendanceLog, ODRequest, LetterRequest } from '../../services/db';
+import type { Student, AttendanceLog, ODRequest } from '../../services/db';
 import type { UserProfile } from '../../App';
 
 interface DesktopVisionaDashboardProps {
@@ -13,31 +13,24 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
   const [studentData, setStudentData] = useState<Student | null>(null);
   const [attendanceLogs, setAttendanceLogs] = useState<AttendanceLog[]>([]);
   const [odRequests, setOdRequests] = useState<ODRequest[]>([]);
-  const [letterRequests, setLetterRequests] = useState<LetterRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function loadSupabaseData() {
       if (!currentUser?.email) return;
-      setLoading(true);
       try {
         // Fetch real Supabase data
-        const [student, attendance, od, letters] = await Promise.all([
+        const [student, attendance, od] = await Promise.all([
           dbService.getStudentProfile(currentUser.email),
           dbService.getAttendanceForStudent(currentUser.rollNo || 'EEE001'),
-          dbService.getODRequests(currentUser.email),
-          dbService.getLetterRequests(currentUser.email)
+          dbService.getODRequests(currentUser.email)
         ]);
 
         if (student) setStudentData(student);
         if (attendance) setAttendanceLogs(attendance);
         if (od) setOdRequests(od);
-        if (letters) setLetterRequests(letters);
       } catch (err) {
         console.warn('Error fetching Supabase dashboard data:', err);
-      } finally {
-        setLoading(false);
       }
     }
 

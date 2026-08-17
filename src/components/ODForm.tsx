@@ -56,140 +56,200 @@ export const ODForm: React.FC<ODFormProps> = ({
     let imgBase64 = '';
     try { imgBase64 = await getBase64Image(headerImage); } catch (_) { }
     if (imgBase64) {
-      doc.addImage(imgBase64, 'PNG', 15, 5, 180, 32);
+      doc.addImage(imgBase64, 'PNG', 10, 4, 128, 23);
     } else {
-      doc.setFont('Helvetica', 'bold').setFontSize(14);
-      doc.text('SRI RAMAKRISHNA ENGINEERING COLLEGE', 105, 15, { align: 'center' });
-      doc.setFontSize(9);
-      doc.text('[Educational Service : SNR Sons Charitable Trust]', 105, 20, { align: 'center' });
-      doc.text('Vattamalaipalayam, N.G.G.O. Colony Post, Coimbatore – 641022.', 105, 25, { align: 'center' });
+      doc.setFont('Helvetica', 'bold').setFontSize(10);
+      doc.text('SRI RAMAKRISHNA ENGINEERING COLLEGE', 74, 10, { align: 'center' });
+      doc.setFontSize(6.5);
+      doc.text('[Educational Service : SNR Sons Charitable Trust]', 74, 14, { align: 'center' });
+      doc.text('Vattamalaipalayam, N.G.G.O. Colony Post, Coimbatore – 641022.', 74, 18, { align: 'center' });
     }
 
-    /* Title or Department + Title (shifted up due to header change) */
+    /* ── Header Banner Block (Scaled to A5) ──────────────────── */
+    const bannerY = 28;
+    const bannerH = 11;
+    doc.setFillColor(15, 76, 129); // Premium Navy Blue
+    doc.rect(10, bannerY, 128, bannerH, 'F');
+
+    // Gold bottom border line
+    doc.setFillColor(220, 160, 40);
+    doc.rect(10, bannerY + bannerH - 1.2, 128, 1.2, 'F');
+
+    // Banner Text
+    doc.setTextColor(255, 255, 255);
     if (odSubCategory === 'SAC OD') {
-      doc.setFont('Helvetica', 'bold').setFontSize(13);
-      doc.text('STUDENT AFFAIRS CLUB', 105, 48, { align: 'center' });
-      doc.setLineWidth(0.5).line(68, 50, 142, 50);
+      doc.setFont('Helvetica', 'bold').setFontSize(9.5);
+      doc.text('STUDENT AFFAIRS CLUB', 74, bannerY + 4.5, { align: 'center' });
+      doc.setFont('Helvetica', 'normal').setFontSize(6.5);
+      doc.text('STUDENT ON-DUTY REQUISITION FORM', 74, bannerY + 7.8, { align: 'center' });
     } else {
-      doc.setFont('Helvetica', 'bold').setFontSize(11);
-      doc.text(deptName.trim().toUpperCase(), 105, 42, { align: 'center' });
-      doc.setFontSize(12);
-      doc.text(formTitle.trim().toUpperCase(), 105, 49, { align: 'center' });
-      doc.setLineWidth(0.5).line(68, 51, 142, 51);
+      doc.setFont('Helvetica', 'bold').setFontSize(8.5);
+      doc.text(formTitle.trim().toUpperCase(), 74, bannerY + 4.5, { align: 'center' });
+      doc.setFont('Helvetica', 'normal').setFontSize(6.5);
+      doc.text(deptName.trim().toUpperCase(), 74, bannerY + 7.8, { align: 'center' });
     }
 
-    /* Helper: draw a field line with dashed placeholder when empty */
-    const field = (label: string, value: string, y: number) => {
-      doc.setFont('Helvetica', 'bold').setFontSize(11);
-      doc.text(label, 15, y);
-      const lw = doc.getTextWidth(label);
-      const startX = 15 + lw + 1;
+    // Reset styles
+    doc.setTextColor(0, 0, 0);
+    doc.setDrawColor(0, 0, 0);
 
-      if (value.trim()) {
-        doc.setFont('Helvetica', 'normal');
-        doc.text(value.trim(), startX + 1, y);
-      }
-
-      doc.setLineWidth(0.2);
-      doc.setLineDashPattern(value.trim() ? [] : [1, 1.5], 0);
-      doc.line(startX, y + 1.5, 195, y + 1.5);
-      doc.setLineDashPattern([], 0);
+    /* ── Section Title Helper ───────────────────────────────── */
+    const sectionHeader = (title: string, y: number) => {
+      doc.setFont('Helvetica', 'bold').setFontSize(8.5).setTextColor(15, 76, 129);
+      doc.text(title.toUpperCase(), 10, y);
+      const tw = doc.getTextWidth(title.toUpperCase());
+      doc.setFillColor(15, 76, 129);
+      doc.rect(10, y + 1.2, tw, 0.6, 'F');
     };
 
-    field('Name of the Event/Purpose: ', eventName, 61);
-    field('Date and timing of the Event: ', eventDate, 70);
-    field('Venue: ', venue, 80);
-    field('Faculty Co-ordinator: ', facultyCoordinator, 90);
+    /* ── Field Underline Helper (Darker Lines) ──────────────── */
+    const field = (label: string, value: string, y: number) => {
+      doc.setFont('Helvetica', 'bold').setFontSize(7.5).setTextColor(50, 50, 50);
+      doc.text(label, 14, y);
+      const lw = doc.getTextWidth(label);
+      const startX = 14 + lw + 1;
 
-    /* Signature line */
-    doc.setFont('Helvetica', 'bold').setFontSize(11);
-    doc.text('Signature: ', 15, 100);
-    doc.setLineWidth(0.2).setLineDashPattern([1, 1.5], 0);
-    doc.line(35, 101.5, 75, 101.5);
+      const val = value.trim();
+      if (val) {
+        doc.setFont('Helvetica', 'normal').setTextColor(0, 0, 0);
+        doc.text(val, startX + 1, y);
+
+        // Underline only under the text, ending exactly at the end of text (darkened to 0.3 linewidth and dark gray)
+        const valW = doc.getTextWidth(val);
+        doc.setLineWidth(0.3);
+        doc.setDrawColor(40, 40, 40);
+        doc.line(startX + 1, y + 1.2, startX + 1 + valW, y + 1.2);
+      } else {
+        // Dashed placeholder line (darkened)
+        doc.setLineWidth(0.3);
+        doc.setDrawColor(100, 100, 100);
+        doc.setLineDashPattern([1, 1.5], 0);
+        doc.line(startX + 1, y + 1.2, startX + 1 + 45, y + 1.2);
+        doc.setLineDashPattern([], 0);
+      }
+    };
+
+    /* ── 1. Requisition Details ────────────────────────────── */
+    sectionHeader('1. Requisition Details', 44);
+
+    // Rounded card container box
+    doc.setFillColor(250, 251, 253);
+    doc.setDrawColor(220, 225, 230);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(10, 48, 128, 45, 2, 2, 'FD');
+
+    // Helper: draw a subtle row separator inside the card
+    const rowSep = (y: number) => {
+      doc.setLineWidth(0.2);
+      doc.setDrawColor(210, 215, 220);
+      doc.line(12, y, 136, y);
+    };
+
+    // Render Fields with separators between them
+    field('Name of the Event/Purpose: ', eventName, 55);
+    rowSep(59);
+    field('Date and timing of the Event: ', eventDate, 63);
+    rowSep(67);
+    field('Venue: ', venue, 71);
+    rowSep(75);
+    field('Faculty Co-ordinator: ', facultyCoordinator, 79);
+    rowSep(83);
+
+    // Signature line inside card
+    doc.setFont('Helvetica', 'bold').setFontSize(7.5).setTextColor(50, 50, 50);
+    doc.text('Signature: ', 14, 87);
+    doc.setLineWidth(0.3).setDrawColor(100, 100, 100).setLineDashPattern([1, 1.5], 0);
+    doc.line(28, 88.2, 58, 88.2);
     doc.setLineDashPattern([], 0);
 
-    /* Student Details table header */
-    doc.setFont('Helvetica', 'bold').setFontSize(11);
-    doc.text('Student Details:', 15, 112);
+    /* ── 2. Student Details ────────────────────────────────── */
+    sectionHeader('2. Student Details', 99);
 
-    const tableTop = 117;
-    const rowH = 9;
-    const cols = [15, 35, 65, 25, 40]; // widths in mm
+    const tableTop = 104;
+    const rowH = 7.5;
+    const cols = [10, 25, 45, 18, 30]; // widths in mm (sum = 128)
     const colLabels = ['S.No.', 'Roll.No', 'Name', 'Year', 'Class'];
-    const tableW = cols.reduce((a, b) => a + b, 0); // = 180
 
-    /* Header row background & text */
-    doc.setFillColor(235, 240, 245);
-    doc.rect(15, tableTop, tableW, rowH, 'F');
-    doc.setFont('Helvetica', 'bold').setFontSize(9.5).setTextColor(30, 30, 30);
-    let cx = 15;
+    /* Table Header */
+    doc.setFillColor(15, 76, 129);
+    doc.rect(10, tableTop, 128, rowH, 'F');
+    doc.setFont('Helvetica', 'bold').setFontSize(7.5).setTextColor(255, 255, 255);
+    let cx = 10;
     for (let i = 0; i < colLabels.length; i++) {
       const tw = doc.getTextWidth(colLabels[i]);
-      doc.text(colLabels[i], cx + (cols[i] - tw) / 2, tableTop + 6);
+      doc.text(colLabels[i], cx + (cols[i] - tw) / 2, tableTop + 5.2);
       cx += cols[i];
     }
 
-    /* Empty data rows — exactly `studentCount` rows */
-    doc.setFont('Helvetica', 'normal').setFontSize(9).setTextColor(0, 0, 0);
+    /* Table Body Empty Rows */
+    doc.setFont('Helvetica', 'normal').setFontSize(7.5).setTextColor(0, 0, 0);
     const count = Math.max(1, studentCount);
     for (let r = 0; r < count; r++) {
       const ry = tableTop + rowH + r * rowH;
       const sn = (r + 1).toString();
       const sw = doc.getTextWidth(sn);
-      doc.text(sn, 15 + (cols[0] - sw) / 2, ry + 6);
+      doc.text(sn, 10 + (cols[0] - sw) / 2, ry + 5.2);
     }
 
-    /* Grid borders */
+    /* Table Grid Borders (Darkened Lines) */
     const tableBottom = tableTop + rowH + count * rowH;
-    doc.setLineWidth(0.3).setDrawColor(60, 60, 60);
 
-    // horizontal lines
-    for (let y = tableTop; y <= tableBottom; y += rowH) {
-      doc.line(15, y, 195, y);
+    // Outer table border box
+    doc.setLineWidth(0.3).setDrawColor(15, 76, 129);
+    doc.rect(10, tableTop, 128, tableBottom - tableTop);
+
+    // Divider below header
+    doc.line(10, tableTop + rowH, 138, tableTop + rowH);
+
+    // Row lines (Darker dividers)
+    doc.setLineWidth(0.3).setDrawColor(40, 40, 40);
+    for (let r = 0; r < count - 1; r++) {
+      const ry = tableTop + rowH + (r + 1) * rowH;
+      doc.line(10, ry, 138, ry);
     }
-    doc.line(15, tableBottom, 195, tableBottom);
 
-    // vertical lines
-    let vx = 15;
-    for (let i = 0; i <= cols.length; i++) {
-      doc.line(vx, tableTop, vx, tableBottom);
-      if (i < cols.length) vx += cols[i];
+    // Vertical dividers in table body (Darker dividers)
+    let vx = 10;
+    for (let i = 0; i < cols.length - 1; i++) {
+      vx += cols[i];
+      doc.line(vx, tableTop + rowH, vx, tableBottom);
     }
 
-    /* Total students */
-    const totalY = tableBottom + 11;
-    doc.setFont('Helvetica', 'bold').setFontSize(10).setTextColor(0, 0, 0);
-    const totalLabel = `Total number of students: ${count}`;
-    doc.text(totalLabel, 15, totalY);
+    /* Total Students Badge Bar */
+    const totalY = tableBottom + 3;
+    doc.setFillColor(240, 244, 248);
+    doc.rect(10, totalY, 128, 6.5, 'F');
+    doc.setFont('Helvetica', 'bold').setFontSize(7.5).setTextColor(15, 76, 129);
+    doc.text(`TOTAL NUMBER OF STUDENTS: ${count}`, 14, totalY + 4.5);
+
+    /* Signatures at bottom of A5 */
+    const sigY = 182;
+    doc.setFont('Helvetica', 'bold').setFontSize(7.5).setTextColor(0, 0, 0);
+
+    if (odSubCategory === 'SAC OD') {
+      doc.text('Club Admin', 42, sigY, { align: 'center' });
+      doc.text('Dr.K.Balamurugan', 42, sigY + 4.5, { align: 'center' });
+
+      doc.text('Dean SAC', 106, sigY, { align: 'center' });
+      doc.text('Dr.P.Perumal', 106, sigY + 4.5, { align: 'center' });
+    } else {
+      doc.text('Tutor', 31, sigY, { align: 'center' });
+      doc.text('Academic Coordinator', 74, sigY, { align: 'center' });
+      doc.text('HOD', 117, sigY, { align: 'center' });
+    }
 
     /* Date and Time at bottom left */
     const now = new Date();
     const dateTimeStr = `Generated on: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-    doc.setFont('Helvetica', 'normal').setFontSize(8).setTextColor(100, 100, 100);
-    doc.text(dateTimeStr, 15, 287);
-
-    /* Signatures — bold roles text */
-    const sigY = Math.max(totalY + 30, 248);
-    doc.setFont('Helvetica', 'bold').setFontSize(10).setTextColor(0, 0, 0);
-
-    if (odSubCategory === 'SAC OD') {
-      doc.text('Club Admin', 45, sigY, { align: 'center' });
-      doc.text('Dr.K.Balamurugan', 45, sigY + 6, { align: 'center' });
-
-      doc.text('Dean SAC', 160, sigY, { align: 'center' });
-      doc.text('Dr.P.Perumal', 160, sigY + 6, { align: 'center' });
-    } else {
-      doc.text('Tutor', 35, sigY, { align: 'center' });
-      doc.text('Academic Coordinator', 105, sigY, { align: 'center' });
-      doc.text('HOD', 175, sigY, { align: 'center' });
-    }
+    doc.setFont('Helvetica', 'normal').setFontSize(6.5).setTextColor(120, 120, 120);
+    doc.text(dateTimeStr, 10, 203);
   };
 
   /* ── Download PDF Action ───────────────────────────────── */
   const handleDownloadPDF = async () => {
     setGenerating(true);
     try {
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a5' });
       await buildPDF(doc);
       doc.save(`OD_Form_${Date.now()}.pdf`);
     } catch (err) {
@@ -203,7 +263,7 @@ export const ODForm: React.FC<ODFormProps> = ({
   const handlePreviewPDF = async () => {
     setGenerating(true);
     try {
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a5' });
       await buildPDF(doc);
       const blob = doc.output('blob');
       const url = URL.createObjectURL(blob);

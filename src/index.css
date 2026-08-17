@@ -4776,6 +4776,337 @@ button:active {
 }
 
 /* ====================================================
+   🌌 DARK NEON FUTURISTIC LANDING PAGE (Matching Screenshot 1)
+   ==================================================== */
+.dark-neon-landing-page {
+  width: 100vw;
+  min-height: 100vh;
+  background: #03050c;
+  color: #ffffff;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+.dark-landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  width: 100%;
+  padding: 24px 80px;
+  background: rgba(3, 5, 12, 0.85);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dark-brand-logo-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
+}
+
+.dark-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.dark-nav-links a {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1.2px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dark-nav-links a:hover {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.dark-signin-pill {
+  background: #3b82f6;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.8px;
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dark-signin-pill:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.9);
+}
+
+.dark-signup-outline {
+  background: transparent;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.8px;
+  padding: 9px 22px;
+  border-radius: 30px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark-signup-outline:hover {
+  border-color: #a855f7;
+  color: #a855f7;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+/* Dark Hero Area */
+.dark-hero-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 60px 80px 80px;
+  align-items: center;
+  gap: 60px;
+}
+
+.dark-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #c084fc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  margin-bottom: 24px;
+}
+
+.dark-hero-welcome {
+  font-size: 76px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 28px 0;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.dark-capsule-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 40px;
+  padding: 6px 8px 6px 24px;
+  max-width: 480px;
+  margin-bottom: 32px;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  transition: all 0.24s ease;
+}
+
+.dark-capsule-search:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.dark-capsule-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.search-circle-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-circle-btn:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.dark-action-pills {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pill-primary-blue {
+  background: #3b82f6;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13.5px;
+  letter-spacing: 0.8px;
+  padding: 14px 34px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.5);
+  transition: all 0.24s ease;
+}
+
+.pill-primary-blue:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 0 36px rgba(59, 130, 246, 0.8);
+}
+
+.pill-outline-glow {
+  background: transparent;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13.5px;
+  padding: 13px 30px;
+  border-radius: 30px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-outline-glow:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Right Side Contour Waves */
+.dark-hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: relative;
+}
+
+.dark-graphic-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  max-width: 440px;
+}
+
+.dark-brand-symbol {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dark-hub-title {
+  font-size: 40px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  line-height: 1.1;
+}
+
+.dark-hub-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.dark-contour-waves {
+  width: 480px;
+  height: 360px;
+  position: relative;
+}
+
+.contour-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.4));
+  animation: floatOrb 6s ease-in-out infinite alternate;
+}
+
+.dark-module-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dark-module-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #3b82f6;
+  transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+}
+
+.dark-module-card .module-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.dark-module-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.dark-module-card p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ====================================================
    💻 DEDICATED DESKTOP LANDING, LOGIN & SIDEBAR STYLES
    ==================================================== */
 

@@ -1,171 +1,161 @@
 import React from 'react';
-import { Sparkles, GraduationCap, Award, FileText, UserCheck, Map, ArrowRight, LogIn, ShieldCheck, Clock, Calendar, Phone, CheckCircle2 } from 'lucide-react';
+import { Search, Sparkles, LogIn, UserPlus, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import appLogo from '../../assets/app-logo.png';
-import headerBanner from '../../assets/srec-snr-header.png';
 
 interface DesktopLandingPageProps {
-  onOpenLogin: () => void;
-  onEnterAsGuest: () => void;
+  onOpenLogin: (isSignUp?: boolean) => void;
 }
 
-export const DesktopLandingPage: React.FC<DesktopLandingPageProps> = ({ onOpenLogin, onEnterAsGuest }) => {
+export const DesktopLandingPage: React.FC<DesktopLandingPageProps> = ({ onOpenLogin }) => {
   return (
-    <div className="desktop-landing-page">
-      {/* ── Official Institutional Top Accreditation Bar ── */}
-      <div style={{ background: 'linear-gradient(90deg, #090d16 0%, #0f172a 50%, #1e3a8a 100%)', color: '#fff', padding: '6px 40px', fontSize: 11, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <ShieldCheck size={13} /> SREC ANNA UNIVERSITY AUTONOMOUS
-          </span>
-          <span style={{ opacity: 0.8 }}>NAAC 'A+' Grade Accredited</span>
-          <span style={{ opacity: 0.8 }}>NBA Accredited EEE Department</span>
-        </div>
-        <div style={{ display: 'flex', gap: 14, opacity: 0.9 }}>
-          <span>Coimbatore - 641 022</span>
-          <span>·</span>
-          <span>Counseling Code: 2719</span>
-        </div>
-      </div>
-
-      {/* ── Main Desktop Top Navigation Bar ── */}
-      <header className="desktop-landing-nav">
-        <div className="desktop-landing-brand">
-          <img src={appLogo} alt="EEE SREC Logo" style={{ width: 42, height: 42, borderRadius: 12, objectFit: 'cover', border: '2px solid rgba(0,82,204,0.2)' }} />
-          <div>
-            <h2 style={{ fontSize: 17, fontWeight: 900, color: 'var(--text-main)', margin: 0, lineHeight: 1.1 }}>EEE SREC PORTAL</h2>
-            <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: 0.6 }}>Smart Tutor &amp; Academic Ecosystem</span>
+    <div className="dark-neon-landing-page">
+      {/* Top Navigation Bar */}
+      <header className="dark-landing-nav">
+        <div className="dark-nav-brand">
+          <div className="dark-brand-logo-wrap">
+            <img src={appLogo} alt="EEE SREC Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+              EEE SREC
+            </span>
+            <span style={{ fontSize: 9, fontWeight: 800, color: '#3b82f6', letterSpacing: 1, textTransform: 'uppercase' }}>
+              SMART HUB 2026
+            </span>
           </div>
         </div>
 
-        {/* Institution Banner Header Graphic */}
-        <div style={{ height: 38, opacity: 0.9, display: 'flex', alignItems: 'center' }}>
-          <img src={headerBanner} alt="SNR Sons Trust SREC" style={{ height: '100%', objectFit: 'contain' }} />
+        <div className="dark-nav-links">
+          <a href="#about">ABOUT</a>
+          <a href="#features">FEATURES</a>
+          <a href="#academics">ACADEMICS</a>
+          <a href="#contact">CONTACT</a>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button className="btn-secondary" onClick={onEnterAsGuest} style={{ padding: '9px 18px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
-            Guest Preview
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <button className="dark-signin-pill" onClick={() => onOpenLogin(false)}>
+            <LogIn size={15} /> SIGN IN
           </button>
-          <button className="btn-primary" onClick={onOpenLogin} style={{ padding: '10px 24px', borderRadius: 20, fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 16px rgba(0,82,204,0.3)' }}>
-            <LogIn size={16} /> Student Sign In
+          <button className="dark-signup-outline" onClick={() => onOpenLogin(true)}>
+            <UserPlus size={15} /> REGISTER
           </button>
         </div>
       </header>
 
-      {/* ── Hero Section with Animated Mesh Glow ── */}
-      <section className="desktop-hero-section">
-        <div className="desktop-hero-badge">
-          <Sparkles size={14} style={{ color: '#f59e0b' }} />
-          <span>OFFICIAL STUDENT &amp; TUTOR ECOSYSTEM 2026</span>
-        </div>
-
-        <h1 className="desktop-hero-title">
-          Department of Electrical &amp; Electronics Engineering
-        </h1>
-        <p className="desktop-hero-subtitle">
-          Sri Ramakrishna Engineering College · Autonomous Institution Affiliated to Anna University
-        </p>
-        <p className="desktop-hero-desc">
-          Empowering EEE students with AI Tutors, Live Attendance Analytics, Instant On-Duty Requests, Bonafide Letter Generation, Lab Exam Seat Locators, and Target GPA Simulators in one unified web platform.
-        </p>
-
-        <div style={{ display: 'flex', gap: 16, marginTop: 28, justifyContent: 'center' }}>
-          <button className="btn-primary" onClick={onOpenLogin} style={{ padding: '14px 34px', borderRadius: 30, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 10px 30px rgba(0, 82, 204, 0.38)' }}>
-            Enter Student Portal <ArrowRight size={18} />
-          </button>
-          <button className="btn-secondary" onClick={onEnterAsGuest} style={{ padding: '14px 28px', borderRadius: 30, fontSize: 15, fontWeight: 700 }}>
-            Explore Features as Guest
-          </button>
-        </div>
-
-        {/* Live Department Stats Bar */}
-        <div id="stats" className="desktop-stats-bar">
-          <div className="desktop-stat-card">
-            <div className="stat-value">1,200+</div>
-            <div className="stat-label">Active EEE Students</div>
+      {/* Main Hero Container */}
+      <main className="dark-hero-container">
+        {/* Left Content Side */}
+        <div className="dark-hero-left">
+          <div className="dark-hero-tag">
+            <Sparkles size={13} style={{ color: '#a855f7' }} />
+            <span>SRI RAMAKRISHNA ENGINEERING COLLEGE · DEPT OF EEE</span>
           </div>
-          <div className="desktop-stat-card">
-            <div className="stat-value">98.4%</div>
-            <div className="stat-label">Placement Record</div>
+
+          <h1 className="dark-hero-welcome">Welcome.</h1>
+
+          {/* Capsule Search Bar */}
+          <div className="dark-capsule-search">
+            <input 
+              type="text" 
+              placeholder="Search features (AI Tutor, Attendance, OD Form, CGPA)..." 
+              onClick={() => onOpenLogin(false)} 
+              readOnly
+            />
+            <button className="search-circle-btn" onClick={() => onOpenLogin(false)}>
+              <Search size={18} />
+            </button>
           </div>
-          <div className="desktop-stat-card">
-            <div className="stat-value">14+</div>
-            <div className="stat-label">Advanced Research Labs</div>
-          </div>
-          <div className="desktop-stat-card">
-            <div className="stat-value">45+</div>
-            <div className="stat-label">Expert Faculty Members</div>
+
+          {/* Action Pills */}
+          <div className="dark-action-pills">
+            <button className="pill-primary-blue" onClick={() => onOpenLogin(false)}>
+              STUDENT PORTAL
+            </button>
+            <button className="pill-outline-glow" onClick={() => onOpenLogin(false)}>
+              SEE MORE <ArrowRight size={14} />
+            </button>
           </div>
         </div>
-      </section>
 
-      {/* ── Feature Showcase Section (Working Models) ── */}
-      <section id="features" className="desktop-features-section">
+        {/* Right Side Graphic with Neon Topographic Contour Waves */}
+        <div className="dark-hero-right">
+          <div className="dark-graphic-header">
+            <div className="dark-brand-symbol">
+              <Zap size={28} style={{ color: '#a855f7' }} />
+            </div>
+            <div>
+              <h2 className="dark-hub-title">Academic Hub.</h2>
+              <p className="dark-hub-subtitle">
+                Department of Electrical &amp; Electronics Engineering. Autonomous Institution Affiliated to Anna University.
+              </p>
+            </div>
+          </div>
+
+          {/* SVG Topographic Contour Wave Animations */}
+          <div className="dark-contour-waves">
+            <svg viewBox="0 0 500 500" className="contour-svg">
+              <defs>
+                <linearGradient id="neonGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.9" />
+                  <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#ec4899" stopOpacity="0.9" />
+                </linearGradient>
+                <linearGradient id="neonGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
+                </linearGradient>
+              </defs>
+
+              {/* Concentric Topographic Contours */}
+              <path d="M 250 50 C 350 70 420 150 430 250 C 440 350 360 430 250 440 C 140 450 60 370 50 250 C 40 130 150 30 250 50 Z" stroke="url(#neonGrad1)" strokeWidth="2.5" fill="none" className="contour-path-1" />
+              <path d="M 250 80 C 330 95 390 160 400 250 C 410 330 340 400 250 410 C 160 420 90 350 80 250 C 70 150 170 65 250 80 Z" stroke="url(#neonGrad1)" strokeWidth="2.2" fill="none" className="contour-path-2" />
+              <path d="M 250 110 C 310 120 360 175 370 250 C 380 310 320 370 250 380 C 180 390 110 330 100 250 C 90 170 190 100 250 110 Z" stroke="url(#neonGrad1)" strokeWidth="2.0" fill="none" className="contour-path-3" />
+              <path d="M 250 140 C 290 150 330 190 340 250 C 350 290 300 340 250 350 C 200 360 130 310 120 250 C 110 190 210 130 250 140 Z" stroke="url(#neonGrad2)" strokeWidth="1.8" fill="none" className="contour-path-4" />
+              <path d="M 250 170 C 275 180 300 205 310 250 C 320 280 280 310 250 320 C 220 330 150 290 140 250 C 130 210 225 160 250 170 Z" stroke="url(#neonGrad2)" strokeWidth="1.6" fill="none" className="contour-path-5" />
+              <path d="M 250 200 C 260 205 275 220 280 250 C 285 270 260 285 250 290 C 240 295 180 270 170 250 C 160 230 240 195 250 200 Z" stroke="url(#neonGrad2)" strokeWidth="1.5" fill="none" className="contour-path-6" />
+            </svg>
+          </div>
+        </div>
+      </main>
+
+      {/* Feature Highlights Section */}
+      <section id="features" style={{ padding: '60px 80px', maxWidth: 1280, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: 1 }}>WORKING ACADEMIC MODULES</span>
-          <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-main)', margin: '6px 0 0 0' }}>Everything You Need for Academic Excellence</h2>
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#3b82f6', letterSpacing: 1.5, textTransform: 'uppercase' }}>SYSTEM MODULES</span>
+          <h2 style={{ fontSize: 32, fontWeight: 900, color: '#ffffff', margin: '6px 0 0 0' }}>SREC EEE Smart Platform Modules</h2>
         </div>
 
-        <div className="desktop-features-grid">
-          <div className="desktop-feature-card">
-            <div className="feature-icon-wrap" style={{ background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6' }}>
-              <Sparkles size={28} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="dark-module-card" onClick={() => onOpenLogin(false)}>
+            <div className="module-icon" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#a855f7' }}>
+              <Sparkles size={26} />
             </div>
             <h3>AI Tutor Assistant</h3>
-            <p>24/7 intelligent tutoring powered by AI for EEE course doubts, circuit analysis, and exam prep.</p>
+            <p>24/7 intelligent tutoring powered by AI for circuit analysis, power systems, and exam prep.</p>
           </div>
 
-          <div className="desktop-feature-card">
-            <div className="feature-icon-wrap" style={{ background: 'rgba(0, 82, 204, 0.12)', color: '#0052cc' }}>
-              <UserCheck size={28} />
+          <div className="dark-module-card" onClick={() => onOpenLogin(false)}>
+            <div className="module-icon" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>
+              <ShieldCheck size={26} />
             </div>
             <h3>Live Attendance Tracker</h3>
-            <p>Real-time subject-wise attendance logs, percentage calculations, and shortfall warning alerts.</p>
+            <p>Real-time subject-wise attendance logs, percentage calculations, and shortfall warnings.</p>
           </div>
 
-          <div className="desktop-feature-card">
-            <div className="feature-icon-wrap" style={{ background: 'rgba(79, 70, 229, 0.12)', color: '#4f46e5' }}>
-              <FileText size={28} />
+          <div className="dark-module-card" onClick={() => onOpenLogin(false)}>
+            <div className="module-icon" style={{ background: 'rgba(236, 72, 153, 0.2)', color: '#ec4899' }}>
+              <Zap size={26} />
             </div>
             <h3>Instant OD Request Form</h3>
-            <p>Submit and track On-Duty requests with automated PDF generation for tutor and HOD approvals.</p>
-          </div>
-
-          <div className="desktop-feature-card">
-            <div className="feature-icon-wrap" style={{ background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
-              <Map size={28} />
-            </div>
-            <h3>Lab Exam Seat Finder</h3>
-            <p>Search roll number to locate assigned practical exam hall, room number, bench, and supervisor.</p>
-          </div>
-
-          <div className="desktop-feature-card">
-            <div className="feature-icon-wrap" style={{ background: 'rgba(5, 150, 105, 0.12)', color: '#059669' }}>
-              <GraduationCap size={28} />
-            </div>
-            <h3>Target GPA Calculator</h3>
-            <p>Simulate semester GPA and calculate required internal marks to reach your target CGPA goal.</p>
-          </div>
-
-          <div className="desktop-feature-card">
-            <div className="feature-icon-wrap" style={{ background: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed' }}>
-              <Award size={28} />
-            </div>
-            <h3>NPTEL Certificate Vault</h3>
-            <p>Upload, store, and verify NPTEL online course completion certificates for credit transfers.</p>
+            <p>Submit and track On-Duty requests with automated PDF generation for tutor approvals.</p>
           </div>
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="desktop-landing-footer">
-        <div>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: 14, fontWeight: 800 }}>Sri Ramakrishna Engineering College</h4>
-          <p style={{ margin: 0, fontSize: 12, opacity: 0.8 }}>NGGO Colony Post, Coimbatore - 641 022, Tamil Nadu, India</p>
-        </div>
-        <div style={{ fontSize: 12, opacity: 0.8 }}>
-          © 2026 Department of EEE · SREC Smart Tutor-Ward Platform
-        </div>
+      {/* Footer */}
+      <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: '30px 80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>
+        <div>© 2026 Sri Ramakrishna Engineering College · Dept of EEE</div>
+        <div>Autonomous Institution Affiliated to Anna University</div>
       </footer>
     </div>
   );

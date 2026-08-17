@@ -301,33 +301,30 @@ function App() {
     })).filter(cat => cat.items.length > 0)
     : appCategories;
 
-  if (showSplash) {
+  // MANDATORY AUTHENTICATION: Show Landing Page or Login Portal if not authenticated
+  if (!isAuthenticated) {
     if (isDesktop) {
+      if (showSignInPage) {
+        return (
+          <DesktopLoginPage
+            onClose={() => setShowSignInPage(false)}
+            onLoginSuccess={(profile) => { handleLoginSuccess(profile); setShowSignInPage(false); }}
+            demoProfiles={USER_PROFILES}
+          />
+        );
+      }
       return (
         <DesktopLandingPage
-          onOpenLogin={() => { setShowSplash(false); setDismissedSignIn(false); setShowSignInPage(true); }}
-          onEnterAsGuest={() => { setShowSplash(false); setDismissedSignIn(true); setShowSignInPage(false); }}
-        />
-      );
-    }
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
-
-  // SHOW DEDICATED DESKTOP LOGIN PAGE OR MOBILE SIGN IN PAGE
-  if ((!isAuthenticated && !dismissedSignIn) || showSignInPage) {
-    if (isDesktop) {
-      return (
-        <DesktopLoginPage
-          onClose={() => { setDismissedSignIn(true); setShowSignInPage(false); }}
-          onLoginSuccess={(profile) => { handleLoginSuccess(profile); setShowSignInPage(false); }}
-          demoProfiles={USER_PROFILES}
+          onOpenLogin={(isSignUp) => {
+            setShowSignInPage(true);
+          }}
         />
       );
     }
     return (
       <div className="mobile-app-shell">
         <SignInPage
-          onClose={() => { setDismissedSignIn(true); setShowSignInPage(false); }}
+          onClose={() => setShowSignInPage(false)}
           onLoginSuccess={(profile) => { handleLoginSuccess(profile); setShowSignInPage(false); }}
           demoProfiles={USER_PROFILES}
         />
@@ -349,26 +346,49 @@ function App() {
           onLogout={handleLogout}
         />
       )}
-      {/* ── Top Header Bar ── */}
-      <header className="mobile-top-bar">
-        <div className="mobile-top-left">
-          <button
-            className="hamburger-btn"
-            aria-label="Open Menu"
-            onClick={() => setIsDrawerOpen(true)}
-          >
-            <Menu size={22} />
-          </button>
-          <div className="mobile-brand">
-            <div className="mobile-brand-logo">
-              <img src={appLogo} alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
+
+      {/* Main App Content Area */}
+      <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
+        {/* Top Header Bar (Mobile Only) */}
+        {!isDesktop && (
+          <header className="mobile-top-bar">
+            <div className="mobile-top-left">
+              <button
+                className="hamburger-btn"
+                aria-label="Open Menu"
+                onClick={() => setIsDrawerOpen(true)}
+              >
+                <Menu size={22} />
+              </button>
+              <div className="mobile-brand">
+                <div className="mobile-brand-logo">
+                  <img src={appLogo} alt="EEE SREC Logo" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
+                </div>
+                <div className="mobile-brand-text">
+                  <h1>EEE SREC</h1>
+                  <p>Smart Mobile Hub</p>
+                </div>
+              </div>
             </div>
-            <div className="mobile-brand-text">
-              <h1>EEE SREC</h1>
-              <p>Smart Mobile Hub</p>
+
+            <div className="mobile-top-right">
+              <button className="icon-circle-btn" onClick={() => setShowSearch(!showSearch)} aria-label="Search">
+                <Search size={18} />
+              </button>
+              <button className="icon-circle-btn" onClick={() => handleCardClick('announcements')} aria-label="Notifications">
+                <Bell size={18} />
+                <span className="notification-badge" />
+              </button>
+              <button
+                className="avatar-btn"
+                onClick={() => isAuthenticated ? handleCardClick('profile-details') : setShowSignInPage(true)}
+                aria-label="User Profile"
+              >
+                {isAuthenticated && currentUser ? currentUser.name.charAt(0) : <User size={18} />}
+              </button>
             </div>
-          </div>
-        </div>
+          </header>
+        )}
 
         {/* Desktop Header Quick Navigation Bar */}
         <div className="desktop-nav-links">
@@ -403,24 +423,6 @@ function App() {
             <User size={15} /> <span>Profile</span>
           </button>
         </div>
-
-        <div className="mobile-top-right">
-          <button className="icon-circle-btn" onClick={() => setShowSearch(!showSearch)} aria-label="Search">
-            <Search size={18} />
-          </button>
-          <button className="icon-circle-btn" onClick={() => handleCardClick('announcements')} aria-label="Notifications">
-            <Bell size={18} />
-            <span className="notification-badge" />
-          </button>
-          <button
-            className="avatar-btn"
-            onClick={() => isAuthenticated ? handleCardClick('profile-details') : setShowSignInPage(true)}
-            aria-label="User Profile"
-          >
-            {isAuthenticated && currentUser ? currentUser.name.charAt(0) : <User size={18} />}
-          </button>
-        </div>
-      </header>
 
       {/* Quick Search Overlay Bar */}
       {showSearch && (
@@ -800,6 +802,7 @@ function App() {
           demoProfiles={USER_PROFILES}
         />
       )}
+      </div>
     </div>
   );
 }

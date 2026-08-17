@@ -411,7 +411,7 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
                 { label: 'Class', value: profileClass || currentUser?.className || '—' },
                 { label: 'Year', value: profileYear || currentUser?.yearOfStudy || '—' },
                 { label: 'Semester', value: profileSem || currentUser?.semester || '—' },
-                { label: 'Email', value: currentUser?.email || '—' },
+                { label: 'Dept', value: profileDept || currentUser?.department || '—' },
               ].map(({ label, value }) => (
                 <div key={label} style={{
                   background: 'rgba(255,255,255,0.12)',
@@ -575,64 +575,6 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
         {/* --- STUDENT DOC / CERT VIEW --- */}
         {(!isAdmin || selectedStudentEmail) && student && (
           <>
-            {/* Profile Hero */}
-            <div style={{
-              background: 'linear-gradient(135deg, #1e3a8a 0%, #0052cc 55%, #2563eb 100%)',
-              borderRadius: 20,
-              padding: '20px 18px',
-              marginBottom: 16,
-              boxShadow: '0 10px 28px rgba(0,82,204,0.35)',
-              position: 'relative',
-              overflow: 'hidden',
-            }}>
-              {/* Decorative glows */}
-              <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)', pointerEvents: 'none' }} />
-              <div style={{ position: 'absolute', bottom: -20, left: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,95,31,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-              {/* Top row: avatar + name block */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-                <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <div style={{
-                    width: 58, height: 58, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
-                    border: '3px solid rgba(255,255,255,0.5)',
-                    boxShadow: '0 0 0 4px rgba(255,255,255,0.15)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 22, fontWeight: 900, color: '#fff',
-                  }}>
-                    {student.name.charAt(0)}
-                  </div>
-                  <div style={{ position: 'absolute', bottom: 1, right: 1, width: 12, height: 12, borderRadius: '50%', background: '#22c55e', border: '2px solid #0052cc' }} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>{student.name}</h3>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: '3px 0 0', fontWeight: 600 }}>Sri Ramakrishna Engineering College</p>
-                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', margin: '2px 0 0', fontWeight: 500 }}>Dept of EEE · Roll: {student.rollNo}</p>
-                </div>
-              </div>
-
-              {/* Info chips grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                {[
-                  { label: 'Class', value: 'III EEE-A' },
-                  { label: 'Year', value: '3rd Year' },
-                  { label: 'Semester', value: 'Sem VI' },
-                  { label: 'Dept', value: 'EEE' },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    borderRadius: 10,
-                    padding: '7px 10px',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                  }}>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{label}</div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>{value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {isAdmin && (
               <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: 10, borderRadius: 10, fontSize: 11, border: '1px solid rgba(56,189,248,0.2)', marginBottom: 8 }}>
                 Viewing: <strong>{student.name} ({student.rollNo})</strong>

@@ -4,11 +4,6 @@ import { jsPDF } from 'jspdf';
 import headerImage from '../assets/srec-snr-header.png';
 
 interface ODFormProps {
-  currentEmail: string;
-  currentName: string;
-  currentRollNo: string;
-  isAdmin: boolean;
-  currentUser: any;
   onBack: () => void;
 }
 

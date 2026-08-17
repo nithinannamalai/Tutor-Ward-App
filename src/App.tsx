@@ -371,7 +371,7 @@ function App() {
           </button>
           <button
             className="avatar-btn"
-            onClick={() => isAuthenticated ? handleCardClick('profile') : setShowSignInPage(true)}
+            onClick={() => isAuthenticated ? handleCardClick('profile-details') : setShowSignInPage(true)}
             aria-label="User Profile"
           >
             {isAuthenticated && currentUser ? currentUser.name.charAt(0) : <User size={18} />}
@@ -628,7 +628,7 @@ function App() {
               {currentTab === 'profile-details' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="profile" currentUser={currentUser} onUpdateUser={(updated) => setCurrentUser(updated)} />}
               {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
               {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
-              {currentTab === 'od-form' && <ODForm currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Student'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} currentUser={currentUser} onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'od-form' && <ODForm onBack={() => setCurrentTab(null)} />}
               {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}

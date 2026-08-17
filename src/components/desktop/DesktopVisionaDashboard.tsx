@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Award, UserCheck, FileText, ArrowRight } from 'lucide-react';
+import { Search, Award, UserCheck, FileText, ArrowRight, Zap, Bot, Calendar, BookOpen, Clock, Compass, Layers, ShieldCheck } from 'lucide-react';
 import { dbService } from '../../services/db';
 import type { Student, AttendanceLog, ODRequest } from '../../services/db';
 import type { UserProfile } from '../../App';
@@ -46,20 +46,33 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
   const approvedODCount = odRequests.filter(r => r.status === 'Approved').length || 4;
   const nptelCount = studentData?.nptelExams?.length || 2;
 
+  const quickModules = [
+    { key: 'ai', label: 'AI Tutor', icon: <Bot size={18} />, color: '#8b5cf6', bg: '#f3e8ff' },
+    { key: 'od-form', label: 'Apply OD', icon: <FileText size={18} />, color: '#2563eb', bg: '#dbeafe' },
+    { key: 'request-letters', label: 'Bonafide / NOC', icon: <Layers size={18} />, color: '#059669', bg: '#d1fae5' },
+    { key: 'timetable', label: 'Timetable', icon: <Clock size={18} />, color: '#d97706', bg: '#fef3c7' },
+    { key: 'lab-finder', label: 'Lab Finder', icon: <Compass size={18} />, color: '#0284c7', bg: '#e0f2fe' },
+    { key: 'cgpa-calc', label: 'GPA Calculator', icon: <Award size={18} />, color: '#ea580c', bg: '#ffedd5' },
+    { key: 'nptel', label: 'NPTEL Vault', icon: <ShieldCheck size={18} />, color: '#7c3aed', bg: '#ede9fe' },
+    { key: 'academics', label: 'Syllabus & Notes', icon: <BookOpen size={18} />, color: '#4f46e5', bg: '#e0e7ff' },
+  ];
+
   return (
     <div className="visiona-dashboard-canvas">
       {/* ── Top Header Row ── */}
       <div className="visiona-header-row">
         <div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1' }}>Hi {currentUser?.name?.split(' ')[0] || 'Student'},</span>
-          <h1 className="visiona-welcome-title">Welcome to SREC EEE Hub!</h1>
+          <span style={{ fontSize: 13, fontWeight: 800, color: '#4338ca', letterSpacing: 0.5 }}>
+            HI {currentUser?.name?.toUpperCase() || 'STUDENT'},
+          </span>
+          <h1 className="visiona-welcome-title">SREC EEE Smart Portal</h1>
         </div>
 
         <div className="visiona-search-bar">
           <Search size={16} style={{ color: '#94a3b8' }} />
           <input
             type="text"
-            placeholder="Search academic data..."
+            placeholder="Search modules, notes, attendance..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -115,9 +128,44 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
         </div>
       </div>
 
+      {/* ── Quick Module Launch Strip ── */}
+      <div style={{ background: '#ffffff', borderRadius: 20, padding: '16px 24px', boxShadow: '0 8px 30px rgba(99, 102, 241, 0.06)' }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+          ⚡ Quick Module Shortcuts
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 12 }}>
+          {quickModules.map((m) => (
+            <button
+              key={m.key}
+              onClick={() => onOpenTab(m.key)}
+              style={{
+                background: '#f8fafc',
+                border: `1.5px solid ${m.color}25`,
+                borderRadius: 16,
+                padding: '12px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              }}
+              className="quick-module-btn"
+            >
+              <div style={{ background: m.bg, color: m.color, padding: 8, borderRadius: 12 }}>
+                {m.icon}
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#1e293b', textAlign: 'center' }}>
+                {m.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ── Middle Row 3 Cards Grid ── */}
       <div className="visiona-middle-grid">
-        {/* Card 1: Academic Progress Curve (Replaces Gross Sales) */}
+        {/* Card 1: Academic Progress Curve */}
         <div className="visiona-widget-card" style={{ flex: 1.2 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>Semester GPA Trend</span>
@@ -140,7 +188,7 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
           </div>
         </div>
 
-        {/* Card 2: Target GPA Calculator Widget (Replaces Your earnings today) */}
+        {/* Card 2: Target GPA Calculator Widget */}
         <div className="visiona-widget-card" style={{ flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, color: '#1e293b', margin: '0 0 16px 0' }}>Semester Target Goal</h3>
           
@@ -152,7 +200,7 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
           </button>
         </div>
 
-        {/* Card 3: OD & Letter Request Logs (Replaces Order History) */}
+        {/* Card 3: OD & Letter Request Logs */}
         <div className="visiona-widget-card" style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1e293b', margin: 0 }}>OD &amp; Letter Logs</h3>
@@ -195,7 +243,7 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
 
       {/* ── Bottom Row 2 Cards Grid ── */}
       <div className="visiona-bottom-grid">
-        {/* Card 1: Attendance Analytics Chart (Replaces Balance) */}
+        {/* Card 1: Attendance Analytics Chart */}
         <div className="visiona-widget-card" style={{ flex: 1.8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div>
@@ -225,7 +273,7 @@ export const DesktopVisionaDashboard: React.FC<DesktopVisionaDashboardProps> = (
           </div>
         </div>
 
-        {/* Card 2: Student Profile Card (Replaces John Delta Profile Widget in screenshot) */}
+        {/* Card 2: Student Profile Card */}
         <div className="visiona-widget-card" style={{ flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div className="student-big-avatar">
             {currentUser?.name?.charAt(0) || 'N'}

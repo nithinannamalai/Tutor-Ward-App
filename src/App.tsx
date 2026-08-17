@@ -319,6 +319,15 @@ function App() {
         />
       );
     }
+    if (!showSignInPage) {
+      return (
+        <MobileLandingPage
+          onOpenLogin={(_isSignUp) => {
+            setShowSignInPage(true);
+          }}
+        />
+      );
+    }
     return (
       <div className="mobile-app-shell">
         <SignInPage
@@ -390,31 +399,31 @@ function App() {
 
         {/* Desktop Header Quick Navigation Bar */}
         <div className="desktop-nav-links">
-          <button 
+          <button
             className={`desktop-nav-btn ${activeBottomNav === 'home' && currentTab === null ? 'active' : ''}`}
             onClick={() => { setActiveBottomNav('home'); setCurrentTab(null); }}
           >
             <Home size={15} /> <span>Home</span>
           </button>
-          <button 
+          <button
             className={`desktop-nav-btn ${currentTab === 'academics' || currentTab === 'courses' ? 'active' : ''}`}
             onClick={() => { setActiveBottomNav('academics'); handleCardClick('academics'); }}
           >
             <GraduationCap size={15} /> <span>Academics</span>
           </button>
-          <button 
+          <button
             className={`desktop-nav-btn ${currentTab === 'attendance' ? 'active' : ''}`}
             onClick={() => { setActiveBottomNav('attendance'); handleCardClick('attendance'); }}
           >
             <UserCheck size={15} /> <span>Attendance</span>
           </button>
-          <button 
+          <button
             className={`desktop-nav-btn ${currentTab === 'career' ? 'active' : ''}`}
             onClick={() => { setActiveBottomNav('career'); handleCardClick('career'); }}
           >
             <Zap size={15} /> <span>Career</span>
           </button>
-          <button 
+          <button
             className={`desktop-nav-btn ${currentTab === 'profile-details' ? 'active' : ''}`}
             onClick={() => { setActiveBottomNav('profile'); handleCardClick('profile-details'); }}
           >
@@ -422,388 +431,388 @@ function App() {
           </button>
         </div>
 
-      {/* Quick Search Overlay Bar */}
-      {showSearch && (
-        <div style={{ padding: '8px 14px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--card-border)', display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Search size={16} style={{ color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            placeholder="Search features (e.g. attendance, cgpa, faculty)..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            autoFocus
-            style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'var(--text-main)' }}
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
-          )}
-        </div>
-      )}
+        {/* Quick Search Overlay Bar */}
+        {showSearch && (
+          <div style={{ padding: '8px 14px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--card-border)', display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Search size={16} style={{ color: 'var(--text-muted)' }} />
+            <input
+              type="text"
+              placeholder="Search features (e.g. attendance, cgpa, faculty)..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              autoFocus
+              style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'var(--text-main)' }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+            )}
+          </div>
+        )}
 
-      {/* ── AIRTEL THANKS HAMBURGER SIDE DRAWER ── */}
-      {isDrawerOpen && (
-        <div className="drawer-backdrop" onClick={() => setIsDrawerOpen(false)}>
-          <div className="airtel-drawer" onClick={e => e.stopPropagation()}>
-            {/* Top Profile Card in Drawer */}
-            <div className="drawer-profile-header">
-              <button className="drawer-close-btn" onClick={() => setIsDrawerOpen(false)}>
-                <X size={18} />
-              </button>
-              <div className="drawer-user-info">
-                <div className="drawer-avatar">
-                  {isAuthenticated && currentUser ? currentUser.name.charAt(0) : 'G'}
+        {/* ── AIRTEL THANKS HAMBURGER SIDE DRAWER ── */}
+        {isDrawerOpen && (
+          <div className="drawer-backdrop" onClick={() => setIsDrawerOpen(false)}>
+            <div className="airtel-drawer" onClick={e => e.stopPropagation()}>
+              {/* Top Profile Card in Drawer */}
+              <div className="drawer-profile-header">
+                <button className="drawer-close-btn" onClick={() => setIsDrawerOpen(false)}>
+                  <X size={18} />
+                </button>
+                <div className="drawer-user-info">
+                  <div className="drawer-avatar">
+                    {isAuthenticated && currentUser ? currentUser.name.charAt(0) : 'G'}
+                  </div>
+                  <div className="drawer-user-text">
+                    <h3>{isAuthenticated && currentUser ? currentUser.name : 'Guest User'}</h3>
+                    <p>{isAuthenticated && currentUser ? `Roll: ${currentUser.rollNo}` : 'Sri Ramakrishna Eng. College'}</p>
+                    <span className="drawer-role-pill">
+                      <Sparkles size={10} />
+                      {isAuthenticated && currentUser ? (isAdmin ? 'Faculty Admin' : 'UG Scholar') : 'Demo Guest'}
+                    </span>
+                  </div>
                 </div>
-                <div className="drawer-user-text">
-                  <h3>{isAuthenticated && currentUser ? currentUser.name : 'Guest User'}</h3>
-                  <p>{isAuthenticated && currentUser ? `Roll: ${currentUser.rollNo}` : 'Sri Ramakrishna Eng. College'}</p>
-                  <span className="drawer-role-pill">
-                    <Sparkles size={10} />
-                    {isAuthenticated && currentUser ? (isAdmin ? 'Faculty Admin' : 'UG Scholar') : 'Demo Guest'}
-                  </span>
+
+                <div className="drawer-action-row">
+                  {isAuthenticated ? (
+                    <button className="drawer-btn secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
+                      <LogOut size={14} /> Sign Out
+                    </button>
+                  ) : (
+                    <button className="drawer-btn primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
+                      <User size={14} /> Sign In
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div className="drawer-action-row">
-                {isAuthenticated ? (
-                  <button className="drawer-btn secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
-                    <LogOut size={14} /> Sign Out
-                  </button>
-                ) : (
-                  <button className="drawer-btn primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
-                    <User size={14} /> Sign In
-                  </button>
-                )}
+              {/* Navigation Menu List inside Drawer */}
+              <div className="drawer-nav-body">
+                <div
+                  className={`drawer-item ${currentTab === null ? 'active' : ''}`}
+                  onClick={() => { setCurrentTab(null); setIsDrawerOpen(false); }}
+                >
+                  <div className="drawer-item-left">
+                    <div className="drawer-item-icon" style={{ background: 'rgba(0, 82, 204, 0.1)', color: 'var(--accent-blue)' }}>
+                      <Home size={18} />
+                    </div>
+                    <span>Home Dashboard</span>
+                  </div>
+                  <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                </div>
+
+                <div className="drawer-group-title">ACADEMICS & EXAMS</div>
+                {[
+                  { label: 'Syllabus & Courses', key: 'courses', icon: <BookOpen size={16} />, color: '#0891b2' },
+                  { label: 'Academic Calendar', key: 'calendar', icon: <Calendar size={16} />, color: '#dc2626' },
+                  { label: 'Class Timetable', key: 'timetable', icon: <Calendar size={16} />, color: '#0f766e' },
+                  { label: 'CGPA & Subject Arrears', key: 'academics', icon: <GraduationCap size={16} />, color: '#059669' },
+                  { label: 'NPTEL Course Tracker', key: 'nptel', icon: <Award size={16} />, color: '#7c3aed' },
+                ].map(item => (
+                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
+                    <div className="drawer-item-left">
+                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                  </div>
+                ))}
+
+                <div className="drawer-group-title">RECORDS & DOCUMENTS</div>
+                {[
+                  { label: 'Student Document Vault', key: 'profile', icon: <BookOpen size={16} />, color: '#0052cc' },
+                  { label: 'Certificates & Badges', key: 'certificates', icon: <Award size={16} />, color: '#be185d' },
+                  { label: 'OD Form', key: 'od-form', icon: <FileText size={16} />, color: '#4f46e5' },
+                ].map(item => (
+                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
+                    <div className="drawer-item-left">
+                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                  </div>
+                ))}
+
+                <div className="drawer-group-title">STUDENT SERVICES</div>
+                {[
+                  { label: 'Period Attendance (1–7)', key: 'attendance', icon: <UserCheck size={16} />, color: '#ff5f1f' },
+                  { label: 'Anonymous Suggestions', key: 'suggestion', icon: <Inbox size={16} />, color: '#ea580c' },
+                ].map(item => (
+                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
+                    <div className="drawer-item-left">
+                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                  </div>
+                ))}
+
+                <div className="drawer-group-title">CAMPUS & CAREER</div>
+                {[
+                  { label: 'Career Roadmaps & GATE', key: 'career', icon: <Zap size={16} />, color: '#d97706' },
+                  { label: 'EEE Campus & Lab Map', key: 'campus-map', icon: <Map size={16} />, color: '#2563eb' },
+                  { label: 'College Rules & Conduct', key: 'college-rules', icon: <Shield size={16} />, color: '#16a34a' },
+                  { label: 'Faculty Contacts', key: 'faculty', icon: <Phone size={16} />, color: '#db2777' },
+                ].map(item => (
+                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
+                    <div className="drawer-item-left">
+                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                  </div>
+                ))}
               </div>
-            </div>
-
-            {/* Navigation Menu List inside Drawer */}
-            <div className="drawer-nav-body">
-              <div
-                className={`drawer-item ${currentTab === null ? 'active' : ''}`}
-                onClick={() => { setCurrentTab(null); setIsDrawerOpen(false); }}
-              >
-                <div className="drawer-item-left">
-                  <div className="drawer-item-icon" style={{ background: 'rgba(0, 82, 204, 0.1)', color: 'var(--accent-blue)' }}>
-                    <Home size={18} />
-                  </div>
-                  <span>Home Dashboard</span>
-                </div>
-                <ChevronRight size={14} style={{ opacity: 0.5 }} />
-              </div>
-
-              <div className="drawer-group-title">ACADEMICS & EXAMS</div>
-              {[
-                { label: 'Syllabus & Courses', key: 'courses', icon: <BookOpen size={16} />, color: '#0891b2' },
-                { label: 'Academic Calendar', key: 'calendar', icon: <Calendar size={16} />, color: '#dc2626' },
-                { label: 'Class Timetable', key: 'timetable', icon: <Calendar size={16} />, color: '#0f766e' },
-                { label: 'CGPA & Subject Arrears', key: 'academics', icon: <GraduationCap size={16} />, color: '#059669' },
-                { label: 'NPTEL Course Tracker', key: 'nptel', icon: <Award size={16} />, color: '#7c3aed' },
-              ].map(item => (
-                <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                  <div className="drawer-item-left">
-                    <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: 0.5 }} />
-                </div>
-              ))}
-
-              <div className="drawer-group-title">RECORDS & DOCUMENTS</div>
-              {[
-                { label: 'Student Document Vault', key: 'profile', icon: <BookOpen size={16} />, color: '#0052cc' },
-                { label: 'Certificates & Badges', key: 'certificates', icon: <Award size={16} />, color: '#be185d' },
-                { label: 'OD Form', key: 'od-form', icon: <FileText size={16} />, color: '#4f46e5' },
-              ].map(item => (
-                <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                  <div className="drawer-item-left">
-                    <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: 0.5 }} />
-                </div>
-              ))}
-
-              <div className="drawer-group-title">STUDENT SERVICES</div>
-              {[
-                { label: 'Period Attendance (1–7)', key: 'attendance', icon: <UserCheck size={16} />, color: '#ff5f1f' },
-                { label: 'Anonymous Suggestions', key: 'suggestion', icon: <Inbox size={16} />, color: '#ea580c' },
-              ].map(item => (
-                <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                  <div className="drawer-item-left">
-                    <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: 0.5 }} />
-                </div>
-              ))}
-
-              <div className="drawer-group-title">CAMPUS & CAREER</div>
-              {[
-                { label: 'Career Roadmaps & GATE', key: 'career', icon: <Zap size={16} />, color: '#d97706' },
-                { label: 'EEE Campus & Lab Map', key: 'campus-map', icon: <Map size={16} />, color: '#2563eb' },
-                { label: 'College Rules & Conduct', key: 'college-rules', icon: <Shield size={16} />, color: '#16a34a' },
-                { label: 'Faculty Contacts', key: 'faculty', icon: <Phone size={16} />, color: '#db2777' },
-              ].map(item => (
-                <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                  <div className="drawer-item-left">
-                    <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: 0.5 }} />
-                </div>
-              ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── PURE MOBILE APP MAIN CONTENT: HOME HUB OR DEDICATED FULL-SCREEN PAGE ── */}
-      <main className="mobile-app-content">
-        {currentTab === null ? (
-          isDesktop ? (
-            <DesktopVisionaDashboard currentUser={currentUser} onOpenTab={handleCardClick} />
-          ) : (
-            /* ── HOME DASHBOARD VIEW ── */
-            <div className="home-dashboard-view">
-              {/* Primary Left Main Column */}
-              <div className="desktop-primary-col" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
-                <StudentDetailsCard
-                  isAuthenticated={isAuthenticated}
-                  currentUser={currentUser}
-                  onOpenProfile={() => handleCardClick('profile')}
-                  onOpenSignIn={() => setShowSignInPage(true)}
-                  onOpenTab={handleCardClick}
-                />
+        {/* ── PURE MOBILE APP MAIN CONTENT: HOME HUB OR DEDICATED FULL-SCREEN PAGE ── */}
+        <main className="mobile-app-content">
+          {currentTab === null ? (
+            isDesktop ? (
+              <DesktopVisionaDashboard currentUser={currentUser} onOpenTab={handleCardClick} />
+            ) : (
+              /* ── HOME DASHBOARD VIEW ── */
+              <div className="home-dashboard-view">
+                {/* Primary Left Main Column */}
+                <div className="desktop-primary-col" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  {/* 🎓 STUDENT DETAILS CARD (ALWAYS ABOVE NOTICE BOARD) */}
+                  <StudentDetailsCard
+                    isAuthenticated={isAuthenticated}
+                    currentUser={currentUser}
+                    onOpenProfile={() => handleCardClick('profile')}
+                    onOpenSignIn={() => setShowSignInPage(true)}
+                    onOpenTab={handleCardClick}
+                  />
 
-                {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
-                <div id="announcements-widget">
-                  <div className="mobile-section-header">
-                    <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
+                  {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
+                  <div id="announcements-widget">
+                    <div className="mobile-section-header">
+                      <span className="mobile-section-title">🔔 NOTICE BOARD &amp; EVENTS</span>
+                    </div>
+                    <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 12 }}>
+                      <AnnouncementBanner
+                        announcements={announcements}
+                        isAdmin={isAdmin}
+                        onAddAnnouncement={handleAddAnnouncement}
+                        onDeleteAnnouncement={handleDeleteAnnouncement}
+                        onOpenAnnouncements={() => handleCardClick('announcements')}
+                      />
+                    </div>
                   </div>
-                  <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 12 }}>
+
+                  {/* Mobile & Desktop Icon Grid Categories (Separated Folder Cards) */}
+                  {filteredCategories.map((cat, idx) => (
+                    <div key={idx} className="category-folder-card">
+                      <div className="mobile-section-header">
+                        <span className="mobile-section-title">{cat.title}</span>
+                        <span className="category-count-badge">{cat.items.length} Modules</span>
+                      </div>
+                      <div className="mobile-grid-4col">
+                        {cat.items.map((item) => (
+                          <div
+                            key={item.key}
+                            className="mobile-app-tile"
+                            style={{
+                              position: 'relative',
+                              boxShadow: `0 2px 10px rgba(0,0,0,0.04), inset 0 0 0 1.5px ${item.color}30`,
+                              border: `1.5px solid ${item.color}25`,
+                            }}
+                            onClick={() => handleCardClick(item.key)}
+                          >
+                            <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
+                              {item.icon}
+                            </div>
+                            <span className="mobile-tile-label">{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Right Analytics & Schedule Sidebar Column */}
+                <div className="desktop-widgets-col">
+                  {/* Today's Schedule Card */}
+                  <div style={{ background: 'var(--bg-primary)', borderRadius: 20, padding: 20, border: '1px solid var(--card-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                      <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Calendar size={16} style={{ color: 'var(--accent-blue)' }} /> TODAY'S SCHEDULE
+                      </h3>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: '#059669', background: 'rgba(5,150,105,0.1)', padding: '2px 8px', borderRadius: 10 }}>SEM VI</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div style={{ background: 'rgba(0,82,204,0.06)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid var(--accent-blue)' }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent-blue)' }}>09:00 AM - 10:00 AM · PERIOD 1</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8601 Power Systems</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-204 · Dr. K. Senthilkumar</div>
+                      </div>
+                      <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>10:15 AM - 11:15 AM · PERIOD 2</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8602 Microprocessors</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-206 · Ms. P. Vijayalakshmi</div>
+                      </div>
+                      <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>01:30 PM - 04:30 PM · LAB SESSION</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>Power Electronics Lab</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>EEE Lab 2 · Dr. M. Arulkumar</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Action Tools Card */}
+                  <div style={{ background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)', borderRadius: 20, padding: 20, color: '#fff', boxShadow: '0 8px 24px rgba(0,82,204,0.2)' }}>
+                    <h3 style={{ fontSize: 13, fontWeight: 800, color: '#fff', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Zap size={16} /> QUICK DESKTOP ACTIONS
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <button onClick={() => handleCardClick('od-form')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                        📄 Apply OD
+                      </button>
+                      <button onClick={() => handleCardClick('request-letters')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                        ✉️ Bonafide / NOC
+                      </button>
+                      <button onClick={() => handleCardClick('lab-finder')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                        🔬 Lab Finder
+                      </button>
+                      <button onClick={() => handleCardClick('cgpa-calc')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                        📊 Target GPA
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            /* ── DEDICATED FULL PAGE SCREEN VIEW ── */
+            <div className="dedicated-page-view page-slide-enter">
+              {/* Dedicated Top Navigation Header Bar */}
+              <div className="dedicated-page-header">
+                <button
+                  className="page-back-btn"
+                  onClick={() => { setCurrentTab(null); setActiveBottomNav('home'); }}
+                  aria-label="Back to Home"
+                >
+                  <ArrowLeft size={18} />
+                  <span>Home</span>
+                </button>
+
+                {activeTileInfo && (
+                  <div className="page-header-badge" style={{ background: activeTileInfo.bg, color: activeTileInfo.color }}>
+                    {activeTileInfo.icon}
+                    <h2>{activeTileInfo.label}</h2>
+                  </div>
+                )}
+
+                <button
+                  className="page-close-btn"
+                  onClick={() => setCurrentTab(null)}
+                  aria-label="Close page"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Dedicated Page Body Content */}
+              <div className="dedicated-page-body">
+                {currentTab === 'ai' && <AIChatbot isFullPage={true} />}
+                {currentTab === 'announcements' && (
+                  <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 16 }}>
                     <AnnouncementBanner
                       announcements={announcements}
                       isAdmin={isAdmin}
                       onAddAnnouncement={handleAddAnnouncement}
                       onDeleteAnnouncement={handleDeleteAnnouncement}
-                      onOpenAnnouncements={() => handleCardClick('announcements')}
                     />
                   </div>
-                </div>
-
-                {/* Mobile & Desktop Icon Grid Categories (Separated Folder Cards) */}
-                {filteredCategories.map((cat, idx) => (
-                  <div key={idx} className="category-folder-card">
-                    <div className="mobile-section-header">
-                      <span className="mobile-section-title">{cat.title}</span>
-                      <span className="category-count-badge">{cat.items.length} Modules</span>
-                    </div>
-                    <div className="mobile-grid-4col">
-                      {cat.items.map((item) => (
-                        <div
-                          key={item.key}
-                          className="mobile-app-tile"
-                          style={{
-                            position: 'relative',
-                            boxShadow: `0 2px 10px rgba(0,0,0,0.04), inset 0 0 0 1.5px ${item.color}30`,
-                            border: `1.5px solid ${item.color}25`,
-                          }}
-                          onClick={() => handleCardClick(item.key)}
-                        >
-                          <div className="mobile-tile-icon" style={{ background: item.bg, color: item.color }}>
-                            {item.icon}
-                          </div>
-                          <span className="mobile-tile-label">{item.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop Right Analytics & Schedule Sidebar Column */}
-              <div className="desktop-widgets-col">
-                {/* Today's Schedule Card */}
-                <div style={{ background: 'var(--bg-primary)', borderRadius: 20, padding: 20, border: '1px solid var(--card-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                    <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Calendar size={16} style={{ color: 'var(--accent-blue)' }} /> TODAY'S SCHEDULE
-                    </h3>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#059669', background: 'rgba(5,150,105,0.1)', padding: '2px 8px', borderRadius: 10 }}>SEM VI</span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ background: 'rgba(0,82,204,0.06)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid var(--accent-blue)' }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent-blue)' }}>09:00 AM - 10:00 AM · PERIOD 1</div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8601 Power Systems</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-204 · Dr. K. Senthilkumar</div>
-                    </div>
-                    <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>10:15 AM - 11:15 AM · PERIOD 2</div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>EE8602 Microprocessors</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Room EB-206 · Ms. P. Vijayalakshmi</div>
-                    </div>
-                    <div style={{ background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 12, borderLeft: '3px solid #94a3b8' }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)' }}>01:30 PM - 04:30 PM · LAB SESSION</div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>Power Electronics Lab</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>EEE Lab 2 · Dr. M. Arulkumar</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Quick Action Tools Card */}
-                <div style={{ background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)', borderRadius: 20, padding: 20, color: '#fff', boxShadow: '0 8px 24px rgba(0,82,204,0.2)' }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 800, color: '#fff', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Zap size={16} /> QUICK DESKTOP ACTIONS
-                  </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <button onClick={() => handleCardClick('od-form')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
-                    📄 Apply OD
-                  </button>
-                  <button onClick={() => handleCardClick('request-letters')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
-                    ✉️ Bonafide / NOC
-                  </button>
-                  <button onClick={() => handleCardClick('lab-finder')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
-                    🔬 Lab Finder
-                  </button>
-                  <button onClick={() => handleCardClick('cgpa-calc')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', padding: '10px', borderRadius: 12, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
-                    📊 Target GPA
-                  </button>
-                </div>
+                )}
+                {currentTab === 'profile-details' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="profile" currentUser={currentUser} onUpdateUser={(updated) => setCurrentUser(updated)} />}
+                {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
+                {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
+                {currentTab === 'od-form' && <ODForm onBack={() => setCurrentTab(null)} />}
+                {currentTab === 'request-letters' && <RequestLetters onBack={() => setCurrentTab(null)} currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Nithin Annamalai'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} />}
+                {currentTab === 'lab-finder' && <LabSeatFinder onBack={() => setCurrentTab(null)} rollNo={currentUser?.rollNo || '7377221EE001'} />}
+                {currentTab === 'cgpa-calc' && <GpaCalculator onBack={() => setCurrentTab(null)} />}
+                {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+                {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+                {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
+                {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+                {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="courses" initialEditMode={academicInitEdit} />}
+                {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="calendar" initialEditMode={academicInitEdit} />}
+                {currentTab === 'timetable' && <Timetable onBack={() => setCurrentTab(null)} isAdmin={isAdmin} semester={6} />}
+                {currentTab === 'suggestion' && (
+                  <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
+                )}
+                {currentTab === 'campus-map' && <CampusMapPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+                {currentTab === 'college-rules' && <CollegeRulesPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
+                {currentTab === 'faculty' && <FacultyPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
               </div>
             </div>
-          </div>
-        )
-      ) : (
-          /* ── DEDICATED FULL PAGE SCREEN VIEW ── */
-          <div className="dedicated-page-view page-slide-enter">
-            {/* Dedicated Top Navigation Header Bar */}
-            <div className="dedicated-page-header">
-              <button
-                className="page-back-btn"
-                onClick={() => { setCurrentTab(null); setActiveBottomNav('home'); }}
-                aria-label="Back to Home"
-              >
-                <ArrowLeft size={18} />
-                <span>Home</span>
-              </button>
+          )}
+        </main>
 
-              {activeTileInfo && (
-                <div className="page-header-badge" style={{ background: activeTileInfo.bg, color: activeTileInfo.color }}>
-                  {activeTileInfo.icon}
-                  <h2>{activeTileInfo.label}</h2>
-                </div>
-              )}
+        {/* Floating AI Assistant Action Trigger (Hidden when on dedicated AI Tutor page) */}
+        {currentTab !== 'ai' && <AIChatbot />}
 
-              <button
-                className="page-close-btn"
-                onClick={() => setCurrentTab(null)}
-                aria-label="Close page"
-              >
-                <X size={18} />
-              </button>
-            </div>
+        {/* ── Fixed Bottom Mobile Navigation Bar ── */}
+        <nav className="mobile-bottom-nav">
+          <button
+            className={`bottom-tab-item ${activeBottomNav === 'home' && currentTab === null ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('home'); setCurrentTab(null); }}
+          >
+            <Home size={20} />
+            <span className="bottom-tab-label">Home</span>
+          </button>
 
-            {/* Dedicated Page Body Content */}
-            <div className="dedicated-page-body">
-              {currentTab === 'ai' && <AIChatbot isFullPage={true} />}
-              {currentTab === 'announcements' && (
-                <div style={{ background: 'var(--bg-primary)', borderRadius: 16, border: '1px solid var(--card-border)', padding: 16 }}>
-                  <AnnouncementBanner
-                    announcements={announcements}
-                    isAdmin={isAdmin}
-                    onAddAnnouncement={handleAddAnnouncement}
-                    onDeleteAnnouncement={handleDeleteAnnouncement}
-                  />
-                </div>
-              )}
-              {currentTab === 'profile-details' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="profile" currentUser={currentUser} onUpdateUser={(updated) => setCurrentUser(updated)} />}
-              {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
-              {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
-              {currentTab === 'od-form' && <ODForm onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'request-letters' && <RequestLetters onBack={() => setCurrentTab(null)} currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Nithin Annamalai'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} />}
-              {currentTab === 'lab-finder' && <LabSeatFinder onBack={() => setCurrentTab(null)} rollNo={currentUser?.rollNo || '7377221EE001'} />}
-              {currentTab === 'cgpa-calc' && <GpaCalculator onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'career' && <CareerHub onBack={() => setCurrentTab(null)} isAdmin={isAdmin} />}
-              {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="courses" initialEditMode={academicInitEdit} />}
-              {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="calendar" initialEditMode={academicInitEdit} />}
-              {currentTab === 'timetable' && <Timetable onBack={() => setCurrentTab(null)} isAdmin={isAdmin} semester={6} />}
-              {currentTab === 'suggestion' && (
-                <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
-              )}
-              {currentTab === 'campus-map' && <CampusMapPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
-              {currentTab === 'college-rules' && <CollegeRulesPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
-              {currentTab === 'faculty' && <FacultyPanel onClose={() => setCurrentTab(null)} isAdmin={isAdmin} />}
-            </div>
-          </div>
+          <button
+            className={`bottom-tab-item ${currentTab === 'academics' || currentTab === 'courses' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('academics'); handleCardClick('academics'); }}
+          >
+            <GraduationCap size={20} />
+            <span className="bottom-tab-label">Academics</span>
+          </button>
+
+          <button
+            className={`bottom-tab-item ${currentTab === 'attendance' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('attendance'); handleCardClick('attendance'); }}
+          >
+            <UserCheck size={20} />
+            <span className="bottom-tab-label">Attendance</span>
+          </button>
+
+          <button
+            className={`bottom-tab-item ${currentTab === 'career' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('career'); handleCardClick('career'); }}
+          >
+            <Zap size={20} />
+            <span className="bottom-tab-label">Career</span>
+          </button>
+
+          <button
+            className={`bottom-tab-item ${currentTab === 'profile-details' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('profile'); handleCardClick('profile-details'); }}
+          >
+            <User size={20} />
+            <span className="bottom-tab-label">Profile</span>
+          </button>
+        </nav>
+
+        {/* ── Full-Screen Mobile Sign In Page ── */}
+        {showSignInPage && (
+          <SignInPage
+            onClose={() => setShowSignInPage(false)}
+            onLoginSuccess={handleLoginSuccess}
+            demoProfiles={USER_PROFILES}
+          />
         )}
-      </main>
-
-      {/* Floating AI Assistant Action Trigger (Hidden when on dedicated AI Tutor page) */}
-      {currentTab !== 'ai' && <AIChatbot />}
-
-      {/* ── Fixed Bottom Mobile Navigation Bar ── */}
-      <nav className="mobile-bottom-nav">
-        <button
-          className={`bottom-tab-item ${activeBottomNav === 'home' && currentTab === null ? 'active' : ''}`}
-          onClick={() => { setActiveBottomNav('home'); setCurrentTab(null); }}
-        >
-          <Home size={20} />
-          <span className="bottom-tab-label">Home</span>
-        </button>
-
-        <button
-          className={`bottom-tab-item ${currentTab === 'academics' || currentTab === 'courses' ? 'active' : ''}`}
-          onClick={() => { setActiveBottomNav('academics'); handleCardClick('academics'); }}
-        >
-          <GraduationCap size={20} />
-          <span className="bottom-tab-label">Academics</span>
-        </button>
-
-        <button
-          className={`bottom-tab-item ${currentTab === 'attendance' ? 'active' : ''}`}
-          onClick={() => { setActiveBottomNav('attendance'); handleCardClick('attendance'); }}
-        >
-          <UserCheck size={20} />
-          <span className="bottom-tab-label">Attendance</span>
-        </button>
-
-        <button
-          className={`bottom-tab-item ${currentTab === 'career' ? 'active' : ''}`}
-          onClick={() => { setActiveBottomNav('career'); handleCardClick('career'); }}
-        >
-          <Zap size={20} />
-          <span className="bottom-tab-label">Career</span>
-        </button>
-
-        <button
-          className={`bottom-tab-item ${currentTab === 'profile-details' ? 'active' : ''}`}
-          onClick={() => { setActiveBottomNav('profile'); handleCardClick('profile-details'); }}
-        >
-          <User size={20} />
-          <span className="bottom-tab-label">Profile</span>
-        </button>
-      </nav>
-
-      {/* ── Full-Screen Mobile Sign In Page ── */}
-      {showSignInPage && (
-        <SignInPage
-          onClose={() => setShowSignInPage(false)}
-          onLoginSuccess={handleLoginSuccess}
-          demoProfiles={USER_PROFILES}
-        />
-      )}
       </div>
     </div>
   );
@@ -1239,3 +1248,7 @@ function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => v
 }
 
 export default App;
+function setDismissedSignIn(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}
+

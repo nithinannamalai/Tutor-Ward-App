@@ -8,6 +8,7 @@ export { Timetable } from './academics/Timetable';
 // Auth Components
 export { AuthModal } from './auth/AuthModal';
 export { SignInPage } from './auth/SignInPage';
+export { MobileLandingPage } from './auth/MobileLandingPage';
 
 // Common Components
 export { AIChatbot } from './common/AIChatbot';

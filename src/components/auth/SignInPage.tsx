@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Lock, Mail, Eye, EyeOff, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '../../services/supabaseClient';
 import type { UserProfile } from '../../App';
@@ -29,7 +29,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
     "“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.” – Malcolm X",
     "“Continuous learning is the minimum requirement for success in any field.” – Brian Tracy",
   ];
-  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [, setQuoteIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {

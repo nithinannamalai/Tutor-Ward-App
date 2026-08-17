@@ -4835,17 +4835,244 @@ html, body, .mobile-app-content, .dedicated-page-body, .portal-modal-container {
 }
 
 /* ====================================================
+   📱 MOBILE LANDING PAGE STYLES
+   ==================================================== */
+.mobile-landing-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+.mobile-landing-hero {
+  position: relative;
+  background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, rgba(30, 27, 75, 0.8) 100%), url('./assets/nature-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+  padding: 40px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.mobile-landing-brand-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mobile-landing-logo-box {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-landing-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-landing-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 12px;
+  border-radius: 20px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.mobile-landing-title {
+  font-size: 38px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.8px;
+}
+
+.mobile-landing-subtitle {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #60a5fa;
+  margin: 0 0 12px 0;
+}
+
+.mobile-landing-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 340px;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.mobile-landing-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  position: relative;
+  z-index: 10;
+}
+
+.mobile-primary-pill-btn {
+  background: #1d4ed8;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 14px 28px;
+  border-radius: 30px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.4);
+  cursor: pointer;
+}
+
+.mobile-secondary-pill-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 13px 28px;
+  border-radius: 30px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.mobile-landing-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 2;
+}
+
+.mobile-landing-wave svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mobile-landing-body {
+  padding: 24px 20px 40px;
+  flex: 1;
+  background: #ffffff;
+}
+
+.mobile-accreditation-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.accreditation-pill {
+  font-size: 11px;
+  font-weight: 800;
+  color: #1e293b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mobile-landing-section-title h2 {
+  font-size: 18px;
+  font-weight: 900;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.mobile-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.mobile-feature-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 18px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+.feature-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.mobile-feature-card h3 {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.mobile-feature-card p {
+  font-size: 11px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mobile-landing-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ====================================================
    📱 MOBILE AUTHENTICATION PAGE (Matching User Screenshot)
    ==================================================== */
 .mobile-curved-header {
   position: relative;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1d4ed8 100%);
+  background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 27, 75, 0.75) 100%), url('./assets/nature-bg.jpg');
+  background-size: cover;
+  background-position: center;
   color: #ffffff;
-  padding: 24px 20px 60px;
+  padding: 28px 20px 70px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 240px;
+  min-height: 260px;
 }
 
 .mobile-header-nav {
@@ -5113,6 +5340,12 @@ button:active {
   border-radius: 24px;
   padding: 28px;
   box-shadow: 0 10px 35px rgba(99, 102, 241, 0.07);
+}
+
+.quick-module-btn:hover {
+  background: #ffffff !important;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15) !important;
 }
 
 .visiona-primary-btn {

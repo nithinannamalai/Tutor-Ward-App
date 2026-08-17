@@ -316,18 +316,19 @@ html, body {
 
 /* Poster Modal Styling */
 .poster-modal {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(8px);
-  z-index: 200;
+  z-index: 1000;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 20px;
+  overflow-y: auto;
   animation: fadeIn var(--transition-fast) forwards;
 }
 
@@ -338,12 +339,15 @@ html, body {
   padding: 16px;
   width: 100%;
   max-width: 360px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 20px 40px rgba(0, 82, 204, 0.15);
   animation: scaleUp var(--transition-slow) forwards;
+  margin: auto 0;
 }
 
 .poster-image {

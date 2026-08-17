@@ -16,7 +16,6 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
   onOpenProfile,
   onOpenTab
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const isAdmin = currentUser?.role === 'teacher';
 
   const name = currentUser?.name || 'Nithin Annamalai';
@@ -27,9 +26,9 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
   const department = currentUser?.department || 'Dept of EEE';
 
   const [dbMetrics, setDbMetrics] = useState({
-    attendance: '85%',
-    cgpa: '8.9',
-    nptelCerts: '2 Certs',
+    attendance: '88.5%',
+    cgpa: '8.75',
+    nptelCerts: '2 Exams',
     arrears: '0'
   });
 
@@ -44,13 +43,13 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
         if (profile && isMounted) {
           const semKeys = Object.keys(profile.cgpa).map(Number).sort((a, b) => b - a);
           const latestSem = semKeys[0];
-          const latestCgpa = latestSem ? profile.cgpa[latestSem]?.gpa || 8.9 : 8.9;
+          const latestCgpa = latestSem ? profile.cgpa[latestSem]?.gpa || 8.75 : 8.75;
 
           setDbMetrics(prev => ({
             ...prev,
             cgpa: String(latestCgpa),
             arrears: String(profile.arrears ?? 0),
-            nptelCerts: `${profile.nptelExams?.length || 0} Certs`
+            nptelCerts: `${profile.nptelExams?.length || 2} Exams`
           }));
         }
 
@@ -60,8 +59,8 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
           const percentage = Math.round((present / logs.length) * 100);
           setDbMetrics(prev => ({ ...prev, attendance: `${percentage}%` }));
         }
-      } catch (err) {
-        console.warn('Failed to load DB metrics in StudentDetailsCard:', err);
+      } catch (e) {
+        console.warn('Student card db sync fallback:', e);
       }
     };
 
@@ -70,128 +69,94 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
   }, [currentUser]);
 
   return (
-    <div className="student-details-above-notice">
-      <div className="student-card-inner">
-        {/* Top Header Info Row */}
-        <div className="student-info-top">
-          <div className="student-profile-left">
-            <div 
-              className="student-avatar-badge" 
-              onClick={() => setIsExpanded(prev => !prev)}
-              style={{ 
-                cursor: 'pointer',
-                background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
-                borderColor: 'rgba(255, 255, 255, 0.7)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-              title="Click to view full info"
-            >
-              {name.charAt(0)}
-              <span className="student-online-dot" />
-            </div>
-
-            <div className="student-identity-text">
-              <div className="student-name-row">
-                <h3 className="student-full-name">{name}</h3>
-                {isExpanded && (
-                  <span className={`student-status-chip ${isAdmin ? 'admin' : 'student'}`}>
-                    <ShieldCheck size={10} />
-                    {isAdmin ? 'Faculty Admin' : 'UG Scholar'}
-                  </span>
-                )}
-              </div>
-              {isExpanded && (
-                <p className="student-dept-tag">{department} · Sri Ramakrishna Eng. College</p>
-              )}
-            </div>
+    <div className="mobile-vip-student-card">
+      {/* Top Identity Header */}
+      <div className="vip-card-header">
+        <div className="vip-avatar-wrap" onClick={onOpenProfile}>
+          <div className="vip-avatar-circle">
+            {name.charAt(0)}
           </div>
-
-          <button className="student-vault-cta" onClick={onOpenProfile} aria-label="Open Document Vault">
-            <span>Doc Vault</span>
-            <ChevronRight size={14} />
-          </button>
+          <span className="vip-online-badge" />
         </div>
 
-        {/* 🎓 Clean Student Info Chips */}
-        {!isAdmin && (
-          <div className="student-details-grid">
-            <div className="detail-chip">
-              <Hash size={12} className="detail-icon" />
-              <span className="detail-label">Roll:</span>
-              <span className="detail-value">{rollNo}</span>
-            </div>
-
-            <div className="detail-chip">
-              <Layers size={12} className="detail-icon" />
-              <span className="detail-label">Class:</span>
-              <span className="detail-value">{className}</span>
-            </div>
-
-            <div className="detail-chip">
-              <Calendar size={12} className="detail-icon" />
-              <span className="detail-label">Year:</span>
-              <span className="detail-value">{yearOfStudy}</span>
-            </div>
-
-            {isExpanded && (
-              <div className="detail-chip">
-                <BookOpen size={12} className="detail-icon" />
-                <span className="detail-label">Sem:</span>
-                <span className="detail-value">{semester}</span>
-              </div>
-            )}
+        <div className="vip-user-info">
+          <div className="vip-name-row">
+            <h2 className="vip-student-name">{name}</h2>
+            <span className={`vip-role-tag ${isAdmin ? 'admin' : 'student'}`}>
+              <ShieldCheck size={11} /> {isAdmin ? 'Faculty Admin' : 'UG Scholar'}
+            </span>
           </div>
-        )}
+          <p className="vip-dept-text">{department} · SREC</p>
+        </div>
 
-        {/* 4 Stat Metrics Grid from DB */}
-        {!isAdmin && isExpanded && (
-          <div className="student-metrics-row" style={{ animation: 'fadeIn 0.2s ease-in-out' }}>
-            <div className="student-metric-pill" onClick={() => onOpenTab('attendance')}>
-              <div className="metric-icon-wrap attendance">
-                <UserCheck size={14} />
-              </div>
-              <div className="metric-text font-wrap">
-                <span className="metric-val">{dbMetrics.attendance}</span>
-                <span className="metric-lbl">Attendance</span>
-              </div>
-            </div>
-
-            <div className="student-metric-pill" onClick={() => onOpenTab('academics')}>
-              <div className="metric-icon-wrap cgpa">
-                <GraduationCap size={14} />
-              </div>
-              <div className="metric-text font-wrap">
-                <span className="metric-val">{dbMetrics.cgpa}</span>
-                <span className="metric-lbl">CGPA</span>
-              </div>
-            </div>
-
-            <div className="student-metric-pill" onClick={() => onOpenTab('nptel')}>
-              <div className="metric-icon-wrap nptel">
-                <Award size={14} />
-              </div>
-              <div className="metric-text font-wrap">
-                <span className="metric-val">{dbMetrics.nptelCerts}</span>
-                <span className="metric-lbl">NPTEL</span>
-              </div>
-            </div>
-
-            <div className="student-metric-pill" onClick={() => onOpenTab('academics')}>
-              <div className="metric-icon-wrap arrears">
-                <Sparkles size={14} />
-              </div>
-              <div className="metric-text font-wrap">
-                <span className="metric-val">{dbMetrics.arrears}</span>
-                <span className="metric-lbl">Arrears</span>
-              </div>
-            </div>
-          </div>
-        )}
+        <button className="vip-vault-btn" onClick={onOpenProfile} aria-label="Open Document Vault">
+          <span>Doc Vault</span>
+          <ChevronRight size={14} />
+        </button>
       </div>
+
+      {/* Detail Chips Row */}
+      {!isAdmin && (
+        <div className="vip-chips-row">
+          <div className="vip-chip">
+            <Hash size={12} className="vip-chip-icon" />
+            <span>{rollNo}</span>
+          </div>
+          <div className="vip-chip">
+            <Layers size={12} className="vip-chip-icon" />
+            <span>{className}</span>
+          </div>
+          <div className="vip-chip">
+            <Calendar size={12} className="vip-chip-icon" />
+            <span>{yearOfStudy} · {semester}</span>
+          </div>
+        </div>
+      )}
+
+      {/* 4 Academic Metrics Grid */}
+      {!isAdmin && (
+        <div className="vip-metrics-grid">
+          <div className="vip-metric-box" onClick={() => onOpenTab('attendance')}>
+            <div className="vip-metric-icon" style={{ background: 'rgba(22, 163, 74, 0.2)', color: '#4ade80' }}>
+              <UserCheck size={14} />
+            </div>
+            <div className="vip-metric-data">
+              <span className="vip-metric-val">{dbMetrics.attendance}</span>
+              <span className="vip-metric-label">Attendance</span>
+            </div>
+          </div>
+
+          <div className="vip-metric-box" onClick={() => onOpenTab('academics')}>
+            <div className="vip-metric-icon" style={{ background: 'rgba(99, 102, 241, 0.25)', color: '#818cf8' }}>
+              <GraduationCap size={14} />
+            </div>
+            <div className="vip-metric-data">
+              <span className="vip-metric-val">{dbMetrics.cgpa}</span>
+              <span className="vip-metric-label">CGPA</span>
+            </div>
+          </div>
+
+          <div className="vip-metric-box" onClick={() => onOpenTab('nptel')}>
+            <div className="vip-metric-icon" style={{ background: 'rgba(217, 119, 6, 0.2)', color: '#fbbf24' }}>
+              <Award size={14} />
+            </div>
+            <div className="vip-metric-data">
+              <span className="vip-metric-val">{dbMetrics.nptelCerts}</span>
+              <span className="vip-metric-label">NPTEL</span>
+            </div>
+          </div>
+
+          <div className="vip-metric-box" onClick={() => onOpenTab('academics')}>
+            <div className="vip-metric-icon" style={{ background: 'rgba(236, 72, 153, 0.2)', color: '#f472b6' }}>
+              <Sparkles size={14} />
+            </div>
+            <div className="vip-metric-data">
+              <span className="vip-metric-val">{dbMetrics.arrears}</span>
+              <span className="vip-metric-label">Arrears</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-

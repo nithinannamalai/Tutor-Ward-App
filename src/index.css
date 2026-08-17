@@ -3079,6 +3079,262 @@ html, body {
   box-shadow: 0 4px 14px rgba(0, 82, 204, 0.3);
 }
 
+/* ====================================================
+   💎 MOBILE VIP STUDENT PASS & MODERN DASHBOARD REDESIGN
+   ==================================================== */
+.mobile-vip-student-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1d4ed8 100%);
+  border-radius: 28px;
+  padding: 22px;
+  color: #ffffff;
+  box-shadow: 0 16px 36px rgba(29, 78, 216, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-vip-student-card::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.vip-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.vip-avatar-wrap {
+  position: relative;
+  cursor: pointer;
+}
+
+.vip-avatar-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border: 2.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.vip-avatar-wrap:hover .vip-avatar-circle {
+  transform: scale(1.06);
+}
+
+.vip-online-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #0f172a;
+}
+
+.vip-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vip-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vip-student-name {
+  font-size: 17px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vip-role-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+}
+
+.vip-role-tag.student {
+  background: rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  color: #93c5fd;
+}
+
+.vip-role-tag.admin {
+  background: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fcd34d;
+}
+
+.vip-dept-text {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 3px 0 0 0;
+  font-weight: 600;
+}
+
+.vip-vault-btn {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.vip-vault-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateX(2px);
+}
+
+.vip-chips-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.vip-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.vip-chip-icon {
+  color: #93c5fd;
+}
+
+.vip-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.vip-metric-box {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.vip-metric-box:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.vip-metric-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.vip-metric-val {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  display: block;
+  line-height: 1;
+}
+
+.vip-metric-label {
+  font-size: 9px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: block;
+}
+
+/* 🚀 Quick 1-Tap Action Launcher Strip */
+.mobile-quick-action-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+}
+
+.quick-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.quick-action-chip:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
 /* Separated Folder Cards for Dashboard Categories */
 .category-folder-card {
   background: var(--bg-primary);

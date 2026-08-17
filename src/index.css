@@ -2933,6 +2933,22 @@ html, body {
     gap: 20px !important;
   }
 
+  /* Desktop 2-Column Dashboard Grid Layout */
+  .home-dashboard-view {
+    display: grid !important;
+    grid-template-columns: 1fr 340px !important;
+    gap: 28px !important;
+    align-items: start !important;
+  }
+
+  .desktop-widgets-col {
+    display: flex !important;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 84px;
+  }
+
   /* Category Folder Cards on Desktop */
   .category-folder-card {
     padding: 24px 28px !important;

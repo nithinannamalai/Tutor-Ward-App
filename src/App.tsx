@@ -22,7 +22,10 @@ import {
   RequestLetters,
   LabSeatFinder,
   GpaCalculator,
-  AnnouncementBanner
+  AnnouncementBanner,
+  DesktopLandingPage,
+  DesktopLoginPage,
+  DesktopSidebar
 } from './components';
 
 import {
@@ -76,11 +79,18 @@ const USER_PROFILES: UserProfile[] = [
 ];
 
 function App() {
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 992);
   const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [showSignInPage, setShowSignInPage] = useState(false);
   const [dismissedSignIn, setDismissedSignIn] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 992);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [currentTab, setCurrentTab] = useState<string | null>(null);
   const [isClosingModal, setIsClosingModal] = useState(false);
@@ -292,16 +302,33 @@ function App() {
     : appCategories;
 
   if (showSplash) {
+    if (isDesktop) {
+      return (
+        <DesktopLandingPage
+          onOpenLogin={() => { setShowSplash(false); setDismissedSignIn(false); setShowSignInPage(true); }}
+          onEnterAsGuest={() => { setShowSplash(false); setDismissedSignIn(true); setShowSignInPage(false); }}
+        />
+      );
+    }
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-  // SHOW SIGN IN PAGE FIRST (Before entering dashboard), with close X to explore landing page
-  if (!isAuthenticated && !dismissedSignIn) {
+  // SHOW DEDICATED DESKTOP LOGIN PAGE OR MOBILE SIGN IN PAGE
+  if ((!isAuthenticated && !dismissedSignIn) || showSignInPage) {
+    if (isDesktop) {
+      return (
+        <DesktopLoginPage
+          onClose={() => { setDismissedSignIn(true); setShowSignInPage(false); }}
+          onLoginSuccess={(profile) => { handleLoginSuccess(profile); setShowSignInPage(false); }}
+          demoProfiles={USER_PROFILES}
+        />
+      );
+    }
     return (
       <div className="mobile-app-shell">
         <SignInPage
-          onClose={() => setDismissedSignIn(true)}
-          onLoginSuccess={handleLoginSuccess}
+          onClose={() => { setDismissedSignIn(true); setShowSignInPage(false); }}
+          onLoginSuccess={(profile) => { handleLoginSuccess(profile); setShowSignInPage(false); }}
           demoProfiles={USER_PROFILES}
         />
       </div>
@@ -309,7 +336,19 @@ function App() {
   }
 
   return (
-    <div className="mobile-app-shell">
+    <div className="mobile-app-shell" style={{ display: isDesktop ? 'flex' : 'block', flexDirection: 'row' }}>
+      {/* Permanent Desktop Sidebar Navigation */}
+      {isDesktop && (
+        <DesktopSidebar
+          currentTab={currentTab}
+          activeBottomNav={activeBottomNav}
+          onSelectTab={(tab) => { setCurrentTab(tab); if (!tab) setActiveBottomNav('home'); }}
+          isAuthenticated={isAuthenticated}
+          currentUser={currentUser}
+          onOpenSignIn={() => setShowSignInPage(true)}
+          onLogout={handleLogout}
+        />
+      )}
       {/* ── Top Header Bar ── */}
       <header className="mobile-top-bar">
         <div className="mobile-top-left">

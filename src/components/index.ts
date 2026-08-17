@@ -23,3 +23,8 @@ export { LabSeatFinder } from './services/LabSeatFinder';
 export { ODForm } from './services/ODForm';
 export { ProfileDocs } from './services/ProfileDocs';
 export { RequestLetters } from './services/RequestLetters';
+
+// Desktop Components
+export { DesktopLandingPage } from './desktop/DesktopLandingPage';
+export { DesktopLoginPage } from './desktop/DesktopLoginPage';
+export { DesktopSidebar } from './desktop/DesktopSidebar';

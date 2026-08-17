@@ -5,17 +5,19 @@ import type { UserProfile } from '../../App';
 import {
   ArrowLeft, Upload, Download, Trash2, Search, UserCheck, Plus, X,
   User, Phone, Calendar, Droplets, MapPin, BookOpen, Hash, Layers,
-  Shield, CheckCircle, Edit3
+  Shield, CheckCircle, Edit3, Award, FileText, Sparkles, CheckCircle2, ChevronDown
 } from 'lucide-react';
 
-const CERT_CATEGORIES = [
-  'NPTEL & Swayam Certifications',
-  'Internship & Industry Training',
-  'Workshops & Seminars',
-  'Sports & Co-Curricular',
-  'Academic Degrees & Marksheets',
-  'Other Certificates'
+const CERT_CATEGORY_CONFIG = [
+  { label: 'NPTEL & Swayam Certifications', icon: '🎓', color: '#0052cc', bg: '#eff6ff' },
+  { label: 'Internship & Industry Training', icon: '💼', color: '#059669', bg: '#ecfdf5' },
+  { label: 'Workshops & Seminars', icon: '🛠️', color: '#d97706', bg: '#fffbeb' },
+  { label: 'Sports & Co-Curricular', icon: '🏆', color: '#dc2626', bg: '#fef2f2' },
+  { label: 'Academic Degrees & Marksheets', icon: '📜', color: '#7c3aed', bg: '#f5f3ff' },
+  { label: 'Other Certificates', icon: '📑', color: '#475569', bg: '#f8fafc' },
 ];
+
+const CERT_CATEGORIES = CERT_CATEGORY_CONFIG.map(c => c.label);
 
 const DOC_CATEGORIES = [
   'Academic Marksheets',
@@ -62,6 +64,7 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [customDocName, setCustomDocName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   // ── Profile Edit States ──────────────────────────────
@@ -583,60 +586,77 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
 
             {/* ── Doc / Cert Upload Section ── */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <h4 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>
-                  {mode === 'certificates' ? 'Certificates Vault' : 'Documents Vault'}
-                </h4>
-                <button onClick={handleOpenUploadModal} style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontSize: 11, background: 'var(--accent-blue)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontWeight: 700 }}>
-                  <Plus size={14} />
-                  {mode === 'certificates' ? 'Add Certificate' : 'Add Document'}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: -0.3 }}>
+                    {mode === 'certificates' ? '🏆 Certificates Vault' : '📁 Documents Vault'}
+                  </h4>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0 0' }}>
+                    {mode === 'certificates' ? 'NPTEL, Symposia, Workshops & Course Certifications' : 'Academic Proofs, Bonafide, Resume & ID Records'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleOpenUploadModal}
+                  className="modern-add-cert-btn"
+                >
+                  <Plus size={15} />
+                  <span>{mode === 'certificates' ? 'Add Certificate' : 'Add Document'}</span>
                 </button>
               </div>
 
               {uploading && (
-                <div style={{ padding: 12, background: 'var(--bg-secondary)', borderRadius: 8, textAlign: 'center', fontSize: 12, marginBottom: 10 }}>
-                  Uploading...
+                <div style={{ padding: 14, background: 'rgba(0,82,204,0.06)', border: '1.5px solid rgba(0,82,204,0.18)', borderRadius: 16, textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'var(--accent-blue)', marginBottom: 12 }}>
+                  ⏳ Uploading and securing to encrypted vault...
                 </div>
               )}
               {statusMessage && (
-                <div style={{ padding: 8, background: '#eff6ff', border: '1px solid rgba(0,82,204,0.18)', borderRadius: 6, fontSize: 11, textAlign: 'center', color: 'var(--accent-blue)', fontWeight: 700, marginBottom: 10 }}>
+                <div style={{ padding: 10, background: '#eff6ff', border: '1px solid rgba(0,82,204,0.18)', borderRadius: 12, fontSize: 11.5, textAlign: 'center', color: 'var(--accent-blue)', fontWeight: 700, marginBottom: 12 }}>
                   {statusMessage}
                 </div>
               )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {filteredDocs.length === 0 ? (
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '24px 0' }}>
-                    {mode === 'certificates' ? 'No certificates stored yet.' : 'No documents stored yet.'}
-                  </p>
+                  <div style={{ background: '#ffffff', borderRadius: 20, border: '1.5px dashed rgba(0,82,204,0.18)', padding: '36px 20px', textAlign: 'center' }}>
+                    <div style={{ width: 50, height: 50, borderRadius: 16, background: 'rgba(0,82,204,0.08)', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                      {mode === 'certificates' ? <Award size={26} /> : <FileText size={26} />}
+                    </div>
+                    <h4 style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px 0' }}>
+                      {mode === 'certificates' ? 'No Certificates Stored' : 'No Documents Stored'}
+                    </h4>
+                    <p style={{ fontSize: 11.5, color: 'var(--text-muted)', margin: 0 }}>
+                      Click "Add {mode === 'certificates' ? 'Certificate' : 'Document'}" to upload your PDFs.
+                    </p>
+                  </div>
                 ) : mode === 'documents' ? (
-                  // Documents: simple numbered list
-                  <div style={{ background: '#fff', border: '1.5px solid rgba(0,82,204,0.12)', borderRadius: 12, overflow: 'hidden' }}>
+                  // Documents list
+                  <div style={{ background: '#ffffff', border: '1.5px solid rgba(0,82,204,0.12)', borderRadius: 18, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
                     {filteredDocs.map((doc, idx) => (
                       <div key={doc.id} style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '10px 12px',
+                        padding: '12px 16px',
                         borderBottom: idx < filteredDocs.length - 1 ? '1px solid rgba(0,82,204,0.06)' : 'none',
-                        background: idx % 2 === 0 ? '#f8fafc' : '#fff'
+                        background: idx % 2 === 0 ? '#f8fafc' : '#ffffff',
+                        transition: 'background 0.2s ease'
                       }}>
-                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: '#475569', background: '#e2e8f0', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {idx + 1}
-                          </span>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,82,204,0.1)', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <FileText size={16} />
+                          </div>
                           <div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', display: 'block' }}>{getDisplayName(doc.name)}</span>
-                            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{doc.size} · {doc.uploadedAt}</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', display: 'block' }}>{getDisplayName(doc.name)}</span>
+                            <span style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>{doc.size} · Uploaded {doc.uploadedAt}</span>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => downloadDoc(doc)} className="doc-action-btn" style={{ padding: 4 }} title="Download"><Download size={14} /></button>
-                          <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" style={{ padding: 4 }} title="Delete"><Trash2 size={14} /></button>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => downloadDoc(doc)} className="doc-action-btn" title="Download"><Download size={15} /></button>
+                          <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" title="Delete"><Trash2 size={15} /></button>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  // Certificates: grouped by category
+                  // Certificates: Grouped by Category with Modern Cards
                   (() => {
                     const grouped: Record<string, StudentDoc[]> = {};
                     filteredDocs.forEach(doc => {
@@ -645,26 +665,40 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
                       grouped[cat].push(doc);
                     });
                     return Object.keys(grouped).map(cat => (
-                      <div key={cat} style={{ background: '#fff', border: '1.5px solid rgba(0,82,204,0.12)', borderRadius: 12, overflow: 'hidden' }}>
-                        <div style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,82,204,0.1)' }}>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: '#0052cc' }}>📁 {cat}</span>
-                          <span style={{ fontSize: 9, background: '#0052cc', color: '#fff', padding: '2px 6px', borderRadius: 10, fontWeight: 700 }}>{grouped[cat].length}</span>
+                      <div key={cat} className="modern-cert-category-card">
+                        <div className="modern-cert-category-header">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 14 }}>📁</span>
+                            <span style={{ fontSize: 12.5, fontWeight: 900, color: 'var(--text-main)' }}>{cat}</span>
+                          </div>
+                          <span className="modern-cert-count-pill">{grouped[cat].length} {grouped[cat].length === 1 ? 'Cert' : 'Certs'}</span>
                         </div>
-                        <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {grouped[cat].map((doc, idx) => (
-                            <div key={doc.id} style={{ borderLeft: '3.5px solid var(--accent-blue)', padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderRadius: 8 }}>
-                              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                                <span style={{ fontSize: 10, fontWeight: 800, color: '#475569', background: '#e2e8f0', width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                  {idx + 1}
-                                </span>
-                                <div>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', display: 'block' }}>{getDisplayName(doc.name)}</span>
-                                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{doc.size} · {doc.uploadedAt}</span>
+                        <div style={{ padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {grouped[cat].map((doc) => (
+                            <div key={doc.id} className="modern-cert-item-row">
+                              <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0, flex: 1 }}>
+                                <div className="modern-cert-pdf-badge">
+                                  <Award size={16} />
+                                </div>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--text-main)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {getDisplayName(doc.name)}
+                                  </span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                                    <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 800, background: '#dcfce7', padding: '1px 6px', borderRadius: 6 }}>
+                                      ✓ Verified PDF
+                                    </span>
+                                    <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{doc.size} · {doc.uploadedAt}</span>
+                                  </div>
                                 </div>
                               </div>
-                              <div style={{ display: 'flex', gap: 6 }}>
-                                <button onClick={() => downloadDoc(doc)} className="doc-action-btn" style={{ padding: 4 }} title="Download"><Download size={14} /></button>
-                                <button onClick={() => handleDeleteDoc(doc.id)} className="doc-action-btn delete" style={{ padding: 4 }} title="Delete"><Trash2 size={14} /></button>
+                              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                <button onClick={() => downloadDoc(doc)} className="modern-cert-action-btn download" title="Download Certificate">
+                                  <Download size={14} />
+                                </button>
+                                <button onClick={() => handleDeleteDoc(doc.id)} className="modern-cert-action-btn delete" title="Delete Certificate">
+                                  <Trash2 size={14} />
+                                </button>
                               </div>
                             </div>
                           ))}
@@ -680,11 +714,15 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
 
         {/* Add Student Modal */}
         {showAddModal && (
-          <div className="poster-modal" style={{ display: 'flex', zIndex: 1000 }}>
-            <form className="poster-content" onSubmit={handleAddStudentSubmit} style={{ gap: 12, maxWidth: 380, width: '90%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: 14, fontWeight: '700' }}>Add New Student Profile</h3>
-                <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => setShowAddModal(false)}><X size={16} /></button>
+          <div className="modern-cert-modal-backdrop">
+            <form className="modern-cert-modal-card" onSubmit={handleAddStudentSubmit}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                  👤 Add Student Profile
+                </h3>
+                <button type="button" className="modern-cert-modal-close" onClick={() => setShowAddModal(false)}>
+                  <X size={16} />
+                </button>
               </div>
               <div className="form-group">
                 <label className="form-label">Full Name</label>
@@ -698,82 +736,159 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
                 <label className="form-label">Email Address</label>
                 <input type="email" value={addEmail} onChange={e => setAddEmail(e.target.value)} className="form-input" placeholder="e.g. student3@eee.com" required />
               </div>
-              <button type="submit" className="btn-primary" style={{ marginTop: 8 }} disabled={saving}>
+              <button type="submit" className="modern-cert-submit-btn" disabled={saving}>
                 {saving ? 'Creating...' : 'Register Student'}
               </button>
             </form>
           </div>
         )}
 
-        {/* Upload Modal */}
+        {/* 🌟 Modern Luxury Add Certificate / Document Modal */}
         {showUploadModal && (
-          <div className="poster-modal" style={{ display: 'flex', zIndex: 1000 }}>
-            <form className="poster-content" onSubmit={handleActualUpload} style={{ gap: 14, maxWidth: 380, width: '95%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: 14, fontWeight: '800', color: 'var(--text-main)' }}>
-                  {mode === 'certificates' ? 'Add Certificate' : 'Add Document'}
-                </h3>
-                <button type="button" className="close-modal-btn" style={{ position: 'static' }} onClick={() => setShowUploadModal(false)}><X size={16} /></button>
+          <div className="modern-cert-modal-backdrop">
+            <form className="modern-cert-modal-card" onSubmit={handleActualUpload}>
+              {/* Modal Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(0,82,204,0.1)', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {mode === 'certificates' ? <Award size={16} /> : <FileText size={16} />}
+                    </div>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                      {mode === 'certificates' ? 'Add Certificate' : 'Add Document'}
+                    </h3>
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>
+                    Upload your verified PDF to the secure institutional vault
+                  </p>
+                </div>
+                <button type="button" className="modern-cert-modal-close" onClick={() => setShowUploadModal(false)}>
+                  <X size={16} />
+                </button>
               </div>
 
-              {/* Category (only for certificates) */}
+              {/* Custom Category Dropdown (only for certificates) */}
               {mode === 'certificates' && (
-                <div className="form-group">
-                  <label className="form-label">Category / Group</label>
-                  <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className="form-select" style={{ fontSize: 12 }}>
-                    {CERT_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
+                <div className="form-group" style={{ marginBottom: 14, position: 'relative' }}>
+                  <label className="form-label" style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: 6 }}>
+                    Category / Group
+                  </label>
+                  <div className="custom-dropdown-container">
+                    <button
+                      type="button"
+                      className="custom-dropdown-trigger"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                        <span style={{ fontSize: 16 }}>
+                          {CERT_CATEGORY_CONFIG.find(c => c.label === selectedCategory)?.icon || '🎓'}
+                        </span>
+                        <span style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {selectedCategory || CERT_CATEGORIES[0]}
+                        </span>
+                      </div>
+                      <ChevronDown size={16} className={`dropdown-chevron ${isDropdownOpen ? 'open' : ''}`} />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="custom-dropdown-menu">
+                        {CERT_CATEGORY_CONFIG.map(cat => (
+                          <div
+                            key={cat.label}
+                            className={`custom-dropdown-option ${selectedCategory === cat.label ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedCategory(cat.label);
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ fontSize: 16 }}>{cat.icon}</span>
+                              <span style={{ fontSize: 12.5, fontWeight: selectedCategory === cat.label ? 800 : 600 }}>
+                                {cat.label}
+                              </span>
+                            </div>
+                            {selectedCategory === cat.label && <CheckCircle size={15} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Document Name Input */}
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <label className="form-label">{mode === 'certificates' ? 'Certificate Name' : 'Document Name'}</label>
+              {/* Certificate / Document Name */}
+              <div className="form-group" style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label className="form-label" style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
+                    {mode === 'certificates' ? 'Certificate Name' : 'Document Name'}
+                  </label>
                   {selectedFile && (
-                    <span style={{ fontSize: 9, background: 'rgba(5,150,105,0.12)', color: '#059669', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>✨ Auto-recognised</span>
+                    <span style={{ fontSize: 9.5, background: 'rgba(22, 163, 74, 0.12)', color: '#16a34a', padding: '2px 8px', borderRadius: 10, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <Sparkles size={10} /> Auto-Recognized
+                    </span>
                   )}
                 </div>
                 <input
                   type="text"
                   value={customDocName}
                   onChange={e => setCustomDocName(e.target.value)}
-                  className="form-input"
-                  placeholder={mode === 'certificates' ? 'e.g. NPTEL Python, Workshop 2024...' : 'e.g. Resume, Aadhar Card, Bonafide...'}
+                  className="modern-cert-input"
+                  placeholder={mode === 'certificates' ? 'e.g. NPTEL Python Programming, EV Workshop 2026...' : 'e.g. Resume, Bonafide Letter, ID Card...'}
                   required
                 />
               </div>
 
-              {/* File Picker */}
-              <div className="form-group">
-                <label className="form-label">Attach PDF File</label>
+              {/* PDF File Drag & Drop / Upload Zone */}
+              <div className="form-group" style={{ marginBottom: 18 }}>
+                <label className="form-label" style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: 6 }}>
+                  Attach PDF Document
+                </label>
                 {selectedFile ? (
-                  <div style={{ background: '#f0fdf4', padding: '10px 12px', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
-                    <div>
-                      <span style={{ fontWeight: 700, color: '#166534', display: 'block' }}>✓ File Attached</span>
-                      <span style={{ color: '#475569', wordBreak: 'break-all', display: 'block', marginTop: 2 }}>{selectedFile.name}</span>
-                      <span style={{ color: '#64748b', fontSize: 10 }}>{Math.round(selectedFile.size / 1024)} KB</span>
+                  <div className="modern-attached-file-box">
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0, flex: 1 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <CheckCircle2 size={20} />
+                      </div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <span style={{ fontWeight: 800, color: '#166534', fontSize: 12.5, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {selectedFile.name}
+                        </span>
+                        <span style={{ color: '#64748b', fontSize: 10.5, fontWeight: 600 }}>
+                          {(selectedFile.size / 1024).toFixed(1)} KB · Ready to Save
+                        </span>
+                      </div>
                     </div>
-                    <label style={{ fontSize: 10, color: 'var(--accent-blue)', cursor: 'pointer', fontWeight: 700, border: '1px solid var(--accent-blue)', padding: '3px 8px', borderRadius: 6, background: '#fff' }}>
+                    <label className="modern-change-file-btn">
                       Change
                       <input type="file" accept="application/pdf" onChange={handleFileUpload} style={{ display: 'none' }} />
                     </label>
                   </div>
                 ) : (
-                  <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px', background: '#f8fafc', border: '1.5px dashed rgba(0, 82, 204, 0.25)', borderRadius: 10, cursor: 'pointer', textAlign: 'center' }}>
-                    <Upload size={24} style={{ color: 'var(--accent-blue)', marginBottom: 6 }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-blue)' }}>Click to select PDF</span>
-                    <span style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>Only PDF files are supported</span>
+                  <label className="modern-pdf-dropzone">
+                    <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(0, 82, 204, 0.08)', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                      <Upload size={22} />
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--accent-blue)' }}>Click to select PDF Certificate</span>
+                    <span style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 3 }}>Accepts verified PDF files up to 10MB</span>
                     <input type="file" accept="application/pdf" onChange={handleFileUpload} style={{ display: 'none' }} />
                   </label>
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '10px 0', fontSize: 12, fontWeight: 700 }} disabled={!selectedFile || !customDocName.trim()}>
-                  Upload & Save
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="submit"
+                  className="modern-cert-submit-btn"
+                  disabled={!selectedFile || !customDocName.trim()}
+                >
+                  <Award size={15} /> Upload &amp; Secure Certificate
                 </button>
-                <button type="button" onClick={() => setShowUploadModal(false)} className="btn-secondary" style={{ flex: 1, padding: '10px 0', fontSize: 12, fontWeight: 700 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowUploadModal(false)}
+                  className="modern-cert-cancel-btn"
+                >
                   Cancel
                 </button>
               </div>
@@ -801,7 +916,7 @@ function ProfileField({
     <div>
       <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 5 }}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', background: '#f8fafc', borderRadius: 10, border: '1.5px solid #e2e8f0', transition: 'border-color 0.2s' }}
-        onFocus={() => {}} // handled by CSS
+        onFocus={() => { }} // handled by CSS
       >
         <span style={{ color: '#94a3b8', flexShrink: 0, display: 'flex', alignItems: 'center' }}>{icon}</span>
         <input

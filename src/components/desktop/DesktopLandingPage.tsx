@@ -1,6 +1,7 @@
 import React from 'react';
-import { Sparkles, BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck, Map, Shield, ArrowRight, CheckCircle2, ShieldCheck, Zap, LogIn, Users } from 'lucide-react';
+import { Sparkles, GraduationCap, Award, FileText, UserCheck, Map, ArrowRight, LogIn, ShieldCheck, Clock, Calendar, Phone, CheckCircle2 } from 'lucide-react';
 import appLogo from '../../assets/app-logo.png';
+import headerBanner from '../../assets/srec-snr-header.png';
 
 interface DesktopLandingPageProps {
   onOpenLogin: () => void;
@@ -10,38 +11,52 @@ interface DesktopLandingPageProps {
 export const DesktopLandingPage: React.FC<DesktopLandingPageProps> = ({ onOpenLogin, onEnterAsGuest }) => {
   return (
     <div className="desktop-landing-page">
-      {/* ── Desktop Top Navigation Bar ── */}
+      {/* ── Official Institutional Top Accreditation Bar ── */}
+      <div style={{ background: 'linear-gradient(90deg, #090d16 0%, #0f172a 50%, #1e3a8a 100%)', color: '#fff', padding: '6px 40px', fontSize: 11, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <ShieldCheck size={13} /> SREC ANNA UNIVERSITY AUTONOMOUS
+          </span>
+          <span style={{ opacity: 0.8 }}>NAAC 'A+' Grade Accredited</span>
+          <span style={{ opacity: 0.8 }}>NBA Accredited EEE Department</span>
+        </div>
+        <div style={{ display: 'flex', gap: 14, opacity: 0.9 }}>
+          <span>Coimbatore - 641 022</span>
+          <span>·</span>
+          <span>Counseling Code: 2719</span>
+        </div>
+      </div>
+
+      {/* ── Main Desktop Top Navigation Bar ── */}
       <header className="desktop-landing-nav">
         <div className="desktop-landing-brand">
-          <img src={appLogo} alt="EEE SREC Logo" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover' }} />
+          <img src={appLogo} alt="EEE SREC Logo" style={{ width: 42, height: 42, borderRadius: 12, objectFit: 'cover', border: '2px solid rgba(0,82,204,0.2)' }} />
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-main)', margin: 0, lineHeight: 1.1 }}>EEE SREC</h2>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Smart Academic Hub</span>
+            <h2 style={{ fontSize: 17, fontWeight: 900, color: 'var(--text-main)', margin: 0, lineHeight: 1.1 }}>EEE SREC PORTAL</h2>
+            <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: 0.6 }}>Smart Tutor &amp; Academic Ecosystem</span>
           </div>
         </div>
 
-        <div className="desktop-landing-links">
-          <a href="#features" className="desktop-landing-link">Features</a>
-          <a href="#stats" className="desktop-landing-link">Department Stats</a>
-          <a href="#portals" className="desktop-landing-link">Academic Portals</a>
-          <a href="#contact" className="desktop-landing-link">Contact</a>
+        {/* Institution Banner Header Graphic */}
+        <div style={{ height: 38, opacity: 0.9, display: 'flex', alignItems: 'center' }}>
+          <img src={headerBanner} alt="SNR Sons Trust SREC" style={{ height: '100%', objectFit: 'contain' }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button className="btn-secondary" onClick={onEnterAsGuest} style={{ padding: '8px 18px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
+          <button className="btn-secondary" onClick={onEnterAsGuest} style={{ padding: '9px 18px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
             Guest Preview
           </button>
-          <button className="btn-primary" onClick={onOpenLogin} style={{ padding: '9px 22px', borderRadius: 20, fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button className="btn-primary" onClick={onOpenLogin} style={{ padding: '10px 24px', borderRadius: 20, fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 16px rgba(0,82,204,0.3)' }}>
             <LogIn size={16} /> Student Sign In
           </button>
         </div>
       </header>
 
-      {/* ── Hero Section ── */}
+      {/* ── Hero Section with Animated Mesh Glow ── */}
       <section className="desktop-hero-section">
         <div className="desktop-hero-badge">
           <Sparkles size={14} style={{ color: '#f59e0b' }} />
-          <span>OFFICIAL STUDENT &amp; TUTOR PORTAL 2026</span>
+          <span>OFFICIAL STUDENT &amp; TUTOR ECOSYSTEM 2026</span>
         </div>
 
         <h1 className="desktop-hero-title">
@@ -51,11 +66,11 @@ export const DesktopLandingPage: React.FC<DesktopLandingPageProps> = ({ onOpenLo
           Sri Ramakrishna Engineering College · Autonomous Institution Affiliated to Anna University
         </p>
         <p className="desktop-hero-desc">
-          Empowering EEE students with AI Tutors, Live Attendance Analytics, Instant On-Duty Requests, Bonafide Letter Generation, and Lab Exam Seat Locators in one unified web platform.
+          Empowering EEE students with AI Tutors, Live Attendance Analytics, Instant On-Duty Requests, Bonafide Letter Generation, Lab Exam Seat Locators, and Target GPA Simulators in one unified web platform.
         </p>
 
-        <div style={{ display: 'flex', gap: 16, marginTop: 24, justifyContent: 'center' }}>
-          <button className="btn-primary" onClick={onOpenLogin} style={{ padding: '14px 32px', borderRadius: 30, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 24px rgba(0, 82, 204, 0.35)' }}>
+        <div style={{ display: 'flex', gap: 16, marginTop: 28, justifyContent: 'center' }}>
+          <button className="btn-primary" onClick={onOpenLogin} style={{ padding: '14px 34px', borderRadius: 30, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 10px 30px rgba(0, 82, 204, 0.38)' }}>
             Enter Student Portal <ArrowRight size={18} />
           </button>
           <button className="btn-secondary" onClick={onEnterAsGuest} style={{ padding: '14px 28px', borderRadius: 30, fontSize: 15, fontWeight: 700 }}>
@@ -84,10 +99,10 @@ export const DesktopLandingPage: React.FC<DesktopLandingPageProps> = ({ onOpenLo
         </div>
       </section>
 
-      {/* ── Feature Showcase Section ── */}
+      {/* ── Feature Showcase Section (Working Models) ── */}
       <section id="features" className="desktop-features-section">
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: 1 }}>MODULE SHOWCASE</span>
+          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: 1 }}>WORKING ACADEMIC MODULES</span>
           <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-main)', margin: '6px 0 0 0' }}>Everything You Need for Academic Excellence</h2>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, User, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import type { UserProfile } from '../../App';
 import appLogo from '../../assets/app-logo.png';

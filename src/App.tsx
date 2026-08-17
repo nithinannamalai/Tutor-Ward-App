@@ -18,6 +18,9 @@ import { SignInPage } from './components/SignInPage';
 import { StudentDetailsCard } from './components/StudentDetailsCard';
 import { ODForm } from './components/ODForm';
 import { Timetable } from './components/Timetable';
+import { RequestLetters } from './components/RequestLetters';
+import { LabSeatFinder } from './components/LabSeatFinder';
+import { GpaCalculator } from './components/GpaCalculator';
 import type { Faculty, Rule } from './services/db';
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
@@ -259,7 +262,7 @@ function App() {
   };
 
 
-  // Mobile App Categories with Colorful App Tiles (Nithra Calendar & Airtel Thanks App Style)
+  // Mobile & Desktop App Categories with Colorful App Tiles
   const appCategories = useMemo(() => [
     {
       title: '🎓 ACADEMIC HUB',
@@ -268,6 +271,7 @@ function App() {
         { key: 'courses', label: 'Syllabus', icon: <BookOpen size={24} />, color: '#0891b2', bg: 'rgba(8, 145, 178, 0.12)' },
         { key: 'calendar', label: 'Calendar', icon: <Calendar size={24} />, color: '#dc2626', bg: 'rgba(220, 38, 38, 0.12)' },
         { key: 'academics', label: 'CGPA', icon: <GraduationCap size={24} />, color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
+        { key: 'cgpa-calc', label: 'GPA Calc', icon: <GraduationCap size={24} />, color: '#0284c7', bg: 'rgba(2, 132, 199, 0.12)' },
         { key: 'nptel', label: 'NPTEL', icon: <Award size={24} />, color: '#7c3aed', bg: 'rgba(124, 58, 237, 0.12)' },
         { key: 'timetable', label: 'Timetable', icon: <Calendar size={24} />, color: '#0f766e', bg: 'rgba(15, 118, 110, 0.12)' },
       ]
@@ -278,12 +282,14 @@ function App() {
         { key: 'profile', label: 'Documents', icon: <BookOpen size={24} />, color: '#0052cc', bg: 'rgba(0, 82, 204, 0.12)' },
         { key: 'certificates', label: 'Certificates', icon: <Award size={24} />, color: '#be185d', bg: 'rgba(190, 24, 93, 0.12)' },
         { key: 'od-form', label: 'OD Form', icon: <FileText size={24} />, color: '#4f46e5', bg: 'rgba(79, 70, 229, 0.12)' },
+        { key: 'request-letters', label: 'Bonafide / NOC', icon: <FileText size={24} />, color: '#0d9488', bg: 'rgba(13, 148, 136, 0.12)' },
       ]
     },
     {
-      title: '⚡ STUDENT SERVICES',
+      title: '⚡ STUDENT SERVICES & LABS',
       items: [
         { key: 'attendance', label: 'Attendance', icon: <UserCheck size={24} />, color: '#ff5f1f', bg: 'rgba(255, 95, 31, 0.12)' },
+        { key: 'lab-finder', label: 'Lab Finder', icon: <Map size={24} />, color: '#d97706', bg: 'rgba(217, 119, 6, 0.12)' },
         { key: 'suggestion', label: 'Suggestions', icon: <Inbox size={24} />, color: '#ea580c', bg: 'rgba(234, 88, 12, 0.12)' },
       ]
     },
@@ -662,6 +668,9 @@ function App() {
               {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
               {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
               {currentTab === 'od-form' && <ODForm onBack={() => setCurrentTab(null)} />}
+              {currentTab === 'request-letters' && <RequestLetters onBack={() => setCurrentTab(null)} studentEmail={currentUser?.email || 'student@eee.com'} studentName={currentUser?.name || 'Nithin Annamalai'} rollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} />}
+              {currentTab === 'lab-finder' && <LabSeatFinder onBack={() => setCurrentTab(null)} rollNo={currentUser?.rollNo || '7377221EE001'} />}
+              {currentTab === 'cgpa-calc' && <GpaCalculator onBack={() => setCurrentTab(null)} />}
               {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'nptel' && <NptelTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}
               {currentTab === 'academics' && <AcademicsTracker currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}

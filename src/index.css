@@ -2840,32 +2840,40 @@ html, body {
 
 /* Full-Width Desktop Web Application Breakpoint (min-width: 992px) */
 @media (min-width: 992px) {
-  body {
+  html, body {
     background: var(--bg-secondary);
     min-height: 100vh;
     padding: 0;
     margin: 0;
     display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .mobile-app-shell {
     width: 100vw;
     max-width: 100%;
     min-height: 100vh;
-    height: auto;
+    height: auto !important;
+    overflow: visible !important;
     border-radius: 0;
     border: none;
     box-shadow: none;
     background-color: var(--bg-secondary);
   }
 
-  /* Desktop Header Bar */
+  /* Sticky Top Header Bar on Desktop */
   .mobile-top-bar {
-    padding: 16px 48px !important;
-    background: rgba(255, 255, 255, 0.94) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 500 !important;
+    width: 100%;
+    padding: 14px 48px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
     -webkit-backdrop-filter: blur(24px) !important;
     backdrop-filter: blur(24px) !important;
-    box-shadow: 0 4px 24px rgba(0, 50, 150, 0.06) !important;
+    border-bottom: 1.5px solid rgba(0, 82, 204, 0.12) !important;
+    box-shadow: 0 4px 20px rgba(0, 50, 150, 0.06) !important;
   }
 
   /* Desktop Navigation Link Bar */
@@ -2885,23 +2893,28 @@ html, body {
   }
 
   .mobile-ai-float {
+    position: fixed !important;
     bottom: 32px !important;
     right: 36px !important;
+    z-index: 400 !important;
   }
 
-  /* Main Workspace Container on Desktop */
+  /* Main Workspace Container on Desktop - Native Scrolling */
   .mobile-app-content {
     padding: 32px 48px 60px !important;
     max-width: 1440px;
     margin: 0 auto;
     width: 100%;
     gap: 24px !important;
+    overflow: visible !important;
+    height: auto !important;
+    flex: none !important;
   }
 
-  /* Grid Layout for Feature Tiles on Desktop */
+  /* Balanced Grid Layout for Feature Tiles on Wide Screens */
   .mobile-grid-4col {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
-    gap: 20px !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 16px !important;
   }
 
   /* Student Card Layout on Desktop */
@@ -2933,10 +2946,21 @@ html, body {
     max-width: 1440px;
     margin: 0 auto;
     width: 100%;
+    overflow: visible !important;
   }
 
   .dedicated-page-header {
+    position: sticky !important;
+    top: 66px !important;
+    z-index: 450 !important;
     padding: 16px 48px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .mobile-grid-4col {
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 16px !important;
   }
 }
 

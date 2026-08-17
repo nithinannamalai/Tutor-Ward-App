@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraduationCap, Calculator, Sparkles, CheckCircle2, RefreshCw } from 'lucide-react';
+import { GraduationCap, Sparkles } from 'lucide-react';
 
 interface GpaCalculatorProps {
   onBack: () => void;

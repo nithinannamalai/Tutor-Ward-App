@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Hash, CheckCircle2, User, Building, AlertCircle } from 'lucide-react';
+import { Search, MapPin, User, Building } from 'lucide-react';
 
 interface LabSeatFinderProps {
   onBack: () => void;
@@ -64,12 +64,10 @@ export const LabSeatFinder: React.FC<LabSeatFinderProps> = ({ onBack, rollNo: in
   const [result, setResult] = useState<SeatAssignment | null>(
     SAMPLE_ASSIGNMENTS.find(a => a.rollNo.toLowerCase() === initialRoll.toLowerCase()) || SAMPLE_ASSIGNMENTS[0]
   );
-  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim().toLowerCase();
-    setHasSearched(true);
     const found = SAMPLE_ASSIGNMENTS.find(a => 
       a.rollNo.toLowerCase() === query || 
       a.studentName.toLowerCase().includes(query)

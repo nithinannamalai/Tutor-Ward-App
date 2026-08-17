@@ -668,7 +668,7 @@ function App() {
               {currentTab === 'profile' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="documents" />}
               {currentTab === 'certificates' && <ProfileDocs currentEmail={currentUser?.email || 'student@eee.com'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} mode="certificates" />}
               {currentTab === 'od-form' && <ODForm onBack={() => setCurrentTab(null)} />}
-              {currentTab === 'request-letters' && <RequestLetters onBack={() => setCurrentTab(null)} studentEmail={currentUser?.email || 'student@eee.com'} studentName={currentUser?.name || 'Nithin Annamalai'} rollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} />}
+              {currentTab === 'request-letters' && <RequestLetters onBack={() => setCurrentTab(null)} currentEmail={currentUser?.email || 'student@eee.com'} currentName={currentUser?.name || 'Nithin Annamalai'} currentRollNo={currentUser?.rollNo || '7377221EE001'} isAdmin={isAdmin} />}
               {currentTab === 'lab-finder' && <LabSeatFinder onBack={() => setCurrentTab(null)} rollNo={currentUser?.rollNo || '7377221EE001'} />}
               {currentTab === 'cgpa-calc' && <GpaCalculator onBack={() => setCurrentTab(null)} />}
               {currentTab === 'attendance' && <AttendanceTracker currentStudentRollNo={currentUser?.rollNo || '7377221EE001'} currentUserName={currentUser?.name || 'Nithin Annamalai'} isAdmin={isAdmin} onBack={() => setCurrentTab(null)} />}

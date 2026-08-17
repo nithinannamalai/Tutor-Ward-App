@@ -2813,8 +2813,8 @@ html, body {
   transition: all 0.3s ease;
 }
 
-/* Tablet & Desktop Layout Breakpoint (Adaptive Screen Size Adjustment) */
-@media (min-width: 768px) {
+/* Tablet Breakpoint (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
   body {
     background: radial-gradient(circle at 50% 0%, #eef2ff 0%, #cbd5e1 100%);
     min-height: 100vh;
@@ -2825,46 +2825,118 @@ html, body {
   }
   .mobile-app-shell {
     width: 95vw;
-    max-width: 1320px;
+    max-width: 900px;
     height: 94vh;
-    max-height: 950px;
     border-radius: 24px;
     border: 1.5px solid rgba(0, 82, 204, 0.15);
     box-shadow: 0 20px 50px rgba(0, 50, 150, 0.15);
   }
 
   .mobile-grid-4col {
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
-    gap: 16px !important;
-  }
-
-  .student-details-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
-  }
-
-  .home-dashboard-view {
-    padding: 20px 24px 40px !important;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    gap: 14px !important;
   }
 }
 
-/* Desktop Only Responsive Overrides (min-width: 992px) */
+/* Full-Width Desktop Web Application Breakpoint (min-width: 992px) */
 @media (min-width: 992px) {
-  /* Hide mobile floating bottom dock on desktop to prevent obscuring content */
+  body {
+    background: var(--bg-secondary);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    display: block;
+  }
+
+  .mobile-app-shell {
+    width: 100vw;
+    max-width: 100%;
+    min-height: 100vh;
+    height: auto;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    background-color: var(--bg-secondary);
+  }
+
+  /* Desktop Header Bar */
+  .mobile-top-bar {
+    padding: 16px 48px !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    backdrop-filter: blur(24px) !important;
+    box-shadow: 0 4px 24px rgba(0, 50, 150, 0.06) !important;
+  }
+
+  /* Desktop Navigation Link Bar */
+  .desktop-nav-links {
+    display: flex !important;
+    gap: 8px;
+  }
+
+  .desktop-nav-btn {
+    padding: 9px 22px !important;
+    font-size: 13.5px !important;
+  }
+
+  /* Hide floating bottom mobile dock on desktop to prevent obscuring content */
   .mobile-bottom-nav {
     display: none !important;
   }
 
   .mobile-ai-float {
-    bottom: 24px !important;
-    right: 28px !important;
+    bottom: 32px !important;
+    right: 36px !important;
   }
 
+  /* Main Workspace Container on Desktop */
   .mobile-app-content {
-    padding: 20px 28px 40px !important;
+    padding: 32px 48px 60px !important;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    gap: 24px !important;
   }
 
-  .desktop-nav-links {
-    display: flex !important;
+  /* Grid Layout for Feature Tiles on Desktop */
+  .mobile-grid-4col {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+    gap: 20px !important;
+  }
+
+  /* Student Card Layout on Desktop */
+  .student-card-inner {
+    padding: 26px 32px !important;
+    border-radius: 24px !important;
+  }
+
+  .student-details-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .student-metrics-row {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  /* Category Folder Cards on Desktop */
+  .category-folder-card {
+    padding: 24px 28px !important;
+    border-radius: 24px !important;
+    margin-bottom: 24px !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.03) !important;
+  }
+
+  /* Dedicated Page View on Desktop */
+  .dedicated-page-view {
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .dedicated-page-header {
+    padding: 16px 48px !important;
   }
 }
 

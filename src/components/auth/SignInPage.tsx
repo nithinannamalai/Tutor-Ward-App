@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
+import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '../../services/supabaseClient';
 import type { UserProfile } from '../../App';
@@ -25,11 +25,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
   const isNative = Capacitor.isNativePlatform();
 
   const quotes = [
-    "“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.” – Malcolm X",
     "“Engineering is the closest thing to magic that exists in the world.” – Elon Musk",
+    "“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.” – Malcolm X",
     "“Continuous learning is the minimum requirement for success in any field.” – Brian Tracy",
-    "“The future belongs to those who learn more skills and combine them in creative ways.” – Robert Greene",
-    "“Aim for success, not perfection. Never surrender your right to be wrong.” – Dr. David M. Burns"
   ];
   const [quoteIndex, setQuoteIndex] = useState(0);
 
@@ -59,7 +57,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
 
       if (isSupabaseConfigured) {
         try {
-          const { data, error: signUpError } = await supabase.auth.signUp({
+          const { data, error: signUpError } = await (supabase.auth as any).signUp({
             email: targetEmail,
             password: targetPassword,
             options: {
@@ -71,8 +69,6 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           });
 
           if (signUpError) {
-            console.warn('Supabase signUp error, falling back to mock signin:', signUpError.message);
-            // Log in locally as mock student to bypass rate limits
             onLoginSuccess({
               email: targetEmail,
               name: name.trim(),
@@ -87,54 +83,58 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
             return;
           }
 
-          if (data.user) {
-            // Check if teacher
-            let role: 'student' | 'teacher' = 'student';
-            const { data: facultyCheck } = await supabase
-              .from('faculty')
-              .select('*')
-              .eq('email', targetEmail)
-              .maybeSingle();
-
-            if (facultyCheck || targetEmail.toLowerCase() === 'teacher@eee.com') {
-              role = 'teacher';
-            } else {
-              // Create student profile in database
-              const { error: profileError } = await supabase
-                .from('student_profiles')
-                .insert({
-                  id: targetEmail,
-                  roll_no: rollNo.trim(),
-                  name: name.trim(),
-                  email: targetEmail,
-                  cgpa_json: {},
-                  arrears_count: 0,
-                  nptel_exams: []
-                });
-              if (profileError) {
-                console.warn('Profile creation error:', profileError.message);
-              }
-            }
-
+          if (data?.user) {
             onLoginSuccess({
               email: targetEmail,
               name: name.trim(),
               rollNo: rollNo.trim(),
-              role,
-              className: role === 'teacher' ? 'All EEE Classes' : 'III EEE-A',
-              yearOfStudy: role === 'teacher' ? 'Staff' : '3rd Year',
-              semester: role === 'teacher' ? 'Staff Portal' : 'Semester VI',
+              role: targetEmail.toLowerCase() === 'teacher@eee.com' ? 'teacher' : 'student',
+              className: 'III EEE-A',
+              yearOfStudy: '3rd Year',
+              semester: 'Semester VI',
               department: 'Dept of EEE'
             });
             setLoading(false);
             return;
           }
-        } catch (err: any) {
-          console.warn('Supabase signup exception, falling back to mock signin:', err);
+        } catch (err) {
+          console.warn('Sign up fallback:', err);
+        }
+      }
+
+      onLoginSuccess({
+        email: targetEmail,
+        name: name.trim(),
+        rollNo: rollNo.trim(),
+        role: targetEmail.toLowerCase() === 'teacher@eee.com' ? 'teacher' : 'student',
+        className: 'III EEE-A',
+        yearOfStudy: '3rd Year',
+        semester: 'Semester VI',
+        department: 'Dept of EEE'
+      });
+      setLoading(false);
+      return;
+    }
+
+    // SIGN IN
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error: signInError } = await (supabase.auth as any).signInWithPassword({
+          email: targetEmail,
+          password: targetPassword,
+        });
+
+        if (signInError) {
+          const matchedDemo = demoProfiles.find(p => p.email.toLowerCase() === targetEmail.toLowerCase());
+          if (matchedDemo) {
+            onLoginSuccess(matchedDemo);
+            setLoading(false);
+            return;
+          }
           onLoginSuccess({
             email: targetEmail,
-            name: name.trim(),
-            rollNo: rollNo.trim(),
+            name: targetEmail.split('@')[0].toUpperCase(),
+            rollNo: '7377221EE001',
             role: targetEmail.toLowerCase() === 'teacher@eee.com' ? 'teacher' : 'student',
             className: 'III EEE-A',
             yearOfStudy: '3rd Year',
@@ -144,345 +144,92 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           setLoading(false);
           return;
         }
-      } else {
-        // Fallback mock signup
-        onLoginSuccess({
-          email: targetEmail,
-          name: name.trim(),
-          rollNo: rollNo.trim(),
-          role: 'student',
-          className: 'III EEE-A',
-          yearOfStudy: '3rd Year',
-          semester: 'Semester VI',
-          department: 'Dept of EEE'
-        });
-        setLoading(false);
-        return;
-      }
-    } else {
-      // SIGN IN MODE
-      if (isSupabaseConfigured) {
-        try {
-          const { data, error: signInError } = await supabase.auth.signInWithPassword({
-            email: targetEmail,
-            password: targetPassword
-          });
 
-          if (signInError) {
-            // First check if it is a demo account, we try to auto-signup and login
-            const matchedDemo = demoProfiles.find(
-              p => p.email.toLowerCase() === targetEmail.toLowerCase()
-            );
-            if (matchedDemo && (targetPassword === '••••••••' || targetPassword === 'password123' || targetPassword === '12345678')) {
-              const demoPass = 'password123';
-              try {
-                const { data: signUpData, error: demoSignUpError } = await supabase.auth.signUp({
-                  email: targetEmail,
-                  password: demoPass,
-                  options: {
-                    data: {
-                      name: matchedDemo.name,
-                      rollNo: matchedDemo.rollNo,
-                    }
-                  }
-                });
-
-                if (!demoSignUpError && signUpData.user) {
-                  if (matchedDemo.role !== 'teacher') {
-                    await supabase.from('student_profiles').insert({
-                      id: targetEmail,
-                      roll_no: matchedDemo.rollNo,
-                      name: matchedDemo.name,
-                      email: targetEmail,
-                      cgpa_json: {},
-                      arrears_count: 0,
-                      nptel_exams: []
-                    });
-                  }
-                  
-                  const { data: secondSignIn, error: secondSignInErr } = await supabase.auth.signInWithPassword({
-                    email: targetEmail,
-                    password: demoPass
-                  });
-                  if (!secondSignInErr && secondSignIn.user) {
-                    onLoginSuccess(matchedDemo);
-                    setLoading(false);
-                    return;
-                  }
-                }
-              } catch (e) {
-                console.warn('Demo auto-signup/login failed:', e);
-              }
-            }
-
-            // If signin fails due to rate limits or invalid credentials, fallback to local mock login
-            console.warn('Supabase signin failed, falling back to mock login:', signInError.message);
-            if (matchedDemo) {
-              onLoginSuccess(matchedDemo);
-            } else {
-              onLoginSuccess({
-                email: targetEmail,
-                name: targetEmail.split('@')[0].toUpperCase(),
-                rollNo: '7377221EE' + Math.floor(100 + Math.random() * 900),
-                role: 'student',
-                className: 'III EEE-A',
-                yearOfStudy: '3rd Year',
-                semester: 'Semester VI',
-                department: 'Dept of EEE'
-              });
-            }
-            setLoading(false);
-            return;
-          }
-
-          if (data.user) {
-            let role: 'student' | 'teacher' = 'student';
-            let profileName = data.user.user_metadata?.name || targetEmail.split('@')[0].toUpperCase();
-            let profileRollNo = data.user.user_metadata?.rollNo || '';
-
-            const { data: facultyData } = await supabase
-              .from('faculty')
-              .select('*')
-              .eq('email', targetEmail)
-              .maybeSingle();
-
-            if (facultyData || targetEmail.toLowerCase() === 'teacher@eee.com') {
-              role = 'teacher';
-              profileName = facultyData?.name || 'Dr. EEE HOD / Faculty';
-              profileRollNo = 'FAC001';
-            } else {
-              const { data: studentData } = await supabase
-                .from('student_profiles')
-                .select('*')
-                .eq('email', targetEmail)
-                .maybeSingle();
-              if (studentData) {
-                profileName = studentData.name;
-                profileRollNo = studentData.roll_no;
-              }
-            }
-
-            onLoginSuccess({
-              email: targetEmail,
-              name: profileName,
-              rollNo: profileRollNo,
-              role,
-              className: role === 'teacher' ? 'All EEE Classes' : 'III EEE-A',
-              yearOfStudy: role === 'teacher' ? 'Staff' : '3rd Year',
-              semester: role === 'teacher' ? 'Staff Portal' : 'Semester VI',
-              department: 'Dept of EEE'
-            });
-            setLoading(false);
-            return;
-          }
-        } catch (err: any) {
-          console.warn('Supabase signin exception, falling back to mock login:', err);
-          const matchedDemo = demoProfiles.find(
-            p => p.email.toLowerCase() === targetEmail.toLowerCase()
-          );
-          if (matchedDemo) {
-            onLoginSuccess(matchedDemo);
-          } else {
-            onLoginSuccess({
-              email: targetEmail,
-              name: targetEmail.split('@')[0].toUpperCase(),
-              rollNo: '7377221EE' + Math.floor(100 + Math.random() * 900),
-              role: 'student',
-              className: 'III EEE-A',
-              yearOfStudy: '3rd Year',
-              semester: 'Semester VI',
-              department: 'Dept of EEE'
-            });
-          }
-          setLoading(false);
-          return;
-        }
-      } else {
-        const matchedProfile = demoProfiles.find(
-          p => p.email.toLowerCase() === targetEmail.toLowerCase()
-        );
-        if (matchedProfile) {
-          onLoginSuccess(matchedProfile);
-        } else {
+        if (data?.user) {
+          const userMeta = data.user.user_metadata || {};
           onLoginSuccess({
-            email: targetEmail,
-            name: targetEmail.split('@')[0].toUpperCase(),
-            rollNo: '7377221EE' + Math.floor(100 + Math.random() * 900),
-            role: 'student',
+            email: data.user.email || targetEmail,
+            name: userMeta.name || targetEmail.split('@')[0].toUpperCase(),
+            rollNo: userMeta.rollNo || '7377221EE001',
+            role: targetEmail.toLowerCase() === 'teacher@eee.com' ? 'teacher' : 'student',
             className: 'III EEE-A',
             yearOfStudy: '3rd Year',
             semester: 'Semester VI',
             department: 'Dept of EEE'
           });
+          setLoading(false);
+          return;
         }
-        setLoading(false);
-        return;
+      } catch (err) {
+        console.warn('Sign in exception:', err);
       }
     }
-  };
 
-  const handleQuickLogin = async (profile: UserProfile) => {
-    setLoading(true);
-    setError('');
-    const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
-
-    if (isSupabaseConfigured) {
-      try {
-        const demoPass = 'password123';
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: profile.email,
-          password: demoPass
-        });
-
-        if (error) {
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: profile.email,
-            password: demoPass,
-            options: {
-              data: {
-                name: profile.name,
-                rollNo: profile.rollNo,
-              }
-            }
-          });
-
-          if (!signUpError && signUpData.user) {
-            if (profile.role !== 'teacher') {
-              await supabase.from('student_profiles').insert({
-                id: profile.email,
-                roll_no: profile.rollNo,
-                name: profile.name,
-                email: profile.email,
-                cgpa_json: {},
-                arrears_count: 0,
-                nptel_exams: []
-              });
-            }
-
-            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-              email: profile.email,
-              password: demoPass
-            });
-
-            if (!retryError && retryData.user) {
-              onLoginSuccess(profile);
-              setLoading(false);
-              return;
-            }
-          }
-          
-          // Fallback to local mock on any error (like rate limit)
-          console.warn('Supabase quick login failed, falling back to mock login:', error.message);
-          onLoginSuccess(profile);
-          setLoading(false);
-          return;
-        }
-
-        if (data.user) {
-          onLoginSuccess(profile);
-          setLoading(false);
-          return;
-        }
-      } catch (err: any) {
-        console.warn('Quick login error, falling back to mock login:', err);
-        onLoginSuccess(profile);
-        setLoading(false);
-        return;
-      }
+    const matchedDemo = demoProfiles.find(p => p.email.toLowerCase() === targetEmail.toLowerCase());
+    if (matchedDemo) {
+      onLoginSuccess(matchedDemo);
     } else {
-      onLoginSuccess(profile);
-      setLoading(false);
+      onLoginSuccess({
+        email: targetEmail,
+        name: targetEmail.split('@')[0].toUpperCase(),
+        rollNo: '7377221EE001',
+        role: targetEmail.toLowerCase() === 'teacher@eee.com' ? 'teacher' : 'student',
+        className: 'III EEE-A',
+        yearOfStudy: '3rd Year',
+        semester: 'Semester VI',
+        department: 'Dept of EEE'
+      });
     }
+    setLoading(false);
   };
 
-  const handleForgotPassword = () => {
-    setForgotSent(true);
-    setTimeout(() => setForgotSent(false), 3000);
+  const fillDemo = (profile: UserProfile) => {
+    setEmail(profile.email);
+    setName(profile.name);
+    setRollNo(profile.rollNo);
+    setPassword('password123');
+    setIsSignUp(false);
   };
 
   return (
     <div className="signin-page-overlay">
-      {/* Top Animated Gradient Header Section */}
-      <div className="signin-header-gradient">
-        {/* Animated Background Glowing Orbs */}
-        <div className="ambient-orb orb-1" />
-        <div className="ambient-orb orb-2" />
-        <div className="ambient-orb orb-3" />
-
-        {/* Top Navbar */}
-        <div className="signin-top-nav">
-          <button
-            className="signin-back-btn"
-            onClick={onClose}
-            aria-label="Close to Landing Page"
-            title="Close and explore landing page"
-          >
-            <X size={20} />
-          </button>
-
-          <div className="signin-top-right">
-            {!isNative && (
-              <a
-                href="/download.html"
-                className="signin-get-started-btn"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
-                title="Download Android APK"
-              >
-                <Download size={13} />
-                <span>Get APK</span>
-              </a>
-            )}
-          </div>
+      {/* ── Top Header with Curved Landscape Wave Overlay ── */}
+      <div className="mobile-curved-header">
+        <div className="mobile-header-nav">
+          {onClose && (
+            <button className="signin-back-btn" onClick={onClose}>
+              <X size={18} />
+            </button>
+          )}
+          {!isNative && (
+            <a href="/download.html" className="signin-get-started-btn" title="Download Android APK">
+              <Download size={13} />
+              <span>Get APK</span>
+            </a>
+          )}
         </div>
 
-        {/* Brand Banner with App Logo & Moving Quotes Ticker */}
-        <div className="signin-brand-banner">
-          <div className="signin-app-logo-wrap glowing-logo">
-            <img src={appLogo} alt="App Logo" className="signin-app-logo-img" style={{ objectFit: 'cover' }} />
-            <div className="logo-sparkle-ring" />
+        <div className="mobile-header-title-wrap">
+          <div style={{ width: 52, height: 52, borderRadius: 16, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.4)', marginBottom: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
+            <img src={appLogo} alt="TutorWard Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <h1 className="signin-brand-title">
-            <span className="gradient-text-shimmer">EEE SREC PORTAL</span>
-          </h1>
-          <p className="signin-brand-sub">Sri Ramakrishna Eng. College · Dept of EEE</p>
+          <h1 className="mobile-header-h1">{isSignUp ? 'Create Account' : 'Sign In'}</h1>
+          <p className="mobile-header-p">TutorWard · EEE SREC Academic Portal</p>
+        </div>
 
-          <div className="quotes-ticker-container glass-ticker">
-            <Sparkles size={13} className="quote-icon glowing-sparkle" />
-            <span className="quote-text-slide" key={quoteIndex}>{quotes[quoteIndex]}</span>
-          </div>
+        {/* Organic Curved Bottom Wave SVG (Matching Screenshot) */}
+        <div className="mobile-wave-mask">
+          <svg viewBox="0 0 500 120" preserveAspectRatio="none">
+            <path d="M 0 0 C 150 100 350 -20 500 60 L 500 120 L 0 120 Z" fill="#ffffff" />
+          </svg>
         </div>
       </div>
 
-      {/* Main White Card Sheet */}
-      <div className="signin-card-sheet">
-        <div className="signin-card-handle" />
-
-        {/* Mode Toggle Tabs: Sign In / Sign Up */}
-        <div className="signin-mode-tabs">
-          <button
-            type="button"
-            className={`mode-tab-btn ${!isSignUp ? 'active' : ''}`}
-            onClick={() => setIsSignUp(false)}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            className={`mode-tab-btn ${isSignUp ? 'active' : ''}`}
-            onClick={() => setIsSignUp(true)}
-          >
-            Sign Up
-          </button>
-        </div>
-
-        <div className="signin-sheet-header">
-          <h2>{isSignUp ? 'Create your account' : 'Welcome back'}</h2>
-          <p>{isSignUp ? 'Join EEE SREC Smart Student Portal' : 'Enter your credentials to access portal'}</p>
-        </div>
-
+      {/* ── Clean White Card Form Sheet ── */}
+      <div className="mobile-form-sheet">
         {error && (
           <div className="signin-error-banner">
-            <span>{error}</span>
+            <span>⚠️ {error}</span>
           </div>
         )}
 
@@ -493,170 +240,102 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess,
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="signin-form">
-          {/* Email Input */}
-          <div className="signin-field-group">
-            <label htmlFor="signin-email">Email Address</label>
-            <div className="signin-input-wrapper">
-              <Mail size={18} className="signin-input-icon" />
-              <input
-                id="signin-email"
-                type="email"
-                placeholder="student@eee.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="signin-input"
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          {/* Full Name & Roll No (Shown in Sign Up mode) */}
+        <form onSubmit={handleSubmit} className="mobile-underlined-form">
           {isSignUp && (
             <>
-              <div className="signin-field-group">
-                <label htmlFor="signin-name">Your Name</label>
-                <div className="signin-input-wrapper">
-                  <User size={18} className="signin-input-icon" />
-                  <input
-                    id="signin-name"
-                    type="text"
-                    placeholder="Nithin Annamalai"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    className="signin-input"
-                    disabled={loading}
-                  />
-                </div>
+              <div className="mobile-field-row">
+                <User size={18} className="field-row-icon" />
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="mobile-underlined-input"
+                  required
+                />
               </div>
 
-              <div className="signin-field-group">
-                <label htmlFor="signin-rollno">Roll Number</label>
-                <div className="signin-input-wrapper">
-                  <UserCheck size={18} className="signin-input-icon" />
-                  <input
-                    id="signin-rollno"
-                    type="text"
-                    placeholder="7377221EE001"
-                    value={rollNo}
-                    onChange={e => setRollNo(e.target.value)}
-                    className="signin-input"
-                    disabled={loading}
-                  />
-                </div>
+              <div className="mobile-field-row">
+                <UserCheck size={18} className="field-row-icon" />
+                <input
+                  type="text"
+                  placeholder="Roll Number (e.g. 7377221EE001)"
+                  value={rollNo}
+                  onChange={e => setRollNo(e.target.value)}
+                  className="mobile-underlined-input"
+                  required
+                />
               </div>
             </>
           )}
 
-          {/* Password Input */}
-          <div className="signin-field-group">
-            <label htmlFor="signin-password">Password</label>
-            <div className="signin-input-wrapper">
-              <Lock size={18} className="signin-input-icon" />
-              <input
-                id="signin-password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="signin-input"
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className="signin-eye-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label="Toggle Password Visibility"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+          <div className="mobile-field-row">
+            <Mail size={18} className="field-row-icon" />
+            <input
+              type="email"
+              placeholder="Email address or Roll No"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="mobile-underlined-input"
+              required
+            />
+            {email.includes('@') && <CheckCircle2 size={16} className="field-check-icon" />}
           </div>
 
-          {/* Sign In / Sign Up Button */}
-          <button type="submit" className="signin-submit-btn" disabled={loading}>
-            {loading ? (
-              <span className="signin-btn-spinner">Authenticating...</span>
-            ) : isSignUp ? (
-              'Sign up'
-            ) : (
-              'Sign in'
-            )}
-          </button>
-
-          {/* Continue as Guest Button */}
-          {onClose && (
-            <button
-              type="button"
-              className="signin-guest-btn"
-              onClick={() => {
-                const guestProfile: UserProfile = demoProfiles[0] || {
-                  email: 'guest@eee.com',
-                  name: 'Guest User',
-                  rollNo: '7377221EE999',
-                  role: 'student',
-                  className: 'III EEE-A',
-                  yearOfStudy: '3rd Year',
-                  semester: 'Semester VI',
-                  department: 'Dept of EEE'
-                };
-                onLoginSuccess(guestProfile);
-              }}
-              style={{
-                width: '100%',
-                marginTop: 8,
-                padding: '10px',
-                borderRadius: 12,
-                border: '1.5px dashed var(--accent-blue)',
-                background: 'rgba(56, 189, 248, 0.05)',
-                color: 'var(--accent-blue)',
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              🚀 Continue as Guest (Dev Mode)
+          <div className="mobile-field-row">
+            <Lock size={18} className="field-row-icon" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="mobile-underlined-input"
+              required
+            />
+            <button type="button" className="field-eye-btn" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
-          )}
+          </div>
 
-          {/* Forgot Password Link */}
           {!isSignUp && (
-            <div className="signin-forgot-row">
+            <div style={{ textAlign: 'right', marginTop: -4, marginBottom: 8 }}>
               <button
                 type="button"
                 className="signin-forgot-btn"
-                onClick={handleForgotPassword}
+                onClick={() => setForgotSent(true)}
               >
-                Forgot your password?
+                Forgot password?
               </button>
             </div>
           )}
+
+          {/* Primary Blue Pill Submit Button */}
+          <button type="submit" className="mobile-blue-pill-btn" disabled={loading}>
+            {loading ? 'Authenticating...' : isSignUp ? 'Sign Up' : 'Sign In'}
+          </button>
+
+          {/* Mode Switch Pill Button */}
+          <button
+            type="button"
+            className="mobile-outline-pill-btn"
+            onClick={() => setIsSignUp(!isSignUp)}
+          >
+            {isSignUp ? 'Already have an account? Sign In' : 'Don’t have an account? Sign Up'}
+          </button>
         </form>
 
-        {/* Quick Demo Access Section */}
-        <div className="signin-demo-section">
-          <span className="signin-demo-title">⚡ Quick 1-Click Evaluation Login</span>
-          <div className="signin-demo-grid">
-            {demoProfiles.map((profile, i) => (
-              <button
-                key={i}
-                type="button"
-                className={`signin-demo-card ${profile.role}`}
-                onClick={() => handleQuickLogin(profile)}
-              >
-                <div className="demo-avatar">
-                  {profile.name.charAt(0)}
+        {/* 1-Click Demo Credentials */}
+        <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
+          <span style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', letterSpacing: 0.5, display: 'block', textAlign: 'center', marginBottom: 10 }}>
+            1-CLICK DEMO LOGIN PROFILES
+          </span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {demoProfiles.map((p, idx) => (
+              <button key={idx} onClick={() => fillDemo(p)} className="demo-chip-btn">
+                <div style={{ fontWeight: 800, color: p.role === 'teacher' ? '#ea580c' : '#2563eb' }}>
+                  {p.role === 'teacher' ? '👨‍🏫 Faculty' : '🎓 Student'}
                 </div>
-                <div className="demo-info">
-                  <span className="demo-name">{profile.name}</span>
-                  <span className="demo-role">
-                    {profile.role === 'teacher'
-                      ? 'Faculty Admin'
-                      : `Roll: ${profile.rollNo} · ${profile.className}`}
-                  </span>
-                </div>
-                <UserCheck size={14} className="demo-check" />
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#1e293b' }}>{p.name}</div>
               </button>
             ))}
           </div>

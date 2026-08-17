@@ -4789,6 +4789,176 @@ html, body, .mobile-app-content, .dedicated-page-body, .portal-modal-container {
 }
 
 /* ====================================================
+   📱 MOBILE AUTHENTICATION PAGE (Matching User Screenshot)
+   ==================================================== */
+.mobile-curved-header {
+  position: relative;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1d4ed8 100%);
+  color: #ffffff;
+  padding: 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 240px;
+}
+
+.mobile-header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-header-title-wrap {
+  margin-top: 10px;
+  position: relative;
+  z-index: 5;
+}
+
+.mobile-header-h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.mobile-header-p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.mobile-wave-mask {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 2;
+}
+
+.mobile-wave-mask svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mobile-form-sheet {
+  background: #ffffff;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  padding: 24px 24px 40px;
+  margin-top: -30px;
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-underlined-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mobile-field-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px solid #e2e8f0;
+  padding-bottom: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.mobile-field-row:focus-within {
+  border-color: #1d4ed8;
+}
+
+.field-row-icon {
+  color: #94a3b8;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.mobile-field-row:focus-within .field-row-icon {
+  color: #1d4ed8;
+}
+
+.mobile-underlined-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: #1e293b;
+  background: transparent;
+  padding: 4px 0;
+}
+
+.field-check-icon {
+  color: #16a34a;
+}
+
+.field-eye-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.mobile-blue-pill-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  border: none;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.35);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+.mobile-blue-pill-btn:hover {
+  background: #1e40af;
+  transform: translateY(-2px);
+}
+
+.mobile-outline-pill-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 30px;
+  border: 1.5px solid #1d4ed8;
+  background: transparent;
+  color: #1d4ed8;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-outline-pill-btn:hover {
+  background: rgba(29, 78, 216, 0.05);
+}
+
+.demo-chip-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-chip-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* ====================================================
    BUTTON FIXES ACROSS THE APP
    ==================================================== */
 button {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Award, UserCheck, FileText, ArrowRight, Zap, Bot, Calendar, BookOpen, Clock, Compass, Layers, ShieldCheck } from 'lucide-react';
+import { Search, Award, UserCheck, FileText, ArrowRight, Bot, BookOpen, Clock, Compass, Layers, ShieldCheck } from 'lucide-react';
 import { dbService } from '../../services/db';
 import type { Student, AttendanceLog, ODRequest } from '../../services/db';
 import type { UserProfile } from '../../App';

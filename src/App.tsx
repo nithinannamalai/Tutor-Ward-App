@@ -25,7 +25,8 @@ import {
   DesktopLandingPage,
   DesktopLoginPage,
   DesktopSidebar,
-  DesktopVisionaDashboard
+  DesktopVisionaDashboard,
+  MobileLandingPage
 } from './components';
 
 import {
@@ -1248,7 +1249,7 @@ function FacultyPanel({ onClose: _onClose, isAdmin = false }: { onClose: () => v
 }
 
 export default App;
-function setDismissedSignIn(arg0: boolean) {
+function setDismissedSignIn(_arg0: boolean) {
   throw new Error('Function not implemented.');
 }
 

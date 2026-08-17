@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ArrowRight, ShieldCheck, Award, GraduationCap, Zap, UserCheck, FileText, BookOpen } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Award, GraduationCap, Zap, UserCheck, FileText, BookOpen } from 'lucide-react';
 import appLogo from '../../assets/app-logo.png';
 
 interface MobileLandingPageProps {

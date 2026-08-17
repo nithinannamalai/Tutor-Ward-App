@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { App as CapApp } from '@capacitor/app';
 import { supabase } from './services/supabaseClient';
 import { dbService } from './services/db';
@@ -33,7 +34,7 @@ import {
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
-  Inbox, Map, Shield, Phone, Sparkles, Home,
+  Inbox, Map, Phone, Sparkles, Home, Gamepad2,
   CheckCircle2, Plus, Trash2, Pencil
 } from 'lucide-react';
 import './App.css';
@@ -350,7 +351,8 @@ function App() {
       {/* Main App Content Area */}
       <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
         {/* Top Header Bar (Mobile Only) */}
-        {!isDesktop && (
+        {/* Top Header Bar (Mobile Only: Only shown on Home Hub) */}
+        {!isDesktop && currentTab === null && (
           <header className="mobile-top-bar">
             <div className="mobile-top-left">
               <button
@@ -442,129 +444,328 @@ function App() {
           </div>
         )}
 
-        {/* ── AIRTEL THANKS HAMBURGER SIDE DRAWER ── */}
-        {isDrawerOpen && (
-          <div className="drawer-backdrop" onClick={() => setIsDrawerOpen(false)}>
-            <div className="airtel-drawer" onClick={e => e.stopPropagation()}>
-              {/* Top Profile Card in Drawer */}
-              <div className="drawer-profile-header">
-                <button className="drawer-close-btn" onClick={() => setIsDrawerOpen(false)}>
-                  <X size={18} />
+        {/* ── 🌟 ULTRA-LUXURY SIDEBAR NAVIGATION DRAWER (createPortal) 🌟 ── */}
+        {isDrawerOpen && createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(10px)',
+              zIndex: 999999,
+              display: 'flex'
+            }}
+            onClick={() => setIsDrawerOpen(false)}
+          >
+            <div
+              style={{
+                width: 'min(86vw, 350px)',
+                height: '100%',
+                background: '#f8fafc',
+                boxShadow: '12px 0 36px rgba(0, 0, 0, 0.35)',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                animation: 'drawerSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* 🌟 Luxury Top Profile Header Card in Drawer */}
+              <div style={{
+                background: 'linear-gradient(135deg, #0b132b 0%, #1c2541 60%, #0052cc 100%)',
+                padding: '24px 20px 20px',
+                color: '#ffffff',
+                position: 'relative',
+                boxShadow: '0 8px 24px rgba(0, 82, 204, 0.25)'
+              }}>
+                <button
+                  onClick={() => setIsDrawerOpen(false)}
+                  style={{
+                    position: 'absolute',
+                    top: 14,
+                    right: 14,
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    border: 'none',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <X size={16} />
                 </button>
-                <div className="drawer-user-info">
-                  <div className="drawer-avatar">
-                    {isAuthenticated && currentUser ? currentUser.name.charAt(0) : 'G'}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <div style={{
+                      width: 54,
+                      height: 54,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #ff5f1f 0%, #ea580c 100%)',
+                      color: '#ffffff',
+                      fontSize: 22,
+                      fontWeight: 900,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2.5px solid rgba(255, 255, 255, 0.5)',
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+                    }}>
+                      {isAuthenticated && currentUser ? currentUser.name.charAt(0) : 'G'}
+                    </div>
+                    <div style={{ position: 'absolute', bottom: 2, right: 2, width: 12, height: 12, borderRadius: '50%', background: '#10b981', border: '2px solid #ffffff' }} />
                   </div>
-                  <div className="drawer-user-text">
-                    <h3>{isAuthenticated && currentUser ? currentUser.name : 'Guest User'}</h3>
-                    <p>{isAuthenticated && currentUser ? `Roll: ${currentUser.rollNo}` : 'Sri Ramakrishna Eng. College'}</p>
-                    <span className="drawer-role-pill">
+
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, margin: '0 0 2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {isAuthenticated && currentUser ? currentUser.name : 'Guest User'}
+                    </h3>
+                    <p style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.8)', margin: 0, fontWeight: 600 }}>
+                      {isAuthenticated && currentUser ? `Roll: ${currentUser.rollNo}` : 'Sri Ramakrishna Eng. College'}
+                    </p>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      background: 'rgba(255, 95, 31, 0.25)',
+                      color: '#ffedd5',
+                      border: '1px solid rgba(255, 95, 31, 0.4)',
+                      padding: '2px 8px',
+                      borderRadius: 99,
+                      fontSize: 9.5,
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      marginTop: 4
+                    }}>
                       <Sparkles size={10} />
                       {isAuthenticated && currentUser ? (isAdmin ? 'Faculty Admin' : 'UG Scholar') : 'Demo Guest'}
                     </span>
                   </div>
                 </div>
 
-                <div className="drawer-action-row">
+                <div style={{ display: 'flex', gap: 8 }}>
                   {isAuthenticated ? (
-                    <button className="drawer-btn secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
-                      <LogOut size={14} /> Sign Out
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: 12,
+                        background: 'rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.25)',
+                        fontSize: 11.5,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6
+                      }}
+                    >
+                      <LogOut size={13} /> Sign Out Account
                     </button>
                   ) : (
-                    <button className="drawer-btn primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}>
-                      <User size={14} /> Sign In
+                    <button
+                      onClick={() => { setIsDrawerOpen(false); setShowSignInPage(true); }}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: 12,
+                        background: '#ffffff',
+                        color: 'var(--accent-blue)',
+                        border: 'none',
+                        fontSize: 11.5,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6
+                      }}
+                    >
+                      <User size={13} /> Sign In to Portal
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Navigation Menu List inside Drawer */}
-              <div className="drawer-nav-body">
+              {/* 🌟 Navigation Menu List inside Drawer 🌟 */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Home Hub Tile */}
                 <div
-                  className={`drawer-item ${currentTab === null ? 'active' : ''}`}
                   onClick={() => { setCurrentTab(null); setIsDrawerOpen(false); }}
+                  style={{
+                    background: currentTab === null ? 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)' : '#ffffff',
+                    color: currentTab === null ? '#ffffff' : 'var(--text-main)',
+                    borderRadius: 16,
+                    padding: '12px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                    border: '1px solid rgba(0,82,204,0.08)'
+                  }}
                 >
-                  <div className="drawer-item-left">
-                    <div className="drawer-item-icon" style={{ background: 'rgba(0, 82, 204, 0.1)', color: 'var(--accent-blue)' }}>
-                      <Home size={18} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      background: currentTab === null ? 'rgba(255,255,255,0.2)' : 'rgba(0,82,204,0.1)',
+                      color: currentTab === null ? '#ffffff' : 'var(--accent-blue)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Home size={16} />
                     </div>
-                    <span>Home Dashboard</span>
+                    <span style={{ fontSize: 13, fontWeight: 800 }}>Home Dashboard</span>
                   </div>
-                  <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                  <ChevronRight size={14} opacity={0.6} />
                 </div>
 
-                <div className="drawer-group-title">ACADEMICS & EXAMS</div>
-                {[
-                  { label: 'Syllabus & Courses', key: 'courses', icon: <BookOpen size={16} />, color: '#0891b2' },
-                  { label: 'Academic Calendar', key: 'calendar', icon: <Calendar size={16} />, color: '#dc2626' },
-                  { label: 'Class Timetable', key: 'timetable', icon: <Calendar size={16} />, color: '#0f766e' },
-                  { label: 'CGPA & Subject Arrears', key: 'academics', icon: <GraduationCap size={16} />, color: '#059669' },
-                  { label: 'NPTEL Course Tracker', key: 'nptel', icon: <Award size={16} />, color: '#7c3aed' },
-                ].map(item => (
-                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                    <div className="drawer-item-left">
-                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                        {item.icon}
+                {/* Section: Academics */}
+                <div style={{ background: '#ffffff', borderRadius: 18, padding: '12px 10px', border: '1px solid rgba(0,82,204,0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                  <span style={{ fontSize: 10, fontWeight: 900, color: 'var(--accent-blue)', letterSpacing: 0.8, textTransform: 'uppercase', display: 'block', padding: '0 6px 8px' }}>
+                    🎓 Academics &amp; Exams
+                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {[
+                      { label: 'Syllabus & Courses', key: 'courses', icon: <BookOpen size={15} />, color: '#0891b2' },
+                      { label: 'Academic Calendar', key: 'calendar', icon: <Calendar size={15} />, color: '#dc2626' },
+                      { label: 'Class Timetable', key: 'timetable', icon: <Calendar size={15} />, color: '#0f766e' },
+                      { label: 'CGPA & Arrears Radar', key: 'academics', icon: <GraduationCap size={15} />, color: '#059669', badge: 'LIVE' },
+                      { label: 'NPTEL Course Tracker', key: 'nptel', icon: <Award size={15} />, color: '#7c3aed' },
+                    ].map(item => (
+                      <div
+                        key={item.key}
+                        onClick={() => { handleCardClick(item.key); setIsDrawerOpen(false); }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          borderRadius: 12,
+                          cursor: 'pointer',
+                          background: currentTab === item.key ? 'rgba(0,82,204,0.08)' : 'transparent'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: `${item.color}15`, color: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {item.icon}
+                          </div>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text-main)' }}>{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span style={{ fontSize: 9, fontWeight: 900, background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: 6 }}>
+                            {item.badge}
+                          </span>
+                        )}
                       </div>
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                    ))}
                   </div>
-                ))}
+                </div>
 
-                <div className="drawer-group-title">RECORDS & DOCUMENTS</div>
-                {[
-                  { label: 'Student Document Vault', key: 'profile', icon: <BookOpen size={16} />, color: '#0052cc' },
-                  { label: 'Certificates & Badges', key: 'certificates', icon: <Award size={16} />, color: '#be185d' },
-                  { label: 'OD Form', key: 'od-form', icon: <FileText size={16} />, color: '#4f46e5' },
-                ].map(item => (
-                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                    <div className="drawer-item-left">
-                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                        {item.icon}
+                {/* Section: Records & Vault */}
+                <div style={{ background: '#ffffff', borderRadius: 18, padding: '12px 10px', border: '1px solid rgba(0,82,204,0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                  <span style={{ fontSize: 10, fontWeight: 900, color: '#0052cc', letterSpacing: 0.8, textTransform: 'uppercase', display: 'block', padding: '0 6px 8px' }}>
+                    📂 Records &amp; Documents
+                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {[
+                      { label: 'Student Document Vault', key: 'profile', icon: <BookOpen size={15} />, color: '#0052cc' },
+                      { label: 'Certificates & Badges', key: 'certificates', icon: <Award size={15} />, color: '#be185d' },
+                      { label: 'OD Form Application', key: 'od-form', icon: <FileText size={15} />, color: '#4f46e5' },
+                      { label: 'Bonafide & NOC Request', key: 'request-letters', icon: <FileText size={15} />, color: '#0d9488' },
+                    ].map(item => (
+                      <div
+                        key={item.key}
+                        onClick={() => { handleCardClick(item.key); setIsDrawerOpen(false); }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          borderRadius: 12,
+                          cursor: 'pointer',
+                          background: currentTab === item.key ? 'rgba(0,82,204,0.08)' : 'transparent'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: `${item.color}15`, color: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {item.icon}
+                          </div>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text-main)' }}>{item.label}</span>
+                        </div>
+                        <ChevronRight size={13} opacity={0.4} />
                       </div>
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                    ))}
                   </div>
-                ))}
+                </div>
 
-                <div className="drawer-group-title">STUDENT SERVICES</div>
-                {[
-                  { label: 'Period Attendance (1–7)', key: 'attendance', icon: <UserCheck size={16} />, color: '#ff5f1f' },
-                  { label: 'Anonymous Suggestions', key: 'suggestion', icon: <Inbox size={16} />, color: '#ea580c' },
-                ].map(item => (
-                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                    <div className="drawer-item-left">
-                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                        {item.icon}
+                {/* Section: Services & Brain Quest */}
+                <div style={{ background: '#ffffff', borderRadius: 18, padding: '12px 10px', border: '1px solid rgba(0,82,204,0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                  <span style={{ fontSize: 10, fontWeight: 900, color: '#ff5f1f', letterSpacing: 0.8, textTransform: 'uppercase', display: 'block', padding: '0 6px 8px' }}>
+                    ⚡ Services &amp; Quests
+                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {[
+                      { label: 'Period Attendance (1–7)', key: 'attendance', icon: <UserCheck size={15} />, color: '#ff5f1f', badge: 'RADAR' },
+                      { label: 'EEE Puzzle Quest & Games', key: 'puzzle-games', icon: <Gamepad2 size={15} />, color: '#8b5cf6', badge: 'HOT' },
+                      { label: 'Career Skill Tree & GATE', key: 'career', icon: <Zap size={15} />, color: '#d97706', badge: 'TREE' },
+                      { label: 'Campus & Lab Map', key: 'campus-map', icon: <Map size={15} />, color: '#2563eb' },
+                      { label: 'Anonymous Suggestions', key: 'suggestion', icon: <Inbox size={15} />, color: '#ea580c' },
+                      { label: 'Faculty Contacts', key: 'faculty', icon: <Phone size={15} />, color: '#db2777' },
+                    ].map(item => (
+                      <div
+                        key={item.key}
+                        onClick={() => { handleCardClick(item.key); setIsDrawerOpen(false); }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          borderRadius: 12,
+                          cursor: 'pointer',
+                          background: currentTab === item.key ? 'rgba(0,82,204,0.08)' : 'transparent'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: `${item.color}15`, color: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {item.icon}
+                          </div>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text-main)' }}>{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span style={{ fontSize: 9, fontWeight: 900, background: '#fef3c7', color: '#b45309', padding: '2px 6px', borderRadius: 6 }}>
+                            {item.badge}
+                          </span>
+                        )}
                       </div>
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                    ))}
                   </div>
-                ))}
+                </div>
 
-                <div className="drawer-group-title">CAMPUS & CAREER</div>
-                {[
-                  { label: 'Career Roadmaps & GATE', key: 'career', icon: <Zap size={16} />, color: '#d97706' },
-                  { label: 'EEE Campus & Lab Map', key: 'campus-map', icon: <Map size={16} />, color: '#2563eb' },
-                  { label: 'College Rules & Conduct', key: 'college-rules', icon: <Shield size={16} />, color: '#16a34a' },
-                  { label: 'Faculty Contacts', key: 'faculty', icon: <Phone size={16} />, color: '#db2777' },
-                ].map(item => (
-                  <div key={item.key} className="drawer-item" onClick={() => handleCardClick(item.key)}>
-                    <div className="drawer-item-left">
-                      <div className="drawer-item-icon" style={{ background: `${item.color}1a`, color: item.color }}>
-                        {item.icon}
-                      </div>
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight size={14} style={{ opacity: 0.5 }} />
-                  </div>
-                ))}
+                {/* SREC Drawer Footer Branding */}
+                <div style={{ textAlign: 'center', padding: '12px 0 6px', color: '#94a3b8', fontSize: 10.5, fontWeight: 700 }}>
+                  <span>Sri Ramakrishna Engineering College</span>
+                  <span style={{ display: 'block', fontSize: 9.5, opacity: 0.8, marginTop: 2 }}>EEE Department Autonomous · v2.4</span>
+                </div>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* ── PURE MOBILE APP MAIN CONTENT: HOME HUB OR DEDICATED FULL-SCREEN PAGE ── */}

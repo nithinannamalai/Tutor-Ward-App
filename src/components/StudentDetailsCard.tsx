@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Award, GraduationCap, UserCheck, ChevronRight, ShieldCheck, BookOpen, Calendar, Hash, Layers } from 'lucide-react';
 import type { UserProfile } from '../App';
+import { dbService } from '../services/db';
 
 interface StudentDetailsCardProps {
   isAuthenticated: boolean;
@@ -24,6 +25,49 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
   const yearOfStudy = currentUser?.yearOfStudy || '3rd Year';
   const semester = currentUser?.semester || 'Sem VI';
   const department = currentUser?.department || 'Dept of EEE';
+
+  const [dbMetrics, setDbMetrics] = useState({
+    attendance: '85%',
+    cgpa: '8.9',
+    nptelCerts: '2 Certs',
+    arrears: '0'
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDbData = async () => {
+      const email = currentUser?.email || 'student@eee.com';
+      const studentRoll = currentUser?.rollNo || '7377221EE001';
+
+      try {
+        const profile = await dbService.getStudentProfile(email);
+        if (profile && isMounted) {
+          const semKeys = Object.keys(profile.cgpa).map(Number).sort((a, b) => b - a);
+          const latestSem = semKeys[0];
+          const latestCgpa = latestSem ? profile.cgpa[latestSem]?.gpa || 8.9 : 8.9;
+
+          setDbMetrics(prev => ({
+            ...prev,
+            cgpa: String(latestCgpa),
+            arrears: String(profile.arrears ?? 0),
+            nptelCerts: `${profile.nptelExams?.length || 0} Certs`
+          }));
+        }
+
+        const logs = await dbService.getAttendanceForStudent(studentRoll);
+        if (logs && logs.length > 0 && isMounted) {
+          const present = logs.filter(l => l.status === 'present').length;
+          const percentage = Math.round((present / logs.length) * 100);
+          setDbMetrics(prev => ({ ...prev, attendance: `${percentage}%` }));
+        }
+      } catch (err) {
+        console.warn('Failed to load DB metrics in StudentDetailsCard:', err);
+      }
+    };
+
+    fetchDbData();
+    return () => { isMounted = false; };
+  }, [currentUser]);
 
   return (
     <div className="student-details-above-notice">
@@ -71,7 +115,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
           </button>
         </div>
 
-        {/* 🎓 Clean Student Info Chips (Name, Roll No, Class, Year of Study, Sem - Auto-adjusts to screen size) */}
+        {/* 🎓 Clean Student Info Chips */}
         {!isAdmin && (
           <div className="student-details-grid">
             <div className="detail-chip">
@@ -102,7 +146,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
           </div>
         )}
 
-        {/* 4 Stat Metrics Grid */}
+        {/* 4 Stat Metrics Grid from DB */}
         {!isAdmin && isExpanded && (
           <div className="student-metrics-row" style={{ animation: 'fadeIn 0.2s ease-in-out' }}>
             <div className="student-metric-pill" onClick={() => onOpenTab('attendance')}>
@@ -110,7 +154,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
                 <UserCheck size={14} />
               </div>
               <div className="metric-text font-wrap">
-                <span className="metric-val">85%</span>
+                <span className="metric-val">{dbMetrics.attendance}</span>
                 <span className="metric-lbl">Attendance</span>
               </div>
             </div>
@@ -120,7 +164,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
                 <GraduationCap size={14} />
               </div>
               <div className="metric-text font-wrap">
-                <span className="metric-val">8.9</span>
+                <span className="metric-val">{dbMetrics.cgpa}</span>
                 <span className="metric-lbl">CGPA</span>
               </div>
             </div>
@@ -130,7 +174,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
                 <Award size={14} />
               </div>
               <div className="metric-text font-wrap">
-                <span className="metric-val">2 Certs</span>
+                <span className="metric-val">{dbMetrics.nptelCerts}</span>
                 <span className="metric-lbl">NPTEL</span>
               </div>
             </div>
@@ -140,7 +184,7 @@ export const StudentDetailsCard: React.FC<StudentDetailsCardProps> = ({
                 <Sparkles size={14} />
               </div>
               <div className="metric-text font-wrap">
-                <span className="metric-val">0</span>
+                <span className="metric-val">{dbMetrics.arrears}</span>
                 <span className="metric-lbl">Arrears</span>
               </div>
             </div>

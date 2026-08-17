@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Award, GraduationCap, UserCheck, ChevronRight, ShieldCheck, BookOpen, Calendar, Hash, Layers } from 'lucide-react';
+import { Sparkles, Award, GraduationCap, UserCheck, ChevronRight, ShieldCheck, Calendar, Hash, Layers } from 'lucide-react';
 import type { UserProfile } from '../../App';
 import { dbService } from '../../services/db';
 

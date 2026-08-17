@@ -185,7 +185,7 @@ function App() {
     });
 
     return () => {
-      backListener.then(l => l.remove());
+      backListener.then((l: any) => l?.remove?.());
     };
   }, []);
 
@@ -316,7 +316,7 @@ function App() {
       return (
         <DesktopLandingPage
           onOpenLogin={(isSignUp) => {
-            setAuthIsSignUp(isSignUp);
+            setAuthIsSignUp(Boolean(isSignUp));
             setShowSignInPage(true);
           }}
         />
@@ -327,7 +327,7 @@ function App() {
         <div className="mobile-app-shell">
           <MobileLandingPage
             onOpenLogin={(isSignUp) => {
-              setAuthIsSignUp(isSignUp);
+              setAuthIsSignUp(Boolean(isSignUp));
               setShowSignInPage(true);
             }}
           />

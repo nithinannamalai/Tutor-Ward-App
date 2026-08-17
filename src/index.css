@@ -2825,26 +2825,118 @@ html, body {
   }
   .mobile-app-shell {
     width: 95vw;
-    max-width: 1280px;
+    max-width: 1320px;
     height: 94vh;
-    max-height: 940px;
+    max-height: 950px;
     border-radius: 24px;
     border: 1.5px solid rgba(0, 82, 204, 0.15);
     box-shadow: 0 20px 50px rgba(0, 50, 150, 0.15);
   }
 
   .mobile-grid-4col {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
     gap: 16px !important;
   }
 
   .student-details-grid {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
   }
 
   .home-dashboard-view {
-    padding: 20px 24px 100px !important;
+    padding: 20px 24px 40px !important;
   }
+}
+
+/* Desktop Only Responsive Overrides (min-width: 992px) */
+@media (min-width: 992px) {
+  /* Hide mobile floating bottom dock on desktop to prevent obscuring content */
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  .mobile-ai-float {
+    bottom: 24px !important;
+    right: 28px !important;
+  }
+
+  .mobile-app-content {
+    padding: 20px 28px 40px !important;
+  }
+
+  .desktop-nav-links {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .desktop-nav-links {
+    display: none !important;
+  }
+}
+
+/* Desktop Header Navigation Link Bar */
+.desktop-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 82, 204, 0.05);
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid rgba(0, 82, 204, 0.1);
+}
+
+.desktop-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.desktop-nav-btn:hover {
+  color: var(--accent-blue);
+  background: rgba(0, 82, 204, 0.08);
+  transform: translateY(-1px);
+}
+
+.desktop-nav-btn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0052cc 0%, #2563eb 100%);
+  box-shadow: 0 4px 14px rgba(0, 82, 204, 0.3);
+}
+
+/* Separated Folder Cards for Dashboard Categories */
+.category-folder-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 18px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.category-folder-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 82, 204, 0.08);
+  border-color: rgba(0, 82, 204, 0.2);
+}
+
+.category-count-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent-blue);
+  background: rgba(0, 82, 204, 0.08);
+  border: 1px solid rgba(0, 82, 204, 0.15);
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Native Mobile Breakpoint */

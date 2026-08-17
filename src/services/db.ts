@@ -1052,6 +1052,21 @@ export const dbService = {
   },
 
   // --- Suggestions ---
+  async getSuggestions(): Promise<{ id?: number; category: string; content: string; created_at?: string }[]> {
+    try {
+      const { data, error } = await supabase
+        .from('suggestions')
+        .select('*')
+        .order('id', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (err: any) {
+      console.warn('Supabase getSuggestions failed, using localStorage:', err.message || err);
+      const localData = localStorage.getItem('eee_suggestions') || '[]';
+      return JSON.parse(localData);
+    }
+  },
+
   async saveSuggestion(category: string, content: string): Promise<boolean> {
     try {
       const { error } = await supabase

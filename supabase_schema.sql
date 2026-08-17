@@ -147,6 +147,26 @@ CREATE TABLE IF NOT EXISTS letter_requests (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- 3. OD Requests Table
+CREATE TABLE IF NOT EXISTS od_requests (
+  id TEXT PRIMARY KEY,
+  student_email TEXT NOT NULL,
+  student_name TEXT NOT NULL,
+  roll_no TEXT NOT NULL,
+  od_type TEXT NOT NULL,
+  od_sub_category TEXT NOT NULL,
+  event_name TEXT NOT NULL,
+  event_date TEXT NOT NULL,
+  venue TEXT NOT NULL,
+  faculty_coordinator TEXT NOT NULL,
+  students JSONB DEFAULT '[]'::jsonb NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Rejected')),
+  requested_at TEXT NOT NULL,
+  pdf_url TEXT,
+  admin_remarks TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- ====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ====================================================
@@ -164,6 +184,7 @@ ALTER TABLE faculty ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE timetable_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE letter_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE od_requests ENABLE ROW LEVEL SECURITY;
 
 -- A. ANNOUNCEMENTS POLICIES
 CREATE POLICY "Allow public read access to announcements" 
@@ -334,6 +355,30 @@ WITH CHECK (is_faculty());
 
 CREATE POLICY "Allow faculty to delete any letter request" 
 ON letter_requests FOR DELETE 
+USING (is_faculty());
+
+
+-- M. OD REQUESTS POLICIES
+CREATE POLICY "Allow users to read their own od requests, or faculty to read all" 
+ON od_requests FOR SELECT 
+USING (
+  auth.jwt() ->> 'email' = student_email 
+  OR is_faculty()
+);
+
+CREATE POLICY "Allow users to insert their own od requests" 
+ON od_requests FOR INSERT 
+WITH CHECK (
+  auth.jwt() ->> 'email' = student_email
+);
+
+CREATE POLICY "Allow faculty to update any od request" 
+ON od_requests FOR UPDATE 
+USING (is_faculty())
+WITH CHECK (is_faculty());
+
+CREATE POLICY "Allow faculty to delete any od request" 
+ON od_requests FOR DELETE 
 USING (is_faculty());
 
 -- ====================================================

@@ -361,6 +361,40 @@ function App() {
           </div>
         </div>
 
+        {/* Desktop Header Quick Navigation Bar */}
+        <div className="desktop-nav-links">
+          <button 
+            className={`desktop-nav-btn ${activeBottomNav === 'home' && currentTab === null ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('home'); setCurrentTab(null); }}
+          >
+            <Home size={15} /> <span>Home</span>
+          </button>
+          <button 
+            className={`desktop-nav-btn ${currentTab === 'academics' || currentTab === 'courses' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('academics'); handleCardClick('academics'); }}
+          >
+            <GraduationCap size={15} /> <span>Academics</span>
+          </button>
+          <button 
+            className={`desktop-nav-btn ${currentTab === 'attendance' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('attendance'); handleCardClick('attendance'); }}
+          >
+            <UserCheck size={15} /> <span>Attendance</span>
+          </button>
+          <button 
+            className={`desktop-nav-btn ${currentTab === 'career' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('career'); handleCardClick('career'); }}
+          >
+            <Zap size={15} /> <span>Career</span>
+          </button>
+          <button 
+            className={`desktop-nav-btn ${currentTab === 'profile-details' ? 'active' : ''}`}
+            onClick={() => { setActiveBottomNav('profile'); handleCardClick('profile-details'); }}
+          >
+            <User size={15} /> <span>Profile</span>
+          </button>
+        </div>
+
         <div className="mobile-top-right">
           <button className="icon-circle-btn" onClick={() => setShowSearch(!showSearch)} aria-label="Search">
             <Search size={18} />
@@ -552,11 +586,12 @@ function App() {
               </div>
             </div>
 
-            {/* Mobile Icon Grid Categories */}
+            {/* Mobile & Desktop Icon Grid Categories (Separated Folder Cards) */}
             {filteredCategories.map((cat, idx) => (
-              <div key={idx}>
+              <div key={idx} className="category-folder-card">
                 <div className="mobile-section-header">
                   <span className="mobile-section-title">{cat.title}</span>
+                  <span className="category-count-badge">{cat.items.length} Modules</span>
                 </div>
                 <div className="mobile-grid-4col">
                   {cat.items.map((item) => (
@@ -574,8 +609,6 @@ function App() {
                         {item.icon}
                       </div>
                       <span className="mobile-tile-label">{item.label}</span>
-
-
                     </div>
                   ))}
                 </div>

@@ -9,7 +9,6 @@ interface TimetableProps {
   semester?: number;
 }
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const PERIODS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const PERIOD_TIMES: Record<number, string> = {

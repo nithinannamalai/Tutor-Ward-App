@@ -9,10 +9,11 @@ interface SignInPageProps {
   onClose?: () => void;
   onLoginSuccess: (userProfile: UserProfile) => void;
   demoProfiles: UserProfile[];
+  initialIsSignUp?: boolean;
 }
 
-export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess, demoProfiles }) => {
-  const [isSignUp, setIsSignUp] = useState(false);
+export const SignInPage: React.FC<SignInPageProps> = ({ onClose, onLoginSuccess, demoProfiles, initialIsSignUp = false }) => {
+  const [isSignUp, setIsSignUp] = useState(initialIsSignUp);
   const [email, setEmail] = useState('student@eee.com');
   const [name, setName] = useState('Nithin Annamalai');
   const [rollNo, setRollNo] = useState('7377221EE001');

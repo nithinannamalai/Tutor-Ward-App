@@ -84,6 +84,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [showSignInPage, setShowSignInPage] = useState(false);
+  const [authIsSignUp, setAuthIsSignUp] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 992);
@@ -314,7 +315,8 @@ function App() {
       }
       return (
         <DesktopLandingPage
-          onOpenLogin={(_isSignUp) => {
+          onOpenLogin={(isSignUp) => {
+            setAuthIsSignUp(isSignUp);
             setShowSignInPage(true);
           }}
         />
@@ -322,11 +324,14 @@ function App() {
     }
     if (!showSignInPage) {
       return (
-        <MobileLandingPage
-          onOpenLogin={(_isSignUp) => {
-            setShowSignInPage(true);
-          }}
-        />
+        <div className="mobile-app-shell">
+          <MobileLandingPage
+            onOpenLogin={(isSignUp) => {
+              setAuthIsSignUp(isSignUp);
+              setShowSignInPage(true);
+            }}
+          />
+        </div>
       );
     }
     return (
@@ -335,6 +340,7 @@ function App() {
           onClose={() => setShowSignInPage(false)}
           onLoginSuccess={(profile) => { handleLoginSuccess(profile); setShowSignInPage(false); }}
           demoProfiles={USER_PROFILES}
+          initialIsSignUp={authIsSignUp}
         />
       </div>
     );

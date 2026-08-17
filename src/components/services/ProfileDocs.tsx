@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { dbService } from '../../services/db';
 import type { Student, StudentDoc } from '../../services/db';
 import type { UserProfile } from '../../App';
@@ -713,7 +714,7 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
         )}
 
         {/* Add Student Modal */}
-        {showAddModal && (
+        {showAddModal && typeof document !== 'undefined' && createPortal(
           <div className="modern-cert-modal-backdrop">
             <form className="modern-cert-modal-card" onSubmit={handleAddStudentSubmit}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -740,11 +741,12 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
                 {saving ? 'Creating...' : 'Register Student'}
               </button>
             </form>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* 🌟 Modern Luxury Add Certificate / Document Modal */}
-        {showUploadModal && (
+        {showUploadModal && typeof document !== 'undefined' && createPortal(
           <div className="modern-cert-modal-backdrop">
             <form className="modern-cert-modal-card" onSubmit={handleActualUpload}>
               {/* Modal Header */}
@@ -893,7 +895,8 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
                 </button>
               </div>
             </form>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>

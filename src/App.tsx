@@ -33,7 +33,7 @@ import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
   Inbox, Map, Shield, Phone, ArrowLeft, Sparkles, Home,
-  CheckCircle2, Plus, Trash2, Pencil, Mail, Calculator
+  CheckCircle2, Plus, Trash2, Pencil
 } from 'lucide-react';
 import './App.css';
 
@@ -599,32 +599,6 @@ function App() {
                     onOpenSignIn={() => setShowSignInPage(true)}
                     onOpenTab={handleCardClick}
                   />
-
-                  {/* 🚀 QUICK 1-TAP ACTION STRIP */}
-                  <div className="mobile-quick-action-strip">
-                    {[
-                      { label: 'AI Tutor', icon: <Sparkles size={14} />, key: 'ai-tutor', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' },
-                      { label: 'Apply OD', icon: <FileText size={14} />, key: 'od', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.12)' },
-                      { label: 'Bonafide', icon: <Mail size={14} />, key: 'letters', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-                      { label: 'GPA Calc', icon: <Calculator size={14} />, key: 'gpa', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
-                      { label: 'Timetable', icon: <Calendar size={14} />, key: 'timetable', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
-                      { label: 'NPTEL', icon: <Award size={14} />, key: 'nptel', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
-                    ].map((action, aIdx) => (
-                      <button
-                        key={aIdx}
-                        className="quick-action-chip"
-                        onClick={() => handleCardClick(action.key)}
-                        style={{
-                          background: action.bg,
-                          borderColor: `${action.color}40`,
-                          color: action.color,
-                        }}
-                      >
-                        {action.icon}
-                        <span>{action.label}</span>
-                      </button>
-                    ))}
-                  </div>
 
                   {/* 🔔 NOTICE BOARD ANNOUNCEMENT WIDGET */}
                   <div id="announcements-widget">

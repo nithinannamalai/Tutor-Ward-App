@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { dbService } from '../../services/db';
 import type { TimetableEntry } from '../../services/db';
 import { ArrowLeft, Pencil, X, Check, Clock, User, ChevronLeft, ChevronRight, Calendar, Coffee, ImagePlus, FileImage, ZoomIn } from 'lucide-react';
@@ -610,37 +611,31 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
 
       {/* Admin Edit Modal Overlay */}
       {/* Timetable Image/PDF Preview Modal */}
-      {showTtPreview && ttFile && (
+      {showTtPreview && ttFile && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowTtPreview(false)}
-          style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(10,15,30,0.88)',
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            zIndex: 2000, padding: 16,
-            backdropFilter: 'blur(6px)',
-          }}
+          className="poster-modal"
         >
-          <div style={{ position: 'relative', maxWidth: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div
+            onClick={e => e.stopPropagation()}
+            className="poster-content"
+            style={{ maxWidth: 640 }}
+          >
             {/* Top bar */}
-            <div
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)', maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ttFile.name}</span>
-              <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ttFile.name}</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {isAdmin && (
                   <button
                     onClick={handleRemoveTtFile}
-                    style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(248,113,113,0.2)', color: '#f87171', border: '1px solid rgba(248,113,113,0.3)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                    style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
                   >
                     Remove
                   </button>
                 )}
                 <button
                   onClick={() => setShowTtPreview(false)}
-                  style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                  className="close-modal-btn"
                 >
                   <X size={16} />
                 </button>
@@ -649,139 +644,106 @@ export const Timetable: React.FC<TimetableProps> = ({ onBack, isAdmin = false, s
 
             {/* Content */}
             <div
-              onClick={e => e.stopPropagation()}
-              style={{ borderRadius: 14, overflow: 'hidden', maxHeight: 'calc(90vh - 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ borderRadius: 18, overflow: 'hidden', maxHeight: 'calc(80vh - 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', border: '1.5px solid rgba(0, 82, 204, 0.1)' }}
             >
               {ttFile.type.startsWith('image/') ? (
                 <img
                   src={ttFile.dataUrl}
                   alt="Timetable"
-                  style={{ maxWidth: '100%', maxHeight: 'calc(90vh - 64px)', objectFit: 'contain', borderRadius: 12 }}
+                  style={{ maxWidth: '100%', maxHeight: 'calc(80vh - 70px)', objectFit: 'contain', borderRadius: 14 }}
                 />
               ) : (
                 <iframe
                   src={ttFile.dataUrl}
                   title="Timetable PDF"
-                  style={{ width: 'min(100vw - 32px, 600px)', height: 'min(80vh, 780px)', border: 'none', borderRadius: 12 }}
+                  style={{ width: '100%', height: 'min(70vh, 600px)', border: 'none', borderRadius: 14 }}
                 />
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {editCell && (
+      {editCell && typeof document !== 'undefined' && createPortal(
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(15, 23, 42, 0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: 16,
-            backdropFilter: 'blur(3px)',
-          }}
+          className="poster-modal"
           onClick={() => setEditCell(null)}
         >
           <div
-            style={{
-              background: 'var(--bg-primary)',
-              border: '1.5px solid var(--card-border)',
-              borderRadius: 16,
-              padding: 20,
-              width: '100%',
-              maxWidth: 360,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-              boxShadow: '0 12px 30px -4px rgba(0, 0, 0, 0.12)',
-            }}
+            className="poster-content"
             onClick={e => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--card-border)', paddingBottom: 10 }}>
-              <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-main)' }}>
-                Edit Hour {editCell.period} · {editCell.day}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 900, fontSize: 15, color: 'var(--text-main)' }}>
+                🗓️ Edit Hour {editCell.period} · {editCell.day}
               </span>
-              <button onClick={() => setEditCell(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}>
-                <X size={18} />
+              <button onClick={() => setEditCell(null)} className="close-modal-btn">
+                <X size={16} />
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>COURSE CODE / SUBJECT NAME</label>
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label className="form-label" style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)' }}>COURSE CODE / SUBJECT NAME</label>
               <input
                 value={editCourseCode}
                 onChange={e => setEditCourseCode(e.target.value)}
                 placeholder="e.g. 25EE2250"
                 autoFocus
-                style={{
-                  padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--card-border)',
-                  fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--text-main)', outline: 'none'
-                }}
+                className="form-input"
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>BATCH</label>
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label className="form-label" style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)' }}>BATCH</label>
               <input
                 value={editBatch}
                 onChange={e => setEditBatch(e.target.value)}
                 placeholder="e.g. 2025"
-                style={{
-                  padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--card-border)',
-                  fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--text-main)', outline: 'none'
-                }}
+                className="form-input"
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>DEG-BR & SEC</label>
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label className="form-label" style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)' }}>DEG-BR & SEC</label>
               <input
                 value={editSec}
                 onChange={e => setEditSec(e.target.value)}
                 placeholder="e.g. B.E-EEE-A"
-                style={{
-                  padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--card-border)',
-                  fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--text-main)', outline: 'none'
-                }}
+                className="form-input"
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>TEACHER (OPTIONAL)</label>
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label className="form-label" style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)' }}>TEACHER (OPTIONAL)</label>
               <input
                 value={editTeacher}
                 onChange={e => setEditTeacher(e.target.value)}
                 placeholder="e.g. Dr. S. Kavitha"
-                style={{
-                  padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--card-border)',
-                  fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--text-main)', outline: 'none'
-                }}
+                className="form-input"
               />
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
               <button
                 onClick={saveCell}
                 disabled={saving}
-                style={{ flex: 1, padding: '10px 0', borderRadius: 8, background: 'var(--accent-blue)', color: '#fff', border: 'none', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                className="btn-primary"
+                style={{ flex: 1.4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                <Check size={14} /> {saving ? 'Saving…' : 'Save'}
+                <Check size={15} /> {saving ? 'Saving…' : 'Save'}
               </button>
               <button
                 onClick={() => setEditCell(null)}
-                style={{ padding: '10px 16px', borderRadius: 8, background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1.5px solid var(--card-border)', fontSize: 12, cursor: 'pointer' }}
+                className="btn-secondary"
+                style={{ flex: 0.8 }}
               >
                 Cancel
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

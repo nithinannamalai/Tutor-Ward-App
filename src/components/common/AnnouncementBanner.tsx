@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Announcement } from '../../services/db';
 import { Megaphone, Calendar, Trophy, FileText, X, Pencil } from 'lucide-react';
 import addIcon from '../../assets/add-icon.png';
@@ -308,7 +309,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
       )}
 
       {/* Poster Viewing Modal */}
-      {selectedPoster && (
+      {selectedPoster && typeof document !== 'undefined' && createPortal(
         <div className="poster-modal" onClick={() => setSelectedPoster(null)}>
           <div className="poster-content" onClick={e => e.stopPropagation()}>
             <button className="close-modal-btn" onClick={() => setSelectedPoster(null)}>
@@ -320,11 +321,12 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
               Tap anywhere outside the card to close.
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Add/Edit Announcement Modal */}
-      {showAddModal && (
+      {showAddModal && typeof document !== 'undefined' && createPortal(
         <div className="poster-modal">
           <form className="poster-content" onSubmit={handleAddSubmit} style={{ gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -398,7 +400,8 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
               {editAnnouncementId ? 'Save Changes' : 'Publish Announcement'}
             </button>
           </form>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

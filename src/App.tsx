@@ -95,7 +95,7 @@ function App() {
       const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
       if (isSupabaseConfigured) {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
+          const { data: { session } } = await (supabase.auth as any).getSession();
           if (session?.user) {
             const email = session.user.email || '';
             let role: 'student' | 'teacher' = 'student';
@@ -212,7 +212,7 @@ function App() {
     const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
     if (isSupabaseConfigured) {
       try {
-        await supabase.auth.signOut();
+        await (supabase.auth as any).signOut();
       } catch (err) {
         console.warn('Failed to sign out from Supabase:', err);
       }

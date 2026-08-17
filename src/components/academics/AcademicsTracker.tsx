@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { type Student, type SemesterGrades, dbService } from '../services/db';
+import { type Student, type SemesterGrades, dbService } from '../../services/db';
 import { ArrowLeft, TrendingUp, Sparkles, Search, UserCheck } from 'lucide-react';
 
 interface AcademicsTrackerProps {

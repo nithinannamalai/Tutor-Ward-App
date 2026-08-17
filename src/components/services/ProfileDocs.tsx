@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { dbService } from '../services/db';
-import type { Student, StudentDoc } from '../services/db';
-import type { UserProfile } from '../App';
+import { dbService } from '../../services/db';
+import type { Student, StudentDoc } from '../../services/db';
+import type { UserProfile } from '../../App';
 import {
   ArrowLeft, Upload, Download, Trash2, Search, UserCheck, Plus, X,
   User, Phone, Calendar, Droplets, MapPin, BookOpen, Hash, Layers,

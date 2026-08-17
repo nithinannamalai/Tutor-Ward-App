@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, LogIn, UserPlus } from 'lucide-react';
-import appLogo from '../assets/app-logo.png';
+import appLogo from '../../assets/app-logo.png';
 
 interface SplashScreenProps {
   onFinish: () => void;

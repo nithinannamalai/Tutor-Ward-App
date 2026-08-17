@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { X, Lock, Mail, Eye, EyeOff, Sparkles, UserCheck, CheckCircle2, User, Download } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
-import { supabase } from '../services/supabaseClient';
-import type { UserProfile } from '../App';
-import appLogo from '../assets/app-logo.png';
+import { supabase } from '../../services/supabaseClient';
+import type { UserProfile } from '../../App';
+import appLogo from '../../assets/app-logo.png';
 
 interface SignInPageProps {
   onClose?: () => void;

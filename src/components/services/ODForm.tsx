@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, FileText, Download, Eye } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import headerImage from '../assets/srec-snr-header.png';
+import headerImage from '../../assets/srec-snr-header.png';
 
 interface ODFormProps {
   onBack: () => void;

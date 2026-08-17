@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import type { Announcement } from '../services/db';
+import type { Announcement } from '../../services/db';
 import { Megaphone, Calendar, Trophy, FileText, X, Pencil } from 'lucide-react';
-import addIcon from '../assets/add-icon.png';
+import addIcon from '../../assets/add-icon.png';
 
 interface AnnouncementBannerProps {
   announcements: Announcement[];

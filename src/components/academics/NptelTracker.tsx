@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { dbService } from '../services/db';
-import type { Student, StudentDoc } from '../services/db';
+import { dbService } from '../../services/db';
+import type { Student, StudentDoc } from '../../services/db';
 import {
   ArrowLeft, Plus, Trash2, Award, Search, UserCheck,
   Upload, Download, CheckCircle2, BookOpen, X, Sparkles,

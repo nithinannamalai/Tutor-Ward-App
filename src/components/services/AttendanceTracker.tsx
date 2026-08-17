@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { dbService } from '../services/db';
-import type { Student, AttendanceLog } from '../services/db';
+import { dbService } from '../../services/db';
+import type { Student, AttendanceLog } from '../../services/db';
 import { ArrowLeft, Check, X, ClipboardCheck } from 'lucide-react';
 
 interface AttendanceTrackerProps {

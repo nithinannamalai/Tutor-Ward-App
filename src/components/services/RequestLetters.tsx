@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { dbService } from '../services/db';
-import type { LetterRequest } from '../services/db';
+import { dbService } from '../../services/db';
+import type { LetterRequest } from '../../services/db';
 import { ArrowLeft, FileText, Clock, CheckCircle2, XCircle, Upload, Download, Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface RequestLettersProps {

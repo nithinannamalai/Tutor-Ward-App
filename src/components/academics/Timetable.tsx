@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { dbService } from '../services/db';
-import type { TimetableEntry } from '../services/db';
+import { dbService } from '../../services/db';
+import type { TimetableEntry } from '../../services/db';
 import { ArrowLeft, Pencil, X, Check, Clock, User, ChevronLeft, ChevronRight, Calendar, Coffee, ImagePlus, FileImage, ZoomIn } from 'lucide-react';
 
 interface TimetableProps {

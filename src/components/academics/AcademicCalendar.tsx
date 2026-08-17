@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { dbService } from '../services/db';
-import type { Course } from '../services/db';
+import { dbService } from '../../services/db';
+import type { Course } from '../../services/db';
 import { ArrowLeft, BookOpen, Calendar, Trash2, Pencil, X, Check } from 'lucide-react';
 
-import addIcon from '../assets/add-icon.png';
+import addIcon from '../../assets/add-icon.png';
 
 // Hardcoded teacher name fallback — used when DB/localStorage is missing teacher_name
 const TEACHER_MAP: Record<string, string> = {

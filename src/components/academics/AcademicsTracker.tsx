@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { type Student, type SemesterGrades, dbService } from '../../services/db';
-import { ArrowLeft, TrendingUp, Sparkles, Search, UserCheck } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Sparkles, Search, UserCheck, ShieldCheck, ChevronDown, ChevronUp, Save } from 'lucide-react';
 
 interface AcademicsTrackerProps {
   currentEmail: string;
@@ -96,7 +96,7 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
         cgpa: cgpaRecords,
         arrears: arrears
       });
-      setStatusMessage('Academic details saved!');
+      setStatusMessage('Academic details saved successfully!');
       setTimeout(() => setStatusMessage(''), 3000);
       loadData();
     } catch (err) {
@@ -107,23 +107,30 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
     }
   };
 
-  // Helper: Extract GPA from SemesterGrades or number
   const getGpa = (grades: SemesterGrades | number | undefined): number => {
     if (!grades) return 0;
     if (typeof grades === 'number') return grades;
     return grades.gpa || 0;
   };
 
-  // Helper: Calculate CGPA from SemesterGrades records
   const calculateCgpa = (records: Record<number, SemesterGrades>): number => {
     const gpas = Object.values(records).map(g => getGpa(g)).filter(v => v > 0);
     if (gpas.length === 0) return 0;
-    return Math.round((gpas.reduce((sum, g) => sum + g, 0) / gpas.length) * 100) / 100;
+    const sum = gpas.reduce((acc, curr) => acc + curr, 0);
+    return parseFloat((sum / gpas.length).toFixed(2));
+  };
+
+  const calculateProgressiveCgpa = (sem: number): number => {
+    const sems = Object.keys(cgpaRecords)
+      .map(Number)
+      .filter(k => k <= sem && getGpa(cgpaRecords[k]) > 0);
+    if (sems.length === 0) return 0;
+    const sum = sems.reduce((acc, k) => acc + getGpa(cgpaRecords[k]), 0);
+    return parseFloat((sum / sems.length).toFixed(2));
   };
 
   const currentCgpa = calculateCgpa(cgpaRecords);
 
-  // Sorting helper for admins
   const getSortedStudents = () => {
     const filtered = allStudents.filter(s =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -142,203 +149,314 @@ export const AcademicsTracker: React.FC<AcademicsTrackerProps> = ({ currentEmail
   const sortedStudents = getSortedStudents();
 
   return (
-    <div className="panel-view">
-      <div className="panel-header">
-        <button onClick={selectedStudentEmail ? () => setSelectedStudentEmail(null) : onBack} className="back-btn">
-          <ArrowLeft size={20} />
-        </button>
-        <span className="panel-title">
-          {isAdmin && !selectedStudentEmail ? 'Academic Directory' : 'CGPA & Arrears Tracker'}
-        </span>
+    <div className="dedicated-page-view page-slide-enter" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: 88 }}>
+      {/* Sleek Header with Small Back Button near Title */}
+      <div className="dedicated-page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button className="page-back-btn" onClick={selectedStudentEmail ? () => setSelectedStudentEmail(null) : onBack} title="Go Back">
+            <ArrowLeft size={16} />
+          </button>
+          <div>
+            <h2 className="dedicated-page-title" style={{ margin: 0, fontSize: 16, fontWeight: 900, display: 'flex', alignItems: 'center', gap: 6 }}>
+              📈 CGPA &amp; Academic Performance
+            </h2>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              {isAdmin && !selectedStudentEmail ? 'Institution Grade Console' : `Student ID: ${student?.rollNo || '7377221EE001'}`}
+            </span>
+          </div>
+        </div>
+
+        <div style={{
+          padding: '6px 14px',
+          borderRadius: 20,
+          background: 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)',
+          color: '#ffffff',
+          fontWeight: 800,
+          fontSize: 11.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          boxShadow: '0 4px 12px rgba(0,82,204,0.3)'
+        }}>
+          <Sparkles size={14} /> {currentCgpa > 0 ? `${currentCgpa} CGPA` : 'Grade Portal'}
+        </div>
       </div>
 
-      <div className="panel-body">
+      <div style={{ padding: 16, maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
         {statusMessage && (
-          <div style={{ padding: 8, background: 'var(--bg-secondary)', borderRadius: 6, fontSize: 11, textAlign: 'center', color: 'var(--accent-gold)', fontWeight: 'bold' }}>
+          <div style={{ padding: 12, background: '#f0fdf4', color: '#166534', border: '1.5px solid #86efac', borderRadius: 16, fontSize: 12.5, fontWeight: 800, textAlign: 'center' }}>
             {statusMessage}
           </div>
         )}
 
         {/* --- ADMIN LIST VIEW --- */}
         {isAdmin && !selectedStudentEmail && (
-          <>
-            <div className="form-group" style={{ position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="Search students..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="form-input"
-                style={{ paddingLeft: '36px' }}
-              />
-              <Search
-                size={16}
-                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
-              />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ background: '#ffffff', borderRadius: 24, padding: 18, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+              <div style={{ position: 'relative', marginBottom: 12 }}>
+                <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+                <input
+                  type="text"
+                  placeholder="Search student by name or roll number..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: 14, border: '1.5px solid #cbd5e1', fontSize: 12, outline: 'none', background: '#f8fafc' }}
+                />
+              </div>
+
+              {/* Sorting controls */}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-main)' }}>Sort By:</span>
+                {(['name', 'cgpa', 'arrears'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSortBy(s)}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      borderRadius: 10,
+                      border: 'none',
+                      background: sortBy === s ? 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)' : '#f1f5f9',
+                      color: sortBy === s ? '#ffffff' : '#64748b',
+                      cursor: 'pointer',
+                      textTransform: 'capitalize'
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Sorting controls */}
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <span className="form-label" style={{ fontSize: 10 }}>Sort By:</span>
-              <button
-                onClick={() => setSortBy('name')}
-                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: `1.5px solid ${sortBy === 'name' ? 'var(--accent-blue)' : 'var(--card-border)'}`, background: sortBy === 'name' ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: sortBy === 'name' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-              >
-                Name
-              </button>
-              <button
-                onClick={() => setSortBy('cgpa')}
-                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: `1.5px solid ${sortBy === 'cgpa' ? 'var(--accent-blue)' : 'var(--card-border)'}`, background: sortBy === 'cgpa' ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: sortBy === 'cgpa' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-              >
-                CGPA
-              </button>
-              <button
-                onClick={() => setSortBy('arrears')}
-                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: `1.5px solid ${sortBy === 'arrears' ? 'var(--accent-blue)' : 'var(--card-border)'}`, background: sortBy === 'arrears' ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: sortBy === 'arrears' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-              >
-                Arrears
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-              {sortedStudents.length === 0 ? (
-                <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', padding: '20px 0' }}>No student records.</p>
-              ) : (
-                sortedStudents.map(s => {
-                  const studentCgpa = calculateCgpa(s.cgpa);
-                  return (
-                    <div
-                      key={s.id}
-                      className="attendance-mark-item"
-                      onClick={() => setSelectedStudentEmail(s.email)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div>
-                        <h4 style={{ fontSize: 13, fontWeight: '700' }}>{s.name}</h4>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Roll: {s.rollNo}</p>
-                        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                          <span style={{ fontSize: 10, color: 'var(--accent-blue)' }}>CGPA: <strong>{studentCgpa || 'N/A'}</strong></span>
-                          <span style={{ fontSize: 10, color: s.arrears > 0 ? '#f87171' : '#4ade80' }}>Arrears: <strong>{s.arrears}</strong></span>
-                        </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {sortedStudents.map(s => {
+                const studentCgpa = calculateCgpa(s.cgpa);
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => setSelectedStudentEmail(s.email)}
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: 18,
+                      padding: '14px 18px',
+                      border: '1.5px solid rgba(0,82,204,0.1)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                    }}
+                  >
+                    <div>
+                      <h4 style={{ margin: '0 0 2px 0', fontSize: 13.5, fontWeight: 800, color: 'var(--text-main)' }}>{s.name}</h4>
+                      <p style={{ margin: 0, fontSize: 11, color: '#64748b' }}>Roll: {s.rollNo} · {s.email}</p>
+                      <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
+                        <span style={{ fontSize: 11, color: 'var(--accent-blue)', fontWeight: 800 }}>CGPA: {studentCgpa || 'N/A'}</span>
+                        <span style={{ fontSize: 11, color: s.arrears > 0 ? '#dc2626' : '#059669', fontWeight: 800 }}>
+                          {s.arrears > 0 ? `⚠️ ${s.arrears} Arrears` : '✓ 0 Arrears'}
+                        </span>
                       </div>
-                      <UserCheck size={18} style={{ color: 'var(--accent-blue)' }} />
                     </div>
-                  );
-                })
-              )}
+                    <UserCheck size={18} style={{ color: 'var(--accent-blue)' }} />
+                  </div>
+                );
+              })}
             </div>
-          </>
+          </div>
         )}
 
         {/* --- STUDENT / INDIVIDUAL DETAILS VIEW --- */}
         {(!isAdmin || selectedStudentEmail) && student && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {isAdmin && (
-              <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: 10, borderRadius: 8, fontSize: 11, border: '1px solid rgba(56,189,248,0.2)' }}>
-                Viewing grades for: <strong>{student.name} ({student.rollNo})</strong>
-              </div>
-            )}
+            {/* Hero CGPA Radar Card */}
+            <div style={{
+              background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)',
+              borderRadius: 28,
+              padding: '24px 20px',
+              color: '#ffffff',
+              boxShadow: '0 16px 36px rgba(0, 82, 204, 0.3)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.3)' }}>
+                    <TrendingUp size={28} />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: 11, opacity: 0.85, textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700 }}>Cumulative CGPA</span>
+                    <h3 style={{ margin: '2px 0 0', fontSize: 32, fontWeight: 900, letterSpacing: -0.5 }}>{currentCgpa || '0.00'}</h3>
+                  </div>
+                </div>
 
-            {/* Scoreboard Card */}
-            <div className="attendance-summary" style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', border: '2px solid rgba(0,82,204,0.18)', borderRadius: 14 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <TrendingUp size={32} style={{ color: '#0052cc', marginBottom: 4 }} />
-                <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>Cumulative CGPA</span>
-                <span style={{ fontSize: 24, fontWeight: '800', color: '#0f172a' }}>{currentCgpa || '0.00'}</span>
-              </div>
-              <div style={{ width: 1, height: 50, background: 'rgba(0,82,204,0.15)' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Sparkles size={32} style={{ color: arrears > 0 ? '#dc2626' : '#059669', marginBottom: 4 }} />
-                <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>Active Arrears</span>
-                <span style={{ fontSize: 24, fontWeight: '800', color: arrears > 0 ? '#dc2626' : '#059669' }}>{arrears}</span>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{
+                    padding: '6px 12px',
+                    borderRadius: 14,
+                    background: arrears === 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    color: arrears === 0 ? '#6ee7b7' : '#fca5a5',
+                    fontSize: 11.5,
+                    fontWeight: 800,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    {arrears === 0 ? <ShieldCheck size={14} /> : '⚠️'}
+                    {arrears === 0 ? 'Zero Arrears' : `${arrears} Standing Arrear${arrears > 1 ? 's' : ''}`}
+                  </div>
+                  <span style={{ display: 'block', fontSize: 10.5, opacity: 0.8, marginTop: 4 }}>
+                    {currentCgpa >= 8.5 ? '🏆 First Class with Distinction' : currentCgpa >= 7.0 ? '🎖️ First Class' : 'Second Class'}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Semester Accordion */}
-            <form onSubmit={handleSaveAcademics} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <h4 style={{ fontSize: 13, fontWeight: '700', margin: '4px 0 2px' }}>Semester-wise Breakdown</h4>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => {
-                const grades = cgpaRecords[sem] || {};
-                const gpa = getGpa(grades);
-                const isOpen = expandedSem === sem;
-                // Cumulative CGPA up to this semester
-                const cumRecords: Record<number, SemesterGrades> = {};
-                for (let s = 1; s <= sem; s++) { if (cgpaRecords[s]) cumRecords[s] = cgpaRecords[s]; }
-                const cumCgpa = calculateCgpa(cumRecords);
-                return (
-                  <div key={sem}>
-                    <div
-                      className="sem-accordion-header"
-                      onClick={() => setExpandedSem(isOpen ? null : sem)}
-                    >
-                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>Semester {sem}</span>
-                        {gpa > 0 && (
-                          <span style={{ fontSize: 10, background: 'rgba(245,158,11,0.12)', color: '#b45309', padding: '2px 7px', borderRadius: 4, fontWeight: 700, border: '1px solid rgba(245,158,11,0.25)' }}>GPA: {gpa}</span>
-                        )}
-                        {cumCgpa > 0 && (
-                          <span style={{ fontSize: 10, background: 'rgba(0,82,204,0.1)', color: '#0052cc', padding: '2px 7px', borderRadius: 4, fontWeight: 700, border: '1px solid rgba(0,82,204,0.2)' }}>CGPA: {cumCgpa}</span>
-                        )}
-                      </div>
-                      <span style={{ fontSize: 14, color: '#64748b', transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
-                    </div>
-                    {isOpen && (
-                      <div className="sem-accordion-content">
-                        {(['internal1', 'internal2', 'semMarks', 'gpa'] as (keyof SemesterGrades)[]).map(field => {
-                          const labels: Record<string, string> = { internal1: 'Internal 1', internal2: 'Internal 2', semMarks: 'Sem Marks', gpa: 'GPA (0–10)' };
-                          const val = (grades as any)[field];
-                          return (
-                            <div key={field} className="sem-accordion-field">
-                              <label>{labels[field]}</label>
-                              {isAdmin ? (
-                                <input
-                                  type="number"
-                                  step={field === 'gpa' ? '0.01' : '1'}
-                                  min="0"
-                                  max={field === 'gpa' ? '10' : '100'}
-                                  placeholder={field === 'gpa' ? 'e.g. 8.5' : 'e.g. 85'}
-                                  value={val !== undefined ? val : ''}
-                                  onChange={e => handleGradeChange(sem, field, e.target.value)}
-                                  disabled={saving}
-                                />
-                              ) : (
-                                <span>{val !== undefined ? val : '—'}</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            {/* Semester-wise Interactive Grade Breakdown */}
+            <div style={{ background: '#ffffff', borderRadius: 28, padding: 22, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <h4 style={{ margin: '0 0 16px 0', fontSize: 14, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                📚 Semester-Wise Academic Breakdown
+              </h4>
 
-              {isAdmin && (
-                <>
-                  <div className="form-group" style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: 10, border: '1px solid var(--card-border)', marginTop: 4 }}>
-                    <label className="form-label" style={{ marginBottom: 4 }}>Arrears Count</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <input
-                        type="number"
-                        min="0"
-                        value={arrears}
-                        onChange={e => setArrears(Math.max(0, parseInt(e.target.value) || 0))}
-                        className="form-input"
-                        disabled={saving}
-                        style={{ flex: 1 }}
-                      />
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button type="button" onClick={() => setArrears(prev => Math.max(0, prev - 1))} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>-</button>
-                        <button type="button" onClick={() => setArrears(prev => prev + 1)} className="btn-secondary" style={{ padding: '6px 12px' }} disabled={saving}>+</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => {
+                  const grades = cgpaRecords[sem];
+                  const gpa = getGpa(grades);
+                  const progCgpa = calculateProgressiveCgpa(sem);
+                  const isExpanded = expandedSem === sem;
+
+                  return (
+                    <div
+                      key={sem}
+                      style={{
+                        background: isExpanded ? '#eff6ff' : '#f8fafc',
+                        borderRadius: 18,
+                        border: '1.5px solid',
+                        borderColor: isExpanded ? '#93c5fd' : 'rgba(0,82,204,0.08)',
+                        overflow: 'hidden',
+                        transition: 'all 0.24s ease'
+                      }}
+                    >
+                      {/* Accordion Row Header */}
+                      <div
+                        onClick={() => setExpandedSem(isExpanded ? null : sem)}
+                        style={{
+                          padding: '14px 16px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: 8,
+                            background: gpa > 0 ? 'rgba(0,82,204,0.1)' : '#e2e8f0',
+                            color: gpa > 0 ? 'var(--accent-blue)' : '#94a3b8',
+                            fontSize: 12,
+                            fontWeight: 900,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            {sem}
+                          </span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: 'var(--text-main)' }}>
+                            Semester {sem}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {gpa > 0 && (
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <span style={{ padding: '4px 8px', borderRadius: 8, background: '#fef3c7', color: '#b45309', fontSize: 11, fontWeight: 800 }}>
+                                GPA: {gpa}
+                              </span>
+                              <span style={{ padding: '4px 8px', borderRadius: 8, background: '#dbeafe', color: '#1d4ed8', fontSize: 11, fontWeight: 800 }}>
+                                CGPA: {progCgpa}
+                              </span>
+                            </div>
+                          )}
+                          {isExpanded ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
+                        </div>
                       </div>
+
+                      {/* Expandable Grade Detail Inputs / Display */}
+                      {isExpanded && (
+                        <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 12 }}>
+                            <div>
+                              <label style={{ fontSize: 10, fontWeight: 800, color: '#64748b', display: 'block', marginBottom: 4 }}>Internal 1</label>
+                              <input
+                                type="number"
+                                step="0.1"
+                                placeholder="0-100"
+                                value={grades?.internal1 ?? ''}
+                                onChange={e => handleGradeChange(sem, 'internal1', e.target.value)}
+                                disabled={!isAdmin && !student}
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #cbd5e1', fontSize: 12, background: '#ffffff', outline: 'none' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 10, fontWeight: 800, color: '#64748b', display: 'block', marginBottom: 4 }}>Internal 2</label>
+                              <input
+                                type="number"
+                                step="0.1"
+                                placeholder="0-100"
+                                value={grades?.internal2 ?? ''}
+                                onChange={e => handleGradeChange(sem, 'internal2', e.target.value)}
+                                disabled={!isAdmin && !student}
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #cbd5e1', fontSize: 12, background: '#ffffff', outline: 'none' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 10, fontWeight: 800, color: '#64748b', display: 'block', marginBottom: 4 }}>Semester GPA</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                placeholder="0-10"
+                                value={grades?.gpa ?? ''}
+                                onChange={e => handleGradeChange(sem, 'gpa', e.target.value)}
+                                disabled={!isAdmin && !student}
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #0052cc', fontSize: 12, background: '#ffffff', fontWeight: 800, color: 'var(--accent-blue)', outline: 'none' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <button type="submit" className="btn-primary" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Grades & Arrears'}
-                  </button>
-                </>
-              )}
-            </form>
+                  );
+                })}
+              </div>
+
+              {/* Save Grades CTA if editing */}
+              <button
+                type="button"
+                onClick={handleSaveAcademics}
+                disabled={saving}
+                style={{
+                  width: '100%',
+                  marginTop: 16,
+                  padding: 14,
+                  borderRadius: 16,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: 13.5,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  boxShadow: '0 6px 20px rgba(0,82,204,0.3)'
+                }}
+              >
+                <Save size={16} /> {saving ? 'Saving Records...' : 'Save Academic Records'}
+              </button>
+            </div>
           </div>
         )}
       </div>

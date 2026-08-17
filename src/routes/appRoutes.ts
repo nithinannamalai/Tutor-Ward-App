@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Sparkles, BookOpen, Calendar, GraduationCap, Award, FileText,
-  UserCheck, Inbox, Zap, Map, Shield, Phone
+  UserCheck, Inbox, Zap, Map, Shield, Phone, Gamepad2
 } from 'lucide-react';
 
 export interface RouteCategoryItem {
@@ -51,6 +51,7 @@ export const APP_CATEGORIES: RouteCategory[] = [
     title: '🚀 CAREER & CAMPUS',
     items: [
       { key: 'career', label: 'Roadmaps', icon: React.createElement(Zap, { size: 24 }), color: '#d97706', bg: 'rgba(217, 119, 6, 0.12)' },
+      { key: 'puzzle-games', label: 'Puzzle Quest', icon: React.createElement(Gamepad2, { size: 24 }), color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' },
       { key: 'campus-map', label: 'Campus Map', icon: React.createElement(Map, { size: 24 }), color: '#2563eb', bg: 'rgba(37, 99, 235, 0.12)' },
       { key: 'college-rules', label: 'Rules', icon: React.createElement(Shield, { size: 24 }), color: '#16a34a', bg: 'rgba(22, 163, 74, 0.12)' },
       { key: 'faculty', label: 'Faculty', icon: React.createElement(Phone, { size: 24 }), color: '#db2777', bg: 'rgba(219, 39, 119, 0.12)' },

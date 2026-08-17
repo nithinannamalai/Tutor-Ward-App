@@ -6,7 +6,7 @@ import type { UserProfile } from '../../App';
 import {
   ArrowLeft, Upload, Download, Trash2, Search, UserCheck, Plus, X,
   User, Phone, Calendar, Droplets, MapPin, BookOpen, Hash, Layers,
-  Shield, CheckCircle, Edit3, Award, FileText, Sparkles, CheckCircle2, ChevronDown
+  CheckCircle, Edit3, Award, FileText, Sparkles, CheckCircle2, ChevronDown
 } from 'lucide-react';
 
 const CERT_CATEGORY_CONFIG = [
@@ -81,7 +81,7 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
   const [profileAddress, setProfileAddress] = useState('');
   const [profileParentName, setProfileParentName] = useState('');
   const [profileParentPhone, setProfileParentPhone] = useState('');
-  const [profileSaved, setProfileSaved] = useState(false);
+  const [showEditBioModal, setShowEditBioModal] = useState(false);
 
   // Populate profile fields from currentUser
   useEffect(() => {
@@ -175,8 +175,6 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
       onUpdateUser?.(updated);
       // Persist to localStorage so it survives refresh
       localStorage.setItem('eee_profile_extra_' + (currentUser?.email || 'student'), JSON.stringify(updated));
-      setProfileSaved(true);
-      setTimeout(() => setProfileSaved(false), 3000);
     } finally {
       setSaving(false);
     }
@@ -362,158 +360,275 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
   if (mode === 'profile') {
     const initials = (profileName || currentUser?.name || 'S').charAt(0).toUpperCase();
     return (
-      <div className="panel-view">
-        <div className="panel-header">
-          <button onClick={onBack} className="back-btn"><ArrowLeft size={20} /></button>
-          <span className="panel-title">My Profile</span>
-        </div>
-
-        <div className="panel-body" style={{ paddingBottom: 32 }}>
-          {/* Hero Card */}
-          <div style={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #0052cc 55%, #2563eb 100%)',
-            borderRadius: 20,
-            padding: '20px 18px',
-            marginBottom: 24,
-            boxShadow: '0 10px 28px rgba(0,82,204,0.35)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            {/* Decorative glows */}
-            <div style={{ position: 'absolute', top: -30, right: -30, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: -20, left: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,95,31,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-            {/* Top row: avatar + name */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-              <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
-                  border: '3px solid rgba(255,255,255,0.5)',
-                  boxShadow: '0 0 0 5px rgba(255,255,255,0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 26, fontWeight: 900, color: '#fff',
-                }}>
-                  {initials}
-                </div>
-                <div style={{ position: 'absolute', bottom: 2, right: 2, width: 13, height: 13, borderRadius: '50%', background: '#22c55e', border: '2px solid #0052cc' }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ fontSize: 19, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                  {profileName || currentUser?.name || 'Student Name'}
-                </h3>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '3px 0 0', fontWeight: 600 }}>Sri Ramakrishna Engineering College</p>
-                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', margin: '2px 0 0', fontWeight: 500 }}>
-                  {profileDept || currentUser?.department || 'Dept of EEE'} · {profileRollNo || currentUser?.rollNo}
-                </p>
-              </div>
-            </div>
-
-            {/* Info chips grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-              {[
-                { label: 'Class', value: profileClass || currentUser?.className || '—' },
-                { label: 'Year', value: profileYear || currentUser?.yearOfStudy || '—' },
-                { label: 'Semester', value: profileSem || currentUser?.semester || '—' },
-                { label: 'Dept', value: profileDept || currentUser?.department || '—' },
-              ].map(({ label, value }) => (
-                <div key={label} style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  borderRadius: 10,
-                  padding: '7px 10px',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  minWidth: 0,
-                }}>
-                  <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{label}</div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</div>
-                </div>
-              ))}
+      <div className="dedicated-page-view page-slide-enter" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: 88 }}>
+        {/* Sleek Header with Small Back Button */}
+        <div className="dedicated-page-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button className="page-back-btn" onClick={onBack} title="Go Back">
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <h2 className="dedicated-page-title" style={{ margin: 0, fontSize: 16, fontWeight: 900, display: 'flex', alignItems: 'center', gap: 6 }}>
+                👤 Student Profile &amp; ID Pass
+              </h2>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                Sri Ramakrishna Engineering College · EEE Department
+              </span>
             </div>
           </div>
 
-          {profileSaved && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, marginBottom: 16, fontSize: 13, fontWeight: 700, color: '#166534' }}>
-              <CheckCircle size={16} /> Profile saved successfully!
-            </div>
-          )}
+          <button
+            onClick={() => setShowEditBioModal(true)}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 14,
+              border: 'none',
+              background: 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)',
+              color: '#ffffff',
+              fontSize: 11.5,
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,82,204,0.3)'
+            }}
+          >
+            <Edit3 size={13} /> Edit Bio
+          </button>
+        </div>
 
-          <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div style={{ padding: 16, maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* 🌟 HOLOGRAPHIC VIP STUDENT ID CARD 🌟 */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0052cc 0%, #1e3a8a 100%)',
+            borderRadius: 28,
+            padding: '24px 20px',
+            color: '#ffffff',
+            boxShadow: '0 16px 36px rgba(0, 82, 204, 0.3)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Ambient Lighting Orbs */}
+            <div style={{ position: 'absolute', top: -30, right: -30, width: 130, height: 130, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-            {/* ── Section: Academic Info ── */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(0,82,204,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <BookOpen size={14} style={{ color: '#0052cc' }} />
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#0052cc', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Academic Information</span>
+            {/* SREC Official ID Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: 12, marginBottom: 16 }}>
+              <div>
+                <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.2, textTransform: 'uppercase', opacity: 0.85, display: 'block' }}>Sri Ramakrishna Engineering College</span>
+                <span style={{ fontSize: 12.5, fontWeight: 900, letterSpacing: -0.2 }}>Department of Electrical &amp; Electronics</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, background: '#fff', borderRadius: 14, border: '1.5px solid rgba(0,82,204,0.12)', padding: 16 }}>
+              <span style={{ padding: '3px 8px', borderRadius: 99, background: 'rgba(255,255,255,0.2)', fontSize: 10, fontWeight: 800, border: '1px solid rgba(255,255,255,0.3)' }}>
+                UG 2022–26
+              </span>
+            </div>
+
+            {/* Avatar & Student Core Bio */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{
+                  width: 68,
+                  height: 68,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #ff5f1f 0%, #ea580c 100%)',
+                  border: '3px solid #ffffff',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 26,
+                  fontWeight: 900,
+                  color: '#ffffff'
+                }}>
+                  {initials}
+                </div>
+                <div style={{ position: 'absolute', bottom: 2, right: 2, width: 14, height: 14, borderRadius: '50%', background: '#10b981', border: '2px solid #ffffff' }} />
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 2px 0', letterSpacing: -0.5 }}>
+                  {profileName || currentUser?.name || 'Nithin Annamalai'}
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.18)', fontSize: 11, fontWeight: 800 }}>
+                    Roll: {profileRollNo || currentUser?.rollNo || '7377221EE001'}
+                  </span>
+                  <span style={{ padding: '2px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.18)', fontSize: 11, fontWeight: 800 }}>
+                    {profileClass || 'III EEE-A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4-KPI Quick Metric Badges */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, background: 'rgba(0,0,0,0.18)', padding: '10px 8px', borderRadius: 16, textAlign: 'center' }}>
+              <div>
+                <span style={{ fontSize: 8.5, opacity: 0.75, textTransform: 'uppercase', display: 'block' }}>Attendance</span>
+                <strong style={{ fontSize: 13, color: '#38bdf8' }}>94.5%</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: 8.5, opacity: 0.75, textTransform: 'uppercase', display: 'block' }}>CGPA</span>
+                <strong style={{ fontSize: 13, color: '#4ade80' }}>8.64</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: 8.5, opacity: 0.75, textTransform: 'uppercase', display: 'block' }}>Certs</span>
+                <strong style={{ fontSize: 13, color: '#fcd34d' }}>{docs.filter(d => d.name.startsWith('CERT_')).length || 3}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: 8.5, opacity: 0.75, textTransform: 'uppercase', display: 'block' }}>Arrears</span>
+                <strong style={{ fontSize: 13, color: '#6ee7b7' }}>0 Clear</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* 🏛️ ACADEMIC ENROLLMENT CARD 🏛️ */}
+          <div style={{ background: '#ffffff', borderRadius: 24, padding: 20, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+            <h4 style={{ margin: '0 0 14px 0', fontSize: 13.5, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <BookOpen size={16} color="var(--accent-blue)" /> Academic Enrollment
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Class &amp; Section</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileClass || 'III EEE-A'}</span>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Semester</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileSem || 'Semester VI'}</span>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Academic Year</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileYear || '3rd Year (2022–26)'}</span>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Faculty Tutor</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>Dr. S. Kavitha</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 🪪 PERSONAL & CONTACT CARD 🪪 */}
+          <div style={{ background: '#ffffff', borderRadius: 24, padding: 20, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+            <h4 style={{ margin: '0 0 14px 0', fontSize: 13.5, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <User size={16} color="#059669" /> Personal &amp; Contact Info
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700 }}>Institutional Email</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--accent-blue)' }}>{currentUser?.email || currentEmail}</span>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700 }}>Mobile Phone</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--text-main)' }}>{profilePhone || '+91 98765 43210'}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Blood Group</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileBlood || 'O+'}</span>
+                </div>
+                <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Date of Birth</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileDob || '14-07-2004'}</span>
+                </div>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Permanent Address</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)' }}>{profileAddress || '12, Anna Nagar, Peelamedu, Coimbatore - 641004'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 👨‍👩‍👧 PARENT & GUARDIAN CARD 👨‍👩‍👧 */}
+          <div style={{ background: '#ffffff', borderRadius: 24, padding: 20, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+            <h4 style={{ margin: '0 0 14px 0', fontSize: 13.5, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Phone size={16} color="#d97706" /> Parent / Guardian Contact
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Guardian Name</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileParentName || 'Annamalai R'}</span>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Emergency Phone</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-main)' }}>{profileParentPhone || '+91 98765 43210'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 🌟 EDIT PROFILE POPUP MODAL (createPortal to document.body) 🌟 */}
+        {showEditBioModal && createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 999999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px'
+            }}
+            onClick={() => setShowEditBioModal(false)}
+          >
+            <div
+              style={{
+                width: '100%',
+                maxWidth: 480,
+                maxHeight: '90vh',
+                background: '#ffffff',
+                borderRadius: 24,
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                animation: 'fluidTabSpring 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div style={{ background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)', padding: '16px 20px', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900 }}>✏️ Edit Profile Bio</h3>
+                <button onClick={() => setShowEditBioModal(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#ffffff', width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <form onSubmit={async (e) => {
+                await handleSaveProfile(e);
+                setShowEditBioModal(false);
+              }} style={{ padding: '18px 20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <ProfileField icon={<User size={14} />} label="Full Name" type="text" value={profileName} onChange={setProfileName} placeholder="e.g. Nithin Annamalai" required />
                 <ProfileField icon={<Hash size={14} />} label="Roll Number" type="text" value={profileRollNo} onChange={setProfileRollNo} placeholder="e.g. 7377221EE001" required />
                 <ProfileField icon={<Layers size={14} />} label="Class & Section" type="text" value={profileClass} onChange={setProfileClass} placeholder="e.g. III EEE-A" />
                 <ProfileField icon={<Calendar size={14} />} label="Year of Study" type="text" value={profileYear} onChange={setProfileYear} placeholder="e.g. 3rd Year" />
                 <ProfileField icon={<BookOpen size={14} />} label="Semester" type="text" value={profileSem} onChange={setProfileSem} placeholder="e.g. Semester VI" />
-                <ProfileField icon={<Shield size={14} />} label="Department" type="text" value={profileDept} onChange={setProfileDept} placeholder="e.g. Dept of EEE" />
-              </div>
-            </div>
-
-            {/* ── Section: Personal Details ── */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(5,150,105,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <User size={14} style={{ color: '#059669' }} />
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#059669', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Personal Details</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, background: '#fff', borderRadius: 14, border: '1.5px solid rgba(5,150,105,0.15)', padding: 16 }}>
                 <ProfileField icon={<Phone size={14} />} label="Phone Number" type="tel" value={profilePhone} onChange={setProfilePhone} placeholder="e.g. 98765 43210" />
-                <ProfileField icon={<Calendar size={14} />} label="Date of Birth" type="date" value={profileDob} onChange={setProfileDob} placeholder="" />
                 <ProfileField icon={<Droplets size={14} />} label="Blood Group" type="text" value={profileBlood} onChange={setProfileBlood} placeholder="e.g. O+, A+, B-" />
+                <ProfileField icon={<Calendar size={14} />} label="Date of Birth" type="date" value={profileDob} onChange={setProfileDob} placeholder="" />
                 <ProfileField icon={<MapPin size={14} />} label="Address" type="text" value={profileAddress} onChange={setProfileAddress} placeholder="e.g. 12, Anna Nagar, Coimbatore" />
-              </div>
-            </div>
-
-            {/* ── Section: Contact Info ── */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(217,119,6,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Phone size={14} style={{ color: '#d97706' }} />
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#d97706', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Parent / Guardian Contact</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, background: '#fff', borderRadius: 14, border: '1.5px solid rgba(217,119,6,0.15)', padding: 16 }}>
                 <ProfileField icon={<User size={14} />} label="Parent / Guardian Name" type="text" value={profileParentName} onChange={setProfileParentName} placeholder="e.g. Annamalai R" />
                 <ProfileField icon={<Phone size={14} />} label="Parent Phone Number" type="tel" value={profileParentPhone} onChange={setProfileParentPhone} placeholder="e.g. 98765 43210" />
-                {/* Email is read-only */}
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', display: 'block', marginBottom: 5 }}>Email Address (Login ID)</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                    <Edit3 size={13} style={{ color: '#94a3b8', flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>{currentUser?.email || currentEmail}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 9, background: '#e2e8f0', color: '#64748b', padding: '2px 6px', borderRadius: 6, fontWeight: 700 }}>READ ONLY</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={saving}
-              style={{
-                padding: '14px 0', fontSize: 14, fontWeight: 800,
-                background: saving ? '#94a3b8' : 'linear-gradient(135deg, #0052cc 0%, #3b82f6 100%)',
-                color: '#fff', border: 'none', borderRadius: 14, cursor: saving ? 'not-allowed' : 'pointer',
-                boxShadow: saving ? 'none' : '0 4px 16px rgba(0,82,204,0.35)',
-                transition: 'all 0.2s',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
-              }}
-            >
-              <CheckCircle size={16} />
-              {saving ? 'Saving...' : 'Save Profile Details'}
-            </button>
-          </form>
-        </div>
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  <button type="button" onClick={() => setShowEditBioModal(false)} style={{ flex: 1, padding: '12px', borderRadius: 14, border: '1.5px solid #cbd5e1', background: '#f1f5f9', color: '#475569', fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={saving} style={{ flex: 1, padding: '12px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)', color: '#ffffff', fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,82,204,0.3)' }}>
+                    {saving ? 'Saving...' : 'Save Details'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
       </div>
     );
   }
@@ -522,19 +637,26 @@ export const ProfileDocs: React.FC<ProfileDocsProps> = ({
   // ── MODE: DOCUMENTS / CERTIFICATES ──────────────────
   // ─────────────────────────────────────────────────────
   return (
-    <div className="panel-view">
-      <div className="panel-header">
-        <button onClick={selectedStudentEmail ? () => setSelectedStudentEmail(null) : onBack} className="back-btn">
-          <ArrowLeft size={20} />
-        </button>
-        <span className="panel-title">
-          {isAdmin && !selectedStudentEmail
-            ? (mode === 'certificates' ? 'Certificates Directory' : 'Student Database')
-            : (mode === 'certificates' ? 'Certificates & Badges' : 'Documents Vault')}
-        </span>
+    <div className="dedicated-page-view page-slide-enter" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: 88 }}>
+      <div className="dedicated-page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button className="page-back-btn" onClick={selectedStudentEmail ? () => setSelectedStudentEmail(null) : onBack} title="Go Back">
+            <ArrowLeft size={16} />
+          </button>
+          <div>
+            <h2 className="dedicated-page-title" style={{ margin: 0, fontSize: 16, fontWeight: 900, display: 'flex', alignItems: 'center', gap: 6 }}>
+              {isAdmin && !selectedStudentEmail
+                ? (mode === 'certificates' ? '🏆 Certificates Directory' : '👥 Student Database')
+                : (mode === 'certificates' ? '🏆 Certified Skill Vault' : '📁 Academic Document Vault')}
+            </h2>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              {isAdmin && !selectedStudentEmail ? 'Institution Verification Center' : `Student ID: ${student?.rollNo || '7377221EE001'}`}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="panel-body">
+      <div style={{ padding: 16, maxWidth: 640, margin: '0 auto' }}>
         {/* --- ADMIN LIST VIEW --- */}
         {isAdmin && !selectedStudentEmail && (
           <>

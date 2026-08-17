@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, BookOpen, Compass, Briefcase, GraduationCap, Trash2, Pencil, X } from 'lucide-react';
+import {
+  ArrowLeft, CheckCircle2, Circle, Sparkles
+} from 'lucide-react';
 
 interface CareerHubProps {
   onBack: () => void;
@@ -11,6 +13,8 @@ type TabType = 'gate' | 'upsc' | 'placement';
 interface RoadmapStep {
   title: string;
   desc: string;
+  tasks?: string[];
+  icon?: string;
 }
 
 interface JobEntry {
@@ -51,10 +55,30 @@ const DEFAULT_CONTENT: Record<TabType, CareerData> = {
       'Recommended Books: B.L. Theraja (Machines), C.L. Wadhwa (Power Systems), P.S. Bimbhra (Power Electronics).'
     ],
     roadmap: [
-      { title: 'Months 1-3: Fundamentals', desc: 'Master Math, Networks, and Electromagnetic Fields. Establish core calculations.' },
-      { title: 'Months 4-7: Core EEE Subjects', desc: 'Study Machines, Power Systems, Controls, and Power Electronics in-depth.' },
-      { title: 'Months 8-9: Secondary Subjects & Revision', desc: 'Complete Analog/Digital electronics, measurements, and summarize all formulas into short notes.' },
-      { title: 'Months 10-12: Mocks & PYQs', desc: 'Solve past papers and complete 15+ full-length online test series. Focus on reducing negative marking.' }
+      {
+        title: 'Phase 1: Foundation & Math (Months 1–3)',
+        desc: 'Master Engineering Math, Network Theory, and Electromagnetic Fields. Establish core calculation speed.',
+        tasks: ['Complete Linear Algebra & Calculus', 'Practice 200+ Network Theorems PYQs', 'Derive Maxwell Equations & Boundary Conditions'],
+        icon: '🌱'
+      },
+      {
+        title: 'Phase 2: Heavy Core EEE Mastery (Months 4–7)',
+        desc: 'Study Electrical Machines, Power Systems, Control Systems, and Power Electronics in-depth.',
+        tasks: ['Master Transformers, Induction & Synchronous Machines', 'Complete Load Flow & Fault Analysis in Power Systems', 'Plot Nyquist, Bode & Root Locus in Control Systems', 'Design Buck/Boost Choppers & Inverters'],
+        icon: '⚡'
+      },
+      {
+        title: 'Phase 3: Secondary Subjects & Formula Bible (Months 8–9)',
+        desc: 'Complete Analog/Digital electronics, measurements, and summarize all key formulas into short revision notes.',
+        tasks: ['Build Op-Amp and Digital Logic flashcards', 'Practice Bridge measurement error calculations', 'Compile 50-page Pocket Formula Handbook'],
+        icon: '🔬'
+      },
+      {
+        title: 'Phase 4: Full-Length Mocks & PYQ Blitz (Months 10–12)',
+        desc: 'Solve 20+ years past papers and complete 15+ full-length online test series. Focus on zero negative marking.',
+        tasks: ['Solve 2000–2025 All Subject PYQs', 'Take 12 Full Mock Tests with Virtual Calculator', 'Analyze mistakes & optimize 3-hour exam strategy'],
+        icon: '🎯'
+      }
     ],
     jobs: [
       { name: 'NTPC / PowerGrid', skills: 'Power Systems, Transmission, Generation Control' },
@@ -77,13 +101,33 @@ const DEFAULT_CONTENT: Record<TabType, CareerData> = {
       'Solve Engineering Services past papers of the last 25 years.'
     ],
     roadmap: [
-      { title: 'Phase 1: Foundation (6 Months)', desc: 'Complete technical subjects to descriptive standards. Write extensive proofs.' },
-      { title: 'Phase 2: General Studies (3 Months)', desc: 'Study Prelims Paper 1 syllabus including aptitude, environment, standards, and ethics.' },
-      { title: 'Phase 3: Prelims Grind (2 Months)', desc: 'Solve objective questions, study formulas, and practice speed tests.' },
-      { title: 'Phase 4: Mains Answer Practice', desc: 'Immediately post-prelims, practice 3-hour descriptive question papers with neat diagrams.' }
+      {
+        title: 'Phase 1: Deep Technical Foundation (6 Months)',
+        desc: 'Complete technical subjects to descriptive standards. Write extensive derivations and proofs.',
+        tasks: ['Complete Circuit Theory & EM Fields derivations', 'Study Material Science & Electrical Machines', 'Draw neat labeled phasor diagrams for all machines'],
+        icon: '🏛️'
+      },
+      {
+        title: 'Phase 2: General Studies & Aptitude (3 Months)',
+        desc: 'Study Prelims Paper 1 syllabus including aptitude, environment, standards, and engineering ethics.',
+        tasks: ['Cover Project Management & Quality Control', 'Study Environmental issues & Energy resources', 'Practice 500+ Logical Reasoning & Ethics MCQs'],
+        icon: '📖'
+      },
+      {
+        title: 'Phase 3: Prelims Speed Marathon (2 Months)',
+        desc: 'Solve objective questions, study formulas, and practice 3-hour speed test papers.',
+        tasks: ['Take 20 Prelims Sectional Speed Tests', 'Solve 15 Years ESE Prelims Papers', 'Master elimination techniques for tricky MCQs'],
+        icon: '⚡'
+      },
+      {
+        title: 'Phase 4: Descriptive Mains Answer Mastery',
+        desc: 'Immediately post-prelims, practice 3-hour descriptive question papers with neat diagrams.',
+        tasks: ['Write 30 Full Length Descriptive Papers', 'Practice 20-mark derivation answer templates', 'Attend Mock Technical Personality Interviews'],
+        icon: '🏆'
+      }
     ],
     jobs: [
-      { name: 'Indian Railway Service', skills: 'Locomotive power, Traction systems, Signals' },
+      { name: 'Indian Railway Service (IRSE)', skills: 'Locomotive power, Traction systems, Signals' },
       { name: 'Central Power Engineering', skills: 'Grid design, National energy policies' },
       { name: 'Indian Administrative Service (IAS)', skills: 'Public policy administration, optional paper proficiency' }
     ]
@@ -101,10 +145,30 @@ const DEFAULT_CONTENT: Record<TabType, CareerData> = {
       'Prepare a strong PDF resume (link in Profile & Documents portal) and practice mock HR interviews.'
     ],
     roadmap: [
-      { title: 'Year 3 (Sem 5-6): Skill Building', desc: 'Learn programming (C++ / Python) or embedded hardware. Complete a minor project.' },
-      { title: 'Summer Break: Internship', desc: 'Secure industrial training at a core factory or work on software development internship.' },
-      { title: 'Year 4 (Sem 7): Mock Interviews', desc: 'Practice aptitude test papers, participate in mock group discussions (GD).' },
-      { title: 'Sem 7-8: On-Campus Drives', desc: 'Apply to visiting corporate firms. Keep technical resumes ready.' }
+      {
+        title: 'Phase 1: Skill Stacking & Hardware Projects (Sem 5–6)',
+        desc: 'Learn programming (C++ / Python) or embedded hardware. Complete an industry-relevant capstone project.',
+        tasks: ['Master C++/Python OOPs & DSA basics', 'Build an Arduino / IoT EV telemetry project', 'Earn NPTEL / Coursera Core Certification'],
+        icon: '🛠️'
+      },
+      {
+        title: 'Phase 2: Industrial Summer Internship (Summer Break)',
+        desc: 'Secure industrial training at a core factory or software development internship.',
+        tasks: ['Complete 4-week In-Plant / Core Training', 'Obtain Verified Internship Certificate', 'Document project outcomes in GitHub & Vault'],
+        icon: '💼'
+      },
+      {
+        title: 'Phase 3: Aptitude & Mock Interview Drills (Sem 7)',
+        desc: 'Practice aptitude test papers, participate in mock group discussions (GD) and technical HR rounds.',
+        tasks: ['Solve 50+ Quantitative & Logical Aptitude Tests', 'Participate in 5 Mock GD & HR Sessions', 'Polish 1-Page ATS-Optimized Technical Resume'],
+        icon: '🎯'
+      },
+      {
+        title: 'Phase 4: On-Campus Recruitment Drives (Sem 7–8)',
+        desc: 'Apply to visiting corporate firms. Attend interviews with confidence and secure dream offer.',
+        tasks: ['Clear Day-1 Mass Recruiter Online Rounds', 'Crack Super-Dream Core / IT Technical Interviews', 'Sign Institutional Placement Offer Letter'],
+        icon: '🚀'
+      }
     ],
     jobs: [
       { name: 'Siemens / ABB / L&T (Core)', skills: 'Switchgears, Power Electronics, Substation design, PLC automation' },
@@ -114,343 +178,287 @@ const DEFAULT_CONTENT: Record<TabType, CareerData> = {
   }
 };
 
-export const CareerHub: React.FC<CareerHubProps> = ({ onBack, isAdmin = false }) => {
+export const CareerHub: React.FC<CareerHubProps> = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState<TabType>('gate');
   const [careerData, setCareerData] = useState<Record<TabType, CareerData>>(DEFAULT_CONTENT);
-  const [editMode, setEditMode] = useState(false);
-
-  // Forms state
-  const [newSyllabusItem, setNewSyllabusItem] = useState('');
-  const [newPrepItem, setNewPrepItem] = useState('');
-  const [newStepTitle, setNewStepTitle] = useState('');
-  const [newStepDesc, setNewStepDesc] = useState('');
-  const [newJobName, setNewJobName] = useState('');
-  const [newJobSkills, setNewJobSkills] = useState('');
+  const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('eee_career_data');
-      if (stored) {
-        setCareerData(JSON.parse(stored));
-      }
+      if (stored) setCareerData(JSON.parse(stored));
+      const stepsStored = localStorage.getItem('eee_completed_tree_steps');
+      if (stepsStored) setCompletedSteps(JSON.parse(stepsStored));
     } catch (e) {
       console.error('Failed to load career data:', e);
     }
   }, []);
 
-  const saveCareerData = (newData: Record<TabType, CareerData>) => {
-    localStorage.setItem('eee_career_data', JSON.stringify(newData));
-    setCareerData(newData);
+  const toggleStep = (stepKey: string) => {
+    const next = { ...completedSteps, [stepKey]: !completedSteps[stepKey] };
+    setCompletedSteps(next);
+    localStorage.setItem('eee_completed_tree_steps', JSON.stringify(next));
   };
 
   const activeData = careerData[activeTab];
 
-  // Helper to update active tab fields
-  const updateActiveDataField = (field: keyof CareerData, value: any) => {
-    const updated = {
-      ...careerData,
-      [activeTab]: {
-        ...careerData[activeTab],
-        [field]: value
-      }
-    };
-    saveCareerData(updated);
-  };
-
-  const handleAddSyllabus = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSyllabusItem.trim()) return;
-    const updated = [...activeData.syllabus, newSyllabusItem.trim()];
-    updateActiveDataField('syllabus', updated);
-    setNewSyllabusItem('');
-  };
-
-  const handleDeleteSyllabus = (idx: number) => {
-    const updated = activeData.syllabus.filter((_, i) => i !== idx);
-    updateActiveDataField('syllabus', updated);
-  };
-
-  const handleAddPrep = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPrepItem.trim()) return;
-    const updated = [...activeData.preparation, newPrepItem.trim()];
-    updateActiveDataField('preparation', updated);
-    setNewPrepItem('');
-  };
-
-  const handleDeletePrep = (idx: number) => {
-    const updated = activeData.preparation.filter((_, i) => i !== idx);
-    updateActiveDataField('preparation', updated);
-  };
-
-  const handleAddRoadmap = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newStepTitle.trim() || !newStepDesc.trim()) return;
-    const updated = [...activeData.roadmap, { title: newStepTitle.trim(), desc: newStepDesc.trim() }];
-    updateActiveDataField('roadmap', updated);
-    setNewStepTitle('');
-    setNewStepDesc('');
-  };
-
-  const handleDeleteRoadmap = (idx: number) => {
-    const updated = activeData.roadmap.filter((_, i) => i !== idx);
-    updateActiveDataField('roadmap', updated);
-  };
-
-  const handleAddJob = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newJobName.trim() || !newJobSkills.trim()) return;
-    const updated = [...activeData.jobs, { name: newJobName.trim(), skills: newJobSkills.trim() }];
-    updateActiveDataField('jobs', updated);
-    setNewJobName('');
-    setNewJobSkills('');
-  };
-
-  const handleDeleteJob = (idx: number) => {
-    const updated = activeData.jobs.filter((_, i) => i !== idx);
-    updateActiveDataField('jobs', updated);
-  };
-
-  const getIcon = (tab: TabType) => {
-    switch (tab) {
-      case 'gate': return <GraduationCap size={20} />;
-      case 'upsc': return <Compass size={20} />;
-      case 'placement': return <Briefcase size={20} />;
-    }
-  };
+  // Calculate tree progress
+  const totalTasks = activeData.roadmap.reduce((acc, s) => acc + (s.tasks?.length || 1), 0);
+  const completedCount = activeData.roadmap.reduce((acc, s, sIdx) => {
+    const tasks = s.tasks || [s.title];
+    return acc + tasks.filter((_, tIdx) => completedSteps[`${activeTab}-${sIdx}-${tIdx}`]).length;
+  }, 0);
+  const masteryPercentage = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
   return (
-    <div className="panel-view">
-      <div className="panel-header">
-        <button onClick={onBack} className="back-btn">
-          <ArrowLeft size={20} />
-        </button>
-        <span className="panel-title">Career Hub & Roadmaps</span>
-        {isAdmin && (
-          <button
-            onClick={() => setEditMode(e => !e)}
-            style={{
-              marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4,
-              padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-              border: `1.5px solid ${editMode ? '#f87171' : 'var(--accent-blue)'}`,
-              background: editMode ? 'rgba(248,113,113,0.12)' : 'rgba(56,189,248,0.12)',
-              color: editMode ? '#f87171' : 'var(--accent-blue)',
-            }}
-          >
-            {editMode ? <><X size={12} /> Done</> : <><Pencil size={12} /> Edit</>}
+    <div className="dedicated-page-view page-slide-enter" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: 88 }}>
+      {/* Header with Small Back Button near Title */}
+      <div className="dedicated-page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button className="page-back-btn" onClick={onBack} title="Go Back">
+            <ArrowLeft size={16} />
           </button>
-        )}
+          <div>
+            <h2 className="dedicated-page-title" style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+              🌳 Career Roadmaps &amp; Skill Tree
+            </h2>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              Interactive Branching Roadmap &amp; Syllabus Tree
+            </span>
+          </div>
+        </div>
+
+        <div style={{ background: 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)', color: '#fff', padding: '6px 14px', borderRadius: 20, fontWeight: 800, fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(0,82,204,0.3)' }}>
+          <Sparkles size={14} /> {masteryPercentage}% Mastery
+        </div>
       </div>
 
-      <div className="panel-body">
-        {/* Navigation Tabs */}
-        <div className="career-selector">
-          <div 
-            className={`career-tab ${activeTab === 'gate' ? 'active' : ''}`}
-            onClick={() => setActiveTab('gate')}
-          >
-            GATE Exam
-          </div>
-          <div 
-            className={`career-tab ${activeTab === 'upsc' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upsc')}
-          >
-            UPSC (ESE)
-          </div>
-          <div 
-            className={`career-tab ${activeTab === 'placement' ? 'active' : ''}`}
-            onClick={() => setActiveTab('placement')}
-          >
-            Placements
-          </div>
+      <div style={{ padding: '16px', maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Navigation Selector Pill Strip */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, background: '#ffffff', padding: 6, borderRadius: 20, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+          {[
+            { id: 'gate', label: 'GATE Exam', icon: '🎓' },
+            { id: 'upsc', label: 'UPSC (ESE)', icon: '🏛️' },
+            { id: 'placement', label: 'Placements', icon: '💼' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as TabType)}
+              style={{
+                padding: '10px 6px',
+                borderRadius: 14,
+                border: 'none',
+                background: activeTab === tab.id ? 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)' : 'transparent',
+                color: activeTab === tab.id ? '#ffffff' : '#64748b',
+                fontWeight: 800,
+                fontSize: 12,
+                cursor: 'pointer',
+                transition: 'all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(0,82,204,0.35)' : 'none',
+                transform: activeTab === tab.id ? 'scale(1.02)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6
+              }}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Selected Career Description */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-          {editMode ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: 'var(--bg-secondary)', padding: 12, borderRadius: 10, border: '1px solid var(--card-border)' }}>
-              <div>
-                <label className="form-label">Tab Title</label>
-                <input 
-                  value={activeData.title} 
-                  onChange={e => updateActiveDataField('title', e.target.value)} 
-                  className="form-input" 
-                  style={{ fontSize: 12 }}
-                />
-              </div>
-              <div>
-                <label className="form-label">Introduction Summary</label>
-                <textarea 
-                  value={activeData.intro} 
-                  onChange={e => updateActiveDataField('intro', e.target.value)} 
-                  className="form-input" 
-                  style={{ fontSize: 12, minHeight: 60, resize: 'vertical' }}
-                />
-              </div>
+        {/* Hero Card with Progress Meter */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0052cc 0%, #1e40af 100%)',
+          borderRadius: 24,
+          padding: '20px',
+          color: '#ffffff',
+          boxShadow: '0 12px 30px rgba(0, 82, 204, 0.25)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <h3 style={{ margin: '0 0 4px 0', fontSize: 16, fontWeight: 900 }}>
+            {activeData.title}
+          </h3>
+          <p style={{ margin: '0 0 14px 0', fontSize: 11.5, opacity: 0.9, lineHeight: 1.4 }}>
+            {activeData.intro}
+          </p>
+
+          <div style={{ background: 'rgba(255,255,255,0.14)', padding: '12px 14px', borderRadius: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, fontWeight: 800, marginBottom: 6 }}>
+              <span>Interactive Roadmap Progress</span>
+              <span>{completedCount} of {totalTasks} Milestones ({masteryPercentage}%)</span>
             </div>
-          ) : (
-            <>
-              <h3 style={{ fontSize: 15, fontWeight: '800', color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                {getIcon(activeTab)}
-                {activeData.title}
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.4 }}>{activeData.intro}</p>
-            </>
-          )}
-        </div>
-
-        {/* Visual Roadmap */}
-        <div>
-          <h4 style={{ fontSize: 13, fontWeight: '700', borderBottom: '1px solid var(--card-border)', paddingBottom: 6 }}>
-            Preparation Roadmap
-          </h4>
-          
-          {editMode && (
-            <form onSubmit={handleAddRoadmap} style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: 12, border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8, margin: '8px 0' }}>
-              <span style={{ fontSize: 11, fontWeight: 'bold', color: 'var(--accent-gold)' }}>Add Roadmap Phase</span>
-              <div>
-                <label className="form-label">Phase Title</label>
-                <input value={newStepTitle} onChange={e => setNewStepTitle(e.target.value)} className="form-input" placeholder="e.g. Months 1-3: Setup" required style={{ fontSize: 11 }} />
-              </div>
-              <div>
-                <label className="form-label">Phase Description</label>
-                <input value={newStepDesc} onChange={e => setNewStepDesc(e.target.value)} className="form-input" placeholder="e.g. Complete basic electrical topics" required style={{ fontSize: 11 }} />
-              </div>
-              <button type="submit" className="btn-primary" style={{ fontSize: 11, padding: '6px' }}>Add Phase</button>
-            </form>
-          )}
-
-          <div className="roadmap-timeline" style={{ marginTop: 8 }}>
-            {activeData.roadmap.map((step, idx) => (
-              <div key={idx} className="timeline-node" style={{ position: 'relative' }}>
-                {editMode && (
-                  <button 
-                    onClick={() => handleDeleteRoadmap(idx)} 
-                    style={{ position: 'absolute', right: 0, top: 0, background: 'none', border: 'none', cursor: 'pointer', color: '#f87171' }}
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                )}
-                <h5 className="timeline-title">{step.title}</h5>
-                <p className="timeline-desc">{step.desc}</p>
-              </div>
-            ))}
+            <div style={{ width: '100%', height: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ width: `${masteryPercentage}%`, height: '100%', background: '#38bdf8', borderRadius: 4, transition: 'width 0.5s ease', boxShadow: '0 0 10px #38bdf8' }} />
+            </div>
           </div>
         </div>
 
-        {/* Syllabus */}
-        <div>
-          <h4 style={{ fontSize: 13, fontWeight: '700', borderBottom: '1px solid var(--card-border)', paddingBottom: 6, marginBottom: 8 }}>
-            Syllabus Topics
-          </h4>
+        {/* 🌟 INTERACTIVE TREE ROADMAP 🌟 */}
+        <div style={{ background: '#ffffff', borderRadius: 28, padding: 22, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              🌱 Interactive Milestone Skill Tree
+            </h4>
+            <span style={{ fontSize: 10.5, color: '#64748b', fontWeight: 700 }}>Tap tasks to check off</span>
+          </div>
 
-          {editMode && (
-            <form onSubmit={handleAddSyllabus} style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              <input 
-                value={newSyllabusItem} 
-                onChange={e => setNewSyllabusItem(e.target.value)} 
-                className="form-input" 
-                placeholder="Add syllabus topic..." 
-                required 
-                style={{ fontSize: 11, flex: 1 }}
-              />
-              <button type="submit" className="btn-primary" style={{ padding: '0 12px', fontSize: 11 }}>Add</button>
-            </form>
-          )}
+          {/* Tree Trunk Container */}
+          <div style={{ position: 'relative', paddingLeft: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Glowing Vertical Trunk Line */}
+            <div style={{ position: 'absolute', top: 12, bottom: 20, left: 10, width: 3, background: 'linear-gradient(to bottom, #0052cc 0%, #38bdf8 50%, #10b981 100%)', borderRadius: 3 }} />
 
-          <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {activeData.syllabus.map((item, idx) => (
-              <li key={idx} style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-                  <span>{item}</span>
-                  {editMode && (
-                    <button 
-                      onClick={() => handleDeleteSyllabus(idx)} 
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 0, flexShrink: 0 }}
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  )}
+            {activeData.roadmap.map((step, sIdx) => {
+              const tasks = step.tasks || [step.desc];
+              const stepCompleted = tasks.every((_, tIdx) => completedSteps[`${activeTab}-${sIdx}-${tIdx}`]);
+
+              return (
+                <div key={sIdx} style={{ position: 'relative' }}>
+                  {/* Glowing Node Orb on Trunk */}
+                  <div style={{
+                    position: 'absolute',
+                    left: -24 + 1,
+                    top: 12,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: stepCompleted ? '#10b981' : '#0052cc',
+                    border: '3px solid #ffffff',
+                    boxShadow: stepCompleted ? '0 0 10px #10b981' : '0 0 10px rgba(0,82,204,0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    color: '#ffffff',
+                    zIndex: 2
+                  }}>
+                    {stepCompleted ? '✓' : sIdx + 1}
+                  </div>
+
+                  {/* Branch Node Card */}
+                  <div style={{
+                    background: stepCompleted ? '#f0fdf4' : '#f8fafc',
+                    borderRadius: 18,
+                    padding: '14px 16px',
+                    border: '1.5px solid',
+                    borderColor: stepCompleted ? '#86efac' : 'rgba(0,82,204,0.12)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                    transition: 'all 0.24s ease'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 18 }}>{step.icon || '📌'}</span>
+                      <h5 style={{ margin: 0, fontSize: 13, fontWeight: 900, color: 'var(--text-main)' }}>
+                        {step.title}
+                      </h5>
+                    </div>
+                    <p style={{ margin: '0 0 10px 0', fontSize: 11, color: '#64748b', lineHeight: 1.35 }}>
+                      {step.desc}
+                    </p>
+
+                    {/* Interactive Sub-tasks */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 8, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                      {tasks.map((task, tIdx) => {
+                        const isDone = !!completedSteps[`${activeTab}-${sIdx}-${tIdx}`];
+                        return (
+                          <div
+                            key={tIdx}
+                            onClick={() => toggleStep(`${activeTab}-${sIdx}-${tIdx}`)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              cursor: 'pointer',
+                              padding: '6px 10px',
+                              borderRadius: 10,
+                              background: isDone ? 'rgba(16, 185, 129, 0.12)' : '#ffffff',
+                              border: '1px solid',
+                              borderColor: isDone ? 'rgba(16, 185, 129, 0.3)' : '#e2e8f0',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            {isDone ? (
+                              <CheckCircle2 size={15} style={{ color: '#10b981', flexShrink: 0 }} />
+                            ) : (
+                              <Circle size={15} style={{ color: '#94a3b8', flexShrink: 0 }} />
+                            )}
+                            <span style={{
+                              fontSize: 11.5,
+                              fontWeight: isDone ? 700 : 500,
+                              color: isDone ? '#166534' : 'var(--text-main)',
+                              textDecoration: isDone ? 'line-through' : 'none'
+                            }}>
+                              {task}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Preparation Guidelines */}
-        <div style={{ background: 'var(--bg-secondary)', padding: 12, borderRadius: 12, border: '1px solid var(--card-border)' }}>
-          <h4 style={{ fontSize: 13, fontWeight: '700', color: 'var(--accent-blue)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <BookOpen size={16} /> How to Prepare
+        {/* 📚 SYLLABUS KNOWLEDGE BRANCHES */}
+        <div style={{ background: '#ffffff', borderRadius: 28, padding: 22, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <h4 style={{ margin: '0 0 14px 0', fontSize: 14, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            📚 Core Syllabus Modules &amp; Domains
           </h4>
-
-          {editMode && (
-            <form onSubmit={handleAddPrep} style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              <input 
-                value={newPrepItem} 
-                onChange={e => setNewPrepItem(e.target.value)} 
-                className="form-input" 
-                placeholder="Add guideline..." 
-                required 
-                style={{ fontSize: 11, flex: 1, background: 'var(--bg-primary)' }}
-              />
-              <button type="submit" className="btn-primary" style={{ padding: '0 12px', fontSize: 11 }}>Add</button>
-            </form>
-          )}
-
-          <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {activeData.preparation.map((item, idx) => (
-              <li key={idx} style={{ fontSize: 11, color: 'var(--text-main)', lineHeight: 1.4 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-                  <span>{item}</span>
-                  {editMode && (
-                    <button 
-                      onClick={() => handleDeletePrep(idx)} 
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 0, flexShrink: 0 }}
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Expected Skills & Recruiters */}
-        <div>
-          <h4 style={{ fontSize: 13, fontWeight: '700', borderBottom: '1px solid var(--card-border)', paddingBottom: 6, marginBottom: 8 }}>
-            Top Companies & Skills
-          </h4>
-
-          {editMode && (
-            <form onSubmit={handleAddJob} style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: 12, border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 'bold', color: 'var(--accent-blue)' }}>Add Company Recruiter</span>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <div>
-                  <label className="form-label">Company Name</label>
-                  <input value={newJobName} onChange={e => setNewJobName(e.target.value)} className="form-input" placeholder="e.g. Siemens" required style={{ fontSize: 11 }} />
-                </div>
-                <div>
-                  <label className="form-label">Key Expectation</label>
-                  <input value={newJobSkills} onChange={e => setNewJobSkills(e.target.value)} className="form-input" placeholder="e.g. PLC SCADA" required style={{ fontSize: 11 }} />
-                </div>
-              </div>
-              <button type="submit" className="btn-primary" style={{ fontSize: 11, padding: '6px' }}>Add Company</button>
-            </form>
-          )}
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {activeData.jobs.map((job, idx) => (
-              <div key={idx} className="document-item" style={{ padding: '8px 12px', background: 'var(--bg-secondary)' }}>
-                <div className="doc-info">
-                  <span style={{ fontSize: 12, fontWeight: '700', color: 'var(--text-main)' }}>{job.name}</span>
-                  <span style={{ fontSize: 10, color: 'var(--accent-blue)' }}>Expects: {job.skills}</span>
+            {activeData.syllabus.map((item, idx) => {
+              const [subject, ...topics] = item.split(':');
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    background: '#f8fafc',
+                    borderRadius: 16,
+                    padding: '12px 14px',
+                    border: '1px solid rgba(0,82,204,0.08)',
+                    borderLeft: '4px solid var(--accent-blue)'
+                  }}
+                >
+                  <span style={{ fontSize: 12.5, fontWeight: 900, color: 'var(--accent-blue)', display: 'block', marginBottom: 2 }}>
+                    {subject}
+                  </span>
+                  <span style={{ fontSize: 11, color: '#64748b', lineHeight: 1.35 }}>
+                    {topics.join(':')}
+                  </span>
                 </div>
-                {editMode && (
-                  <button onClick={() => handleDeleteJob(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f87171', padding: 4, flexShrink: 0 }}>
-                    <Trash2 size={14} />
-                  </button>
-                )}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 🏢 RECRUITMENT & TARGET COMPANIES */}
+        <div style={{ background: '#ffffff', borderRadius: 28, padding: 22, border: '1.5px solid rgba(0,82,204,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <h4 style={{ margin: '0 0 14px 0', fontSize: 14, fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            🏢 Target Recruiters &amp; Skill Profiles
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+            {activeData.jobs.map((job, jIdx) => (
+              <div
+                key={jIdx}
+                style={{
+                  background: '#f8fafc',
+                  borderRadius: 16,
+                  padding: '12px 16px',
+                  border: '1px solid rgba(0,82,204,0.08)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div>
+                  <h5 style={{ margin: 0, fontSize: 13, fontWeight: 900, color: 'var(--text-main)' }}>{job.name}</h5>
+                  <span style={{ fontSize: 11, color: '#64748b' }}>Skills: {job.skills}</span>
+                </div>
+                <span style={{ padding: '4px 10px', borderRadius: 12, background: 'rgba(0,82,204,0.1)', color: 'var(--accent-blue)', fontSize: 10.5, fontWeight: 800 }}>
+                  High Demand
+                </span>
               </div>
             ))}
           </div>

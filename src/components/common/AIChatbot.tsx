@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Sparkles, AlertCircle } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Send, Sparkles, AlertCircle, Bot } from 'lucide-react';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -218,74 +219,148 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ isFullPage = false }) => {
     );
   }
 
-  return (
+  return createPortal(
     <>
       {/* Floating Chat Button */}
       <button
         className={`chatbot-float-btn ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         title="EEE AI Chatbot"
+        style={{
+          position: 'fixed',
+          bottom: 96,
+          right: 20,
+          zIndex: 99999,
+          width: 54,
+          height: 54,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #0052cc 0%, #7c3aed 100%)',
+          color: '#ffffff',
+          border: '2.5px solid #ffffff',
+          boxShadow: '0 8px 28px rgba(124, 58, 237, 0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transform: isOpen ? 'rotate(90deg) scale(1.05)' : 'scale(1)'
+        }}
       >
         {isOpen ? (
           <X size={22} />
         ) : (
-          <div className="bot-icon-glow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Sparkles size={22} fill="currentColor" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <Bot size={26} />
+            <Sparkles size={12} style={{ position: 'absolute', top: -6, right: -6, color: '#fbbf24' }} fill="#fbbf24" />
           </div>
         )}
         {!isOpen && (
-          <span className="chatbot-badge">
-            <Sparkles size={10} fill="currentColor" />
+          <span style={{
+            position: 'absolute',
+            top: -4,
+            right: -4,
+            background: '#ef4444',
+            color: '#ffffff',
+            fontSize: 9,
+            fontWeight: 900,
+            padding: '2px 6px',
+            borderRadius: 99,
+            border: '1.5px solid #ffffff'
+          }}>
             AI
           </span>
         )}
       </button>
 
-
       {/* Collapsible Chat Window */}
       {isOpen && (
-        <div className="chatbot-window">
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 160,
+            right: 20,
+            width: 'min(92vw, 380px)',
+            height: 'min(500px, 65vh)',
+            background: '#ffffff',
+            borderRadius: 24,
+            boxShadow: '0 20px 48px rgba(0, 0, 0, 0.25)',
+            border: '1.5px solid rgba(0, 82, 204, 0.15)',
+            zIndex: 99999,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            animation: 'fluidTabSpring 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+          }}
+        >
           {/* Header */}
-          <div className="chatbot-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div className="chatbot-header-avatar">
-                <Sparkles size={14} style={{ color: 'var(--bg-primary)' }} fill="currentColor" />
+          <div style={{
+            background: 'linear-gradient(135deg, #0052cc 0%, #7c3aed 100%)',
+            padding: '16px 18px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            color: '#ffffff'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Bot size={20} />
               </div>
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: '800', color: 'white', margin: 0 }}>EEE Scholar Bot</h4>
-                <span style={{ fontSize: 9, color: 'var(--accent-blue)' }}>
-                  {hasApiKey ? 'Powered by Gemini AI' : 'Offline Helper Mode'}
+                <h4 style={{ fontSize: 13.5, fontWeight: 900, color: '#ffffff', margin: 0 }}>EEE Scholar AI</h4>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                  {hasApiKey ? '✨ Powered by Gemini AI' : '⚡ Offline Assistant Mode'}
                 </span>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-              <X size={18} />
+            <button
+              onClick={() => setIsOpen(false)}
+              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#ffffff', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <X size={16} />
             </button>
           </div>
 
           {/* Messages Container */}
-          <div className="chatbot-body">
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10, background: '#f8fafc' }}>
             {!hasApiKey && (
-              <div className="chatbot-warning">
-                <AlertCircle size={12} />
-                <span>Using offline rules. Add a Gemini API key in .env to unlock AI reasoning.</span>
+              <div style={{ background: '#fef3c7', color: '#b45309', padding: '8px 12px', borderRadius: 12, fontSize: 11, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+                <AlertCircle size={14} style={{ flexShrink: 0 }} />
+                <span>Offline mode. Add Gemini API key in .env for full conversational reasoning.</span>
               </div>
             )}
 
             {messages.map((msg, idx) => (
-              <div key={idx} className={`chat-bubble-container ${msg.role}`}>
-                <div className={`chat-bubble ${msg.role}`}>
-                  <p style={{ margin: 0, whiteSpace: 'pre-line' }}>{msg.content}</p>
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
+                }}
+              >
+                <div style={{
+                  maxWidth: '82%',
+                  padding: '10px 14px',
+                  borderRadius: 16,
+                  fontSize: 12,
+                  lineHeight: 1.45,
+                  fontWeight: 500,
+                  background: msg.role === 'user' ? 'linear-gradient(135deg, #0052cc 0%, #2563eb 100%)' : '#ffffff',
+                  color: msg.role === 'user' ? '#ffffff' : 'var(--text-main)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                  border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
+                  whiteSpace: 'pre-line'
+                }}>
+                  {msg.content}
                 </div>
               </div>
             ))}
 
             {isLoading && (
-              <div className="chat-bubble-container bot">
-                <div className="chat-bubble bot typing">
-                  <span className="dot" />
-                  <span className="dot" />
-                  <span className="dot" />
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div style={{ padding: '8px 14px', borderRadius: 16, background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <span className="dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#0052cc', animation: 'pulse 1s infinite' }} />
+                  <span className="dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#7c3aed', animation: 'pulse 1s infinite 0.2s' }} />
+                  <span className="dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#38bdf8', animation: 'pulse 1s infinite 0.4s' }} />
                 </div>
               </div>
             )}
@@ -293,21 +368,57 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ isFullPage = false }) => {
           </div>
 
           {/* Input Footer */}
-          <form className="chatbot-footer" onSubmit={handleSendMessage}>
+          <form
+            onSubmit={handleSendMessage}
+            style={{
+              padding: '12px 14px',
+              background: '#ffffff',
+              borderTop: '1px solid #e2e8f0',
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center'
+            }}
+          >
             <input
               type="text"
-              placeholder="Ask about syllabus, CAT exams..."
+              placeholder="Ask anything about syllabus, exams..."
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
-              className="chatbot-input"
               disabled={isLoading}
+              style={{
+                flex: 1,
+                padding: '10px 14px',
+                borderRadius: 14,
+                border: '1.5px solid #cbd5e1',
+                fontSize: 12,
+                outline: 'none',
+                background: '#f8fafc'
+              }}
             />
-            <button type="submit" className="chatbot-send-btn" disabled={!inputValue.trim() || isLoading}>
-              <Send size={14} />
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isLoading}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                border: 'none',
+                background: 'linear-gradient(135deg, #0052cc 0%, #7c3aed 100%)',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
+                opacity: inputValue.trim() ? 1 : 0.6,
+                boxShadow: '0 4px 12px rgba(0,82,204,0.3)'
+              }}
+            >
+              <Send size={15} />
             </button>
           </form>
         </div>
       )}
-    </>
+    </>,
+    document.body
   );
 };

@@ -26,13 +26,14 @@ import {
   DesktopLoginPage,
   DesktopSidebar,
   DesktopVisionaDashboard,
-  MobileLandingPage
+  MobileLandingPage,
+  PuzzleGames
 } from './components';
 
 import {
   Zap, Menu, X, Search, Bell, User, LogOut, ChevronRight,
   BookOpen, Calendar, GraduationCap, Award, FileText, UserCheck,
-  Inbox, Map, Shield, Phone, ArrowLeft, Sparkles, Home,
+  Inbox, Map, Shield, Phone, Sparkles, Home,
   CheckCircle2, Plus, Trash2, Pencil
 } from 'lucide-react';
 import './App.css';
@@ -277,21 +278,6 @@ function App() {
 
   // Mobile & Desktop App Categories (Loaded from src/routes/appRoutes.ts)
   const appCategories = useMemo(() => APP_CATEGORIES, []);
-
-  const activeTileInfo = useMemo(() => {
-    if (!currentTab) return null;
-    if (currentTab === 'announcements') {
-      return { key: 'announcements', label: 'Notifications & Notice Board', icon: <Bell size={24} />, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' };
-    }
-    if (currentTab === 'timetable') {
-      return { key: 'timetable', label: 'Class Timetable', icon: <Calendar size={24} />, color: '#0f766e', bg: 'rgba(15, 118, 110, 0.12)' };
-    }
-    for (const cat of appCategories) {
-      const item = cat.items.find(i => i.key === currentTab);
-      if (item) return item;
-    }
-    return null;
-  }, [currentTab, appCategories]);
 
   // Filter items if search is active
   const filteredCategories = searchQuery.trim()
@@ -701,33 +687,6 @@ function App() {
           ) : (
             /* ── DEDICATED FULL PAGE SCREEN VIEW ── */
             <div className="dedicated-page-view page-slide-enter">
-              {/* Dedicated Top Navigation Header Bar */}
-              <div className="dedicated-page-header">
-                <button
-                  className="page-back-btn"
-                  onClick={() => { setCurrentTab(null); setActiveBottomNav('home'); }}
-                  aria-label="Back to Home"
-                >
-                  <ArrowLeft size={18} />
-                  <span>Home</span>
-                </button>
-
-                {activeTileInfo && (
-                  <div className="page-header-badge" style={{ background: activeTileInfo.bg, color: activeTileInfo.color }}>
-                    {activeTileInfo.icon}
-                    <h2>{activeTileInfo.label}</h2>
-                  </div>
-                )}
-
-                <button
-                  className="page-close-btn"
-                  onClick={() => setCurrentTab(null)}
-                  aria-label="Close page"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
               {/* Dedicated Page Body Content */}
               <div className="dedicated-page-body">
                 {currentTab === 'ai' && <AIChatbot isFullPage={true} />}
@@ -755,6 +714,7 @@ function App() {
                 {currentTab === 'courses' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="courses" initialEditMode={academicInitEdit} />}
                 {currentTab === 'calendar' && <AcademicCalendar onBack={() => setCurrentTab(null)} isAdmin={isAdmin} viewMode="calendar" initialEditMode={academicInitEdit} />}
                 {currentTab === 'timetable' && <Timetable onBack={() => setCurrentTab(null)} isAdmin={isAdmin} semester={6} />}
+                {currentTab === 'puzzle-games' && <PuzzleGames onBack={() => setCurrentTab(null)} />}
                 {currentTab === 'suggestion' && (
                   <SuggestionBox onClose={() => setCurrentTab(null)} userName={currentUser?.name || 'Guest'} />
                 )}
